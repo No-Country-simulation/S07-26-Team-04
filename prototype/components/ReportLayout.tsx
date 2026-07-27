@@ -52,11 +52,7 @@ export default function ReportLayout({
   };
 
   const handleDownloadReport = () => {
-    showToast(
-      lang === "ES"
-        ? "Descargando informe completo en PDF..."
-        : "Downloading complete PDF report..."
-    );
+    window.print();
   };
 
   const csvUrl = `/api/reporte/csv?lang=${lang}`;

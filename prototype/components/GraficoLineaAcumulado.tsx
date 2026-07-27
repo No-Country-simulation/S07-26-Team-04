@@ -27,18 +27,61 @@ export interface CumulativeItem {
 
 interface GraficoLineaAcumuladoProps {
   data?: CumulativeItem[];
+  lang?: string;
   labels?: Record<string, string | undefined>;
   onShowToast?: (msg: string) => void;
 }
 
 export default function GraficoLineaAcumulado({
   data = defaultData,
+  lang = "ES",
   labels = {},
   onShowToast,
 }: GraficoLineaAcumuladoProps) {
   const handleDownload = () => {
-    if (onShowToast) {
-      onShowToast("Figura 3 — Archivo SVG descargado con éxito. Se requiere atribución 'Source: PhysaFlow Stranded Capacity Index'.");
+    const container = document.getElementById("fig-area-chart-container");
+    if (container) {
+      const svgEl = container.querySelector("svg");
+      if (svgEl) {
+        // Clone the SVG element to avoid modifying active DOM node representation
+        const clonedSvg = svgEl.cloneNode(true) as SVGElement;
+        
+        // Ensure XML schema is present
+        clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        
+        // Add styling elements so styles compile in raw format
+        const style = document.createElement("style");
+        style.textContent = `
+          text { font-family: sans-serif; font-size: 11px; fill: #8a8775; }
+          .recharts-cartesian-grid-horizontal line { stroke: #e7e1cf; stroke-dasharray: 3 3; }
+        `;
+        clonedSvg.insertBefore(style, clonedSvg.firstChild);
+
+        try {
+          const serializer = new XMLSerializer();
+          const svgString = serializer.serializeToString(clonedSvg);
+          const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+          const svgUrl = URL.createObjectURL(svgBlob);
+          
+          const downloadLink = document.createElement("a");
+          downloadLink.href = svgUrl;
+          downloadLink.download = `physaflow-stranded-capacity-trend-${lang.toLowerCase()}.svg`;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          URL.revokeObjectURL(svgUrl);
+
+          if (onShowToast) {
+            onShowToast(
+              lang === "EN"
+                ? "Figure 3 SVG exported. Attribution required: 'Source: PhysaFlow Stranded Capacity Index'."
+                : "Figura 3 SVG exportada. Requiere atribución: 'Fuente: Índice de Capacidad Varada de PhysaFlow'."
+            );
+          }
+        } catch (err) {
+          console.error("Failed to generate SVG download", err);
+        }
+      }
     }
   };
 
@@ -74,7 +117,7 @@ export default function GraficoLineaAcumulado({
         </button>
       </div>
 
-      <div className="w-full h-[280px] text-[11px]">
+      <div id="fig-area-chart-container" className="w-full h-[280px] text-[11px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
             <defs>

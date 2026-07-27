@@ -94,6 +94,7 @@ export default async function Home({ searchParams }: PageProps) {
             <GraficoBarrasDesperdicio
               {...props}
               data={taxonomyData}
+              lang={lang}
               labels={reportMeta.labels}
             />
           ),
@@ -101,6 +102,7 @@ export default async function Home({ searchParams }: PageProps) {
             <GraficoLineaAcumulado
               {...props}
               data={cumulativeData}
+              lang={lang}
               labels={reportMeta.labels}
             />
           ),
