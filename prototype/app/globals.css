@@ -254,4 +254,36 @@
   .no-print {
     display: none !important;
   }
+  
+  body {
+    background: #ffffff !important;
+    color: #1a1814 !important;
+  }
+  
+  main {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .grid {
+    display: block !important;
+  }
+
+  .tax-card, figure, pre, blockquote, .cite-box {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 2rem !important;
+  }
+
+  header {
+    background: #0d2818 !important;
+    color: #ffffff !important;
+    padding: 3rem 1.5rem !important;
+  }
+
+  header h1, header p, header span {
+    color: #ffffff !important;
+  }
 }
