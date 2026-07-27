@@ -12,6 +12,13 @@ export async function POST(req: NextRequest) {
   try {
     const { messages, lang = "ES" } = await req.json();
 
+    // Vercel deployment helper: Explicitly reference mdx files statically to force
+    // Vercel Node File Trace to package them inside the serverless function container.
+    if (process.env.VERCEL_DUMMY_TRACE === "force") {
+      fs.readFileSync(path.join(process.cwd(), "content", "reporte-ES.mdx"), "utf-8");
+      fs.readFileSync(path.join(process.cwd(), "content", "reporte-EN.mdx"), "utf-8");
+    }
+
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
         { error: "Messages array is required" },
