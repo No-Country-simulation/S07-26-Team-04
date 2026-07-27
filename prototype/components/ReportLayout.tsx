@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import TocSidebar from "./TocSidebar";
+import ChatAyudante from "./ChatAyudante";
 
 interface ReportLayoutProps {
   lang: string;
@@ -350,6 +351,9 @@ export default function ReportLayout({
           {toastMessage}
         </div>
       )}
+
+      {/* ============ CHATBOT FLOAT ============ */}
+      <ChatAyudante lang={lang} />
     </div>
   );
 }

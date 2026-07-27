@@ -245,9 +245,34 @@
   background: var(--forest-300);
 }
 
-::selection {
-  background: var(--gold-200);
-  color: var(--forest-900);
+/* Chat Markdown styling */
+.prose-chat p {
+  margin: 0 0 0.5rem 0;
+}
+.prose-chat p:last-child {
+  margin-bottom: 0;
+}
+.prose-chat strong {
+  font-weight: 600;
+  color: inherit;
+}
+.prose-chat ul, .prose-chat ol {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+  list-style-type: disc;
+}
+.prose-chat ol {
+  list-style-type: decimal;
+}
+.prose-chat li {
+  margin-bottom: 0.25rem;
+}
+.prose-chat code {
+  font-family: monospace;
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 0.12rem 0.25rem;
+  border-radius: 2px;
 }
 
 @media print {
