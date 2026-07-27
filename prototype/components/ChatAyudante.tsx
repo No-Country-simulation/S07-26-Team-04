@@ -23,6 +23,7 @@ export default function ChatAyudante({ lang = "ES" }: ChatAyudanteProps) {
 
   const isEn = lang.toUpperCase() === "EN";
 
+  // Setup initial greetings
   useEffect(() => {
     const greeting = isEn
       ? "Hello! I am your PhysaFlow AI assistant. Ask me anything about this research report, stranded capacity, or the datacenter layers."
@@ -105,10 +106,10 @@ export default function ChatAyudante({ lang = "ES" }: ChatAyudanteProps) {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 no-print font-sans">
+    <div className="no-print font-sans">
       {/* Chat Window Panel */}
       {isOpen && (
-        <div className="mb-4 w-[360px] sm:w-[400px] h-[500px] bg-[var(--paper-2)] border border-[var(--rule)] rounded-md shadow-2xl flex flex-col overflow-hidden transition-all duration-300">
+        <div className="fixed bottom-20 right-6 z-50 w-[360px] sm:w-[400px] h-[500px] bg-[var(--paper-2)] border border-[var(--rule)] rounded-md shadow-2xl flex flex-col overflow-hidden transition-all duration-300">
           
           {/* Header */}
           <div className="bg-[var(--forest-800)] text-[var(--paper)] p-4 flex items-center justify-between border-b border-[var(--forest-900)]">
@@ -118,15 +119,7 @@ export default function ChatAyudante({ lang = "ES" }: ChatAyudanteProps) {
                 {isEn ? "PhysaFlow AI Assistant" : "Asistente IA PhysaFlow"}
               </span>
             </div>
-            <button 
-              onClick={toggleChat}
-              className="text-[var(--paper)] opacity-80 hover:opacity-100 transition p-1 hover:bg-[var(--forest-700)] rounded-sm"
-              title={isEn ? "Minimize" : "Minimizar"}
-            >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M2 13h12M2 8h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-              </svg>
-            </button>
+            {/* Redundant minimize button removed from here */}
           </div>
 
           {/* Messages area */}
@@ -183,7 +176,7 @@ export default function ChatAyudante({ lang = "ES" }: ChatAyudanteProps) {
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="bg-[var(--forest-800)] text-[var(--paper)] px-4 py-2 rounded-sm text-[12px] font-semibold tracking-wider hover:bg-[var(--forest-700)] disabled:opacity-50 transition uppercase flex items-center justify-center"
+              className="bg-[var(--forest-800)] text-[var(--paper)] px-4 py-2 rounded-sm text-[12px] font-semibold tracking-wider hover:bg-[var(--forest-700)] disabled:opacity-50 transition uppercase flex items-center justify-center cursor-pointer"
             >
               {isEn ? "Send" : "Enviar"}
             </button>
@@ -191,10 +184,10 @@ export default function ChatAyudante({ lang = "ES" }: ChatAyudanteProps) {
         </div>
       )}
 
-      {/* Trigger Button */}
+      {/* Trigger Button - Remains fixed at the bottom right */}
       <button
         onClick={toggleChat}
-        className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+        className={`fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:scale-105 ${
           isOpen
             ? "bg-[var(--paper-2)] border border-[var(--rule)] text-[var(--ink)]"
             : "bg-[var(--forest-800)] text-[var(--paper)] hover:bg-[var(--forest-700)]"
