@@ -46,48 +46,135 @@ export default function GraficoBarrasDesperdicio({
   onShowToast,
 }: GraficoBarrasDesperdicioProps) {
   const handleDownload = () => {
-    const container = document.getElementById("fig-bar-chart-container");
-    if (container) {
-      const svgEl = container.querySelector("svg");
-      if (svgEl) {
-        // Clone the SVG element to avoid modifying the active DOM representation
-        const clonedSvg = svgEl.cloneNode(true) as SVGElement;
-        
-        // Ensure XML schema is present
-        clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        
-        // Add styling elements so styles compile in raw format
-        const style = document.createElement("style");
-        style.textContent = `
-          text { font-family: sans-serif; font-size: 11px; fill: #8a8775; }
-          .recharts-cartesian-grid-horizontal line { stroke: #e7e1cf; stroke-dasharray: 3 3; }
-        `;
-        clonedSvg.insertBefore(style, clonedSvg.firstChild);
+    const figureEl = document.getElementById("fig-bar-chart-figure");
+    if (figureEl) {
+      const clonedFigure = figureEl.cloneNode(true) as HTMLElement;
+      
+      // Remove the SVG download button from the exported image
+      const button = clonedFigure.querySelector("button");
+      if (button) {
+        button.remove();
+      }
 
-        try {
-          const serializer = new XMLSerializer();
-          const svgString = serializer.serializeToString(clonedSvg);
-          const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-          const svgUrl = URL.createObjectURL(svgBlob);
-          
-          const downloadLink = document.createElement("a");
-          downloadLink.href = svgUrl;
-          downloadLink.download = `physaflow-stranded-capacity-modes-${lang.toLowerCase()}.svg`;
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          document.body.removeChild(downloadLink);
-          URL.revokeObjectURL(svgUrl);
+      const width = figureEl.offsetWidth || 800;
+      const height = figureEl.offsetHeight || 520;
 
-          if (onShowToast) {
-            onShowToast(
-              lang === "EN"
-                ? "Figure 2 SVG exported. Attribution required: 'Source: PhysaFlow Stranded Capacity Index'."
-                : "Figura 2 SVG exportada. Requiere atribución: 'Fuente: Índice de Capacidad Varada de PhysaFlow'."
-            );
-          }
-        } catch (err) {
-          console.error("Failed to generate SVG download", err);
+      // Bundle standard design system styling definitions for standalone SVG compatibility
+      const styles = `
+        figure {
+          background-color: #f7f4ec !important;
+          color: #1a1814 !important;
+          font-family: sans-serif !important;
+          padding: 24px !important;
+          margin: 0 !important;
+          box-sizing: border-box;
+          width: 100%;
+          height: 100%;
         }
+        .eyebrow {
+          font-family: sans-serif;
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: #8a8775;
+          font-weight: bold;
+          margin-bottom: 4px;
+        }
+        .font-display {
+          font-family: Georgia, serif;
+          font-size: 16px;
+          color: #0d2818;
+          font-weight: 500;
+        }
+        figcaption {
+          font-family: sans-serif;
+          font-size: 11px;
+          color: #8a8775;
+          margin-top: 16px;
+          border-top: 1px solid #e7e1cf;
+          padding-top: 8px;
+          line-height: 1.4;
+        }
+        .legend-container {
+          margin-top: 16px;
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+          font-family: sans-serif;
+          font-size: 9px;
+          font-weight: bold;
+          letter-spacing: 0.08em;
+          border-top: 1px solid #e7e1cf;
+          padding-top: 12px;
+        }
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .legend-box {
+          width: 10px;
+          height: 10px;
+          border-radius: 2px;
+        }
+        text {
+          font-family: sans-serif;
+          font-size: 10px;
+          fill: #8a8775;
+        }
+        .recharts-cartesian-grid-horizontal line {
+          stroke: #e7e1cf;
+          stroke-dasharray: 3 3;
+        }
+      `;
+
+      // Structure legend wrapper for static XML compliance
+      const legendDiv = clonedFigure.querySelector(".mt-4.flex");
+      if (legendDiv) {
+        legendDiv.className = "legend-container";
+        const items = legendDiv.children;
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i] as HTMLElement;
+          item.className = "legend-item";
+          const box = item.querySelector("span");
+          if (box) {
+            box.className = "legend-box";
+          }
+        }
+      }
+
+      const svgContent = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+          <foreignObject width="100%" height="100%">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%;">
+              <style>${styles}</style>
+              ${clonedFigure.outerHTML}
+            </div>
+          </foreignObject>
+        </svg>
+      `;
+
+      try {
+        const svgBlob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
+        const svgUrl = URL.createObjectURL(svgBlob);
+        
+        const downloadLink = document.createElement("a");
+        downloadLink.href = svgUrl;
+        downloadLink.download = `physaflow-stranded-capacity-modes-${lang.toLowerCase()}.svg`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(svgUrl);
+
+        if (onShowToast) {
+          onShowToast(
+            lang === "EN"
+              ? "Figure 2 SVG exported successfully with full context."
+              : "Figura 2 SVG exportada exitosamente con todo el contexto."
+          );
+        }
+      } catch (err) {
+        console.error("Failed to generate SVG download", err);
       }
     }
   };
@@ -103,7 +190,7 @@ export default function GraficoBarrasDesperdicio({
   };
 
   return (
-    <figure className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">
+    <figure id="fig-bar-chart-figure" className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="eyebrow mb-1">{textLabels.fig2}</div>
@@ -172,15 +259,15 @@ export default function GraficoBarrasDesperdicio({
       {/* Layer Labels */}
       <div className="mt-4 flex flex-wrap justify-center gap-x-8 gap-y-2 pt-4 border-t border-[var(--rule-soft)] text-[10px] font-semibold tracking-wider">
         <div className="flex items-center gap-2 text-[#143a26]">
-          <span className="w-2.5 h-2.5 bg-[#143a26] rounded-sm"></span>
+          <span className="w-2.5 h-2.5 bg-[#143a26] rounded-sm" style={{ backgroundColor: "#143a26" }}></span>
           {textLabels.fig2L1}
         </div>
         <div className="flex items-center gap-2 text-[#8a6f2e]">
-          <span className="w-2.5 h-2.5 bg-[#c9a961] rounded-sm"></span>
+          <span className="w-2.5 h-2.5 bg-[#c9a961] rounded-sm" style={{ backgroundColor: "#c9a961" }}></span>
           {textLabels.fig2L2}
         </div>
         <div className="flex items-center gap-2 text-[#2d5f47]">
-          <span className="w-2.5 h-2.5 bg-[#2d5f47] rounded-sm"></span>
+          <span className="w-2.5 h-2.5 bg-[#2d5f47] rounded-sm" style={{ backgroundColor: "#2d5f47" }}></span>
           {textLabels.fig2L3}
         </div>
       </div>

@@ -39,48 +39,98 @@ export default function GraficoLineaAcumulado({
   onShowToast,
 }: GraficoLineaAcumuladoProps) {
   const handleDownload = () => {
-    const container = document.getElementById("fig-area-chart-container");
-    if (container) {
-      const svgEl = container.querySelector("svg");
-      if (svgEl) {
-        // Clone the SVG element to avoid modifying active DOM node representation
-        const clonedSvg = svgEl.cloneNode(true) as SVGElement;
-        
-        // Ensure XML schema is present
-        clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        
-        // Add styling elements so styles compile in raw format
-        const style = document.createElement("style");
-        style.textContent = `
-          text { font-family: sans-serif; font-size: 11px; fill: #8a8775; }
-          .recharts-cartesian-grid-horizontal line { stroke: #e7e1cf; stroke-dasharray: 3 3; }
-        `;
-        clonedSvg.insertBefore(style, clonedSvg.firstChild);
+    const figureEl = document.getElementById("fig-area-chart-figure");
+    if (figureEl) {
+      const clonedFigure = figureEl.cloneNode(true) as HTMLElement;
+      
+      // Remove the SVG download button from the exported image
+      const button = clonedFigure.querySelector("button");
+      if (button) {
+        button.remove();
+      }
 
-        try {
-          const serializer = new XMLSerializer();
-          const svgString = serializer.serializeToString(clonedSvg);
-          const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-          const svgUrl = URL.createObjectURL(svgBlob);
-          
-          const downloadLink = document.createElement("a");
-          downloadLink.href = svgUrl;
-          downloadLink.download = `physaflow-stranded-capacity-trend-${lang.toLowerCase()}.svg`;
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          document.body.removeChild(downloadLink);
-          URL.revokeObjectURL(svgUrl);
+      const width = figureEl.offsetWidth || 800;
+      const height = figureEl.offsetHeight || 480;
 
-          if (onShowToast) {
-            onShowToast(
-              lang === "EN"
-                ? "Figure 3 SVG exported. Attribution required: 'Source: PhysaFlow Stranded Capacity Index'."
-                : "Figura 3 SVG exportada. Requiere atribución: 'Fuente: Índice de Capacidad Varada de PhysaFlow'."
-            );
-          }
-        } catch (err) {
-          console.error("Failed to generate SVG download", err);
+      // Standalone styling definitions matching the application's clean design system
+      const styles = `
+        figure {
+          background-color: #f7f4ec !important;
+          color: #1a1814 !important;
+          font-family: sans-serif !important;
+          padding: 24px !important;
+          margin: 0 !important;
+          box-sizing: border-box;
+          width: 100%;
+          height: 100%;
         }
+        .eyebrow {
+          font-family: sans-serif;
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: #8a8775;
+          font-weight: bold;
+          margin-bottom: 4px;
+        }
+        .font-display {
+          font-family: Georgia, serif;
+          font-size: 16px;
+          color: #0d2818;
+          font-weight: 500;
+        }
+        figcaption {
+          font-family: sans-serif;
+          font-size: 11px;
+          color: #8a8775;
+          margin-top: 16px;
+          border-top: 1px solid #e7e1cf;
+          padding-top: 8px;
+          line-height: 1.4;
+        }
+        text {
+          font-family: sans-serif;
+          font-size: 10px;
+          fill: #8a8775;
+        }
+        .recharts-cartesian-grid-horizontal line {
+          stroke: #e7e1cf;
+          stroke-dasharray: 3 3;
+        }
+      `;
+
+      const svgContent = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+          <foreignObject width="100%" height="100%">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%;">
+              <style>${styles}</style>
+              ${clonedFigure.outerHTML}
+            </div>
+          </foreignObject>
+        </svg>
+      `;
+
+      try {
+        const svgBlob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
+        const svgUrl = URL.createObjectURL(svgBlob);
+        
+        const downloadLink = document.createElement("a");
+        downloadLink.href = svgUrl;
+        downloadLink.download = `physaflow-stranded-capacity-trend-${lang.toLowerCase()}.svg`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(svgUrl);
+
+        if (onShowToast) {
+          onShowToast(
+            lang === "EN"
+              ? "Figure 3 SVG exported successfully with full context."
+              : "Figura 3 SVG exportada exitosamente con todo el contexto."
+          );
+        }
+      } catch (err) {
+        console.error("Failed to generate SVG download", err);
       }
     }
   };
@@ -94,7 +144,7 @@ export default function GraficoLineaAcumulado({
   };
 
   return (
-    <figure className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">
+    <figure id="fig-area-chart-figure" className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="eyebrow mb-1">{textLabels.fig3}</div>
