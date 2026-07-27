@@ -181,6 +181,7 @@ export default function GraficoLineaAcumulado({
           </div>
         </div>
         <button
+          id="btn-download-fig3"
           onClick={handleDownload}
           className="text-[11px] font-medium text-[var(--forest-700)] hover:text-[var(--forest-800)] flex items-center gap-1.5 border border-[var(--rule)] px-2.5 py-1.5 rounded-sm transition bg-transparent hover:bg-[var(--paper)]"
         >

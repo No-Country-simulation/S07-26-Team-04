@@ -14,7 +14,9 @@ Este es el prototipo interactivo para el reporte público de **PhysaFlow** sobre
    - La web y sus APIs se actualizan dinámicamente sin necesidad de reescribir código en los componentes React o TypeScript.
 
 3. **API de Descargas en Tiempo Real (CSV y BibTeX):**
-   - Sirve descargas reales mediante endpoints dinámicos (`/api/reporte/csv` y `/api/reporte/bibtex`) que parsean la data directamente desde el MDX activo.
+   - **`/api/reporte/csv`:** Este endpoint dinámico parsea la metadata estructurada del archivo MDX activo y construye un archivo de datos CSV estructurado (con cabeceras localizadas según el idioma del parámetro `?lang=`). Se utiliza para que investigadores externos puedan descargar las cifras de la taxonomía del gráfico de barras para análisis numérico (Excel, R, etc.).
+   - **`/api/reporte/bibtex`:** Genera y sirve un archivo de cita académica en formato BibTeX (`.bib`). Lee dinámicamente el autor, título, año de publicación y DOI del MDX para estructurar una referencia formal `@techreport`, lista para ser importada en gestores bibliográficos (Zotero, Mendeley, LaTeX).
+   - **Enlace "Figuras (SVG)":** Ubicado en la sección de recursos del pie de página, este botón ejecuta una secuencia de descarga programática en paralelo que simula el clic en los botones de exportación de la Figura 2 y Figura 3, guardando ambos archivos SVG vectoriales listos para edición externa.
 
 4. **Asistente Académico de IA (Gemini):**
    - Incorpora un chat flotante y discreto en la interfaz que permite al usuario interactuar y hacer preguntas personalizadas sobre el contenido del reporte.

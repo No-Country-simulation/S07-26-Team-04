@@ -52,6 +52,17 @@ export default function ReportLayout({
     window.print();
   };
 
+  const handleDownloadAllSvgs = () => {
+    showToast(lang === "ES" ? "Descargando figuras SVG..." : "Downloading SVG figures...");
+    // Introduce small sequential delays to bypass browser multi-download blocks
+    setTimeout(() => {
+      document.getElementById("btn-download-fig2")?.click();
+    }, 50);
+    setTimeout(() => {
+      document.getElementById("btn-download-fig3")?.click();
+    }, 350);
+  };
+
   const handleDownloadReport = () => {
     window.print();
   };
@@ -319,7 +330,7 @@ export default function ReportLayout({
                   </a>
                 </li>
                 <li>
-                  <button onClick={() => showToast(lang === "ES" ? "Descargando figuras SVG..." : "Downloading SVG figures...")} className="hover:text-[var(--paper)] transition text-left cursor-pointer">
+                  <button onClick={handleDownloadAllSvgs} className="hover:text-[var(--paper)] transition text-left cursor-pointer">
                     {lang === "ES" ? "Figuras (SVG)" : "Figures (SVG)"}
                   </button>
                 </li>
