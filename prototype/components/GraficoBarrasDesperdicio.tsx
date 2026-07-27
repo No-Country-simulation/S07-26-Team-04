@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -39,147 +39,184 @@ interface GraficoBarrasDesperdicioProps {
   onShowToast?: (msg: string) => void;
 }
 
+// Utility to wrap SVG text into lines
+function wrapSvgText(text: string, maxCharsPerLine: number = 115): string[] {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let currentLine = "";
+
+  words.forEach((word) => {
+    if ((currentLine + " " + word).trim().length <= maxCharsPerLine) {
+      currentLine = (currentLine + " " + word).trim();
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  });
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+  return lines;
+}
+
 export default function GraficoBarrasDesperdicio({
   data = defaultData,
   lang = "ES",
   labels = {},
   onShowToast,
 }: GraficoBarrasDesperdicioProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
-
   const handleDownload = () => {
-    const figureEl = document.getElementById("fig-bar-chart-figure");
-    if (figureEl) {
-      const clonedFigure = figureEl.cloneNode(true) as HTMLElement;
-      
-      // Remove the SVG download button from the exported image
-      const button = clonedFigure.querySelector("button");
-      if (button) {
-        button.remove();
-      }
-
-      const width = figureEl.offsetWidth || 800;
-      const height = figureEl.offsetHeight || 520;
-
-      const styles = `
-        figure {
-          background-color: #f7f4ec !important;
-          color: #1a1814 !important;
-          font-family: sans-serif !important;
-          padding: 24px !important;
-          margin: 0 !important;
-          box-sizing: border-box;
-          width: 100%;
-          height: 100%;
-        }
-        .eyebrow {
-          font-family: sans-serif;
-          font-size: 10px;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          color: #8a8775;
-          font-weight: bold;
-          margin-bottom: 4px;
-        }
-        .font-display {
-          font-family: Georgia, serif;
-          font-size: 16px;
-          color: #0d2818;
-          font-weight: 500;
-        }
-        figcaption {
-          font-family: sans-serif;
-          font-size: 11px;
-          color: #8a8775;
-          margin-top: 16px;
-          border-top: 1px solid #e7e1cf;
-          padding-top: 8px;
-          line-height: 1.4;
-        }
-        .legend-container {
-          margin-top: 16px;
-          display: flex;
-          justify-content: center;
-          gap: 24px;
-          font-family: sans-serif;
-          font-size: 9px;
-          font-weight: bold;
-          letter-spacing: 0.08em;
-          border-top: 1px solid #e7e1cf;
-          padding-top: 12px;
-        }
-        .legend-item {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .legend-box {
-          width: 10px;
-          height: 10px;
-          border-radius: 2px;
-        }
-        text {
-          font-family: sans-serif;
-          font-size: 10px;
-          fill: #8a8775;
-        }
-        .recharts-cartesian-grid-horizontal line {
-          stroke: #e7e1cf;
-          stroke-dasharray: 3 3;
-        }
-      `;
-
-      const legendDiv = clonedFigure.querySelector(".mt-4.flex");
-      if (legendDiv) {
-        legendDiv.className = "legend-container";
-        const items = legendDiv.children;
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i] as HTMLElement;
-          item.className = "legend-item";
-          const box = item.querySelector("span");
-          if (box) {
-            box.className = "legend-box";
-          }
-        }
-      }
-
-      const svgContent = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-          <foreignObject width="100%" height="100%">
-            <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%;">
-              <style>${styles}</style>
-              ${clonedFigure.outerHTML}
-            </div>
-          </foreignObject>
-        </svg>
-      `;
-
-      try {
-        const svgBlob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
-        const svgUrl = URL.createObjectURL(svgBlob);
+    const container = document.getElementById("fig-bar-chart-container");
+    if (container) {
+      const svgEl = container.querySelector("svg");
+      if (svgEl) {
+        // Clone the SVG element
+        const clonedSvg = svgEl.cloneNode(true) as SVGElement;
         
-        const downloadLink = document.createElement("a");
-        downloadLink.href = svgUrl;
-        downloadLink.download = `physaflow-stranded-capacity-modes-${lang.toLowerCase()}.svg`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        URL.revokeObjectURL(svgUrl);
+        // 1. Get current width and height attributes
+        const origWidthStr = clonedSvg.getAttribute("width") || "800";
+        const origHeightStr = clonedSvg.getAttribute("height") || "320";
+        const origWidth = parseInt(origWidthStr, 10);
+        const origHeight = parseInt(origHeightStr, 10);
 
-        if (onShowToast) {
-          onShowToast(
-            lang === "EN"
-              ? "Figure 2 SVG exported successfully with full context."
-              : "Figura 2 SVG exportada exitosamente con todo el contexto."
-          );
+        // 2. Define paddings for top and bottom metadata info
+        const topPadding = 60;
+        const bottomPadding = 80; // Increased to fit the legend + wrapped caption
+        const newHeight = origHeight + topPadding + bottomPadding;
+
+        // 3. Set the new height and viewbox attributes on the root SVG
+        clonedSvg.setAttribute("height", newHeight.toString());
+        clonedSvg.setAttribute("viewBox", `0 0 ${origWidth} ${newHeight}`);
+        clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+        // 4. Wrap the existing children in a group shifted down by the top padding
+        const gWrapper = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        gWrapper.setAttribute("transform", `translate(0, ${topPadding})`);
+        
+        while (clonedSvg.firstChild) {
+          gWrapper.appendChild(clonedSvg.firstChild);
         }
-      } catch (err) {
-        console.error("Failed to generate SVG download", err);
+        clonedSvg.appendChild(gWrapper);
+
+        // 5. Add styling elements
+        const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+        style.textContent = `
+          text { font-family: sans-serif; font-size: 11px; fill: #8a8775; }
+          .recharts-cartesian-grid-horizontal line { stroke: #e7e1cf; stroke-dasharray: 3 3; }
+          .svg-eyebrow { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #8a8775; letter-spacing: 0.12em; text-transform: uppercase; }
+          .svg-title { font-family: Georgia, serif; font-size: 15px; font-weight: 500; fill: #0d2818; }
+          .svg-legend-text { font-family: sans-serif; font-size: 9px; font-weight: bold; fill: #2d2b25; letter-spacing: 0.08em; }
+          .svg-caption { font-family: sans-serif; font-size: 9px; fill: #8a8775; }
+        `;
+        clonedSvg.insertBefore(style, clonedSvg.firstChild);
+
+        // 6. Create and append the title text elements
+        const textEyebrow = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textEyebrow.setAttribute("x", "10");
+        textEyebrow.setAttribute("y", "20");
+        textEyebrow.setAttribute("class", "svg-eyebrow");
+        textEyebrow.textContent = textLabels.fig2;
+
+        const textTitle = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textTitle.setAttribute("x", "10");
+        textTitle.setAttribute("y", "40");
+        textTitle.setAttribute("class", "svg-title");
+        textTitle.textContent = textLabels.fig2Title;
+
+        clonedSvg.appendChild(textEyebrow);
+        clonedSvg.appendChild(textTitle);
+
+        // 7. Create and append the Legend Group
+        const legendGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        legendGroup.setAttribute("transform", `translate(10, ${origHeight + topPadding + 15})`);
+
+        // Legend Item 1: L1
+        const rect1 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect1.setAttribute("width", "10");
+        rect1.setAttribute("height", "10");
+        rect1.setAttribute("rx", "2");
+        rect1.setAttribute("fill", "#143a26");
+        const label1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label1.setAttribute("x", "16");
+        label1.setAttribute("y", "9");
+        label1.setAttribute("class", "svg-legend-text");
+        label1.textContent = textLabels.fig2L1;
+        legendGroup.appendChild(rect1);
+        legendGroup.appendChild(label1);
+
+        // Legend Item 2: L2
+        const rect2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect2.setAttribute("x", "180");
+        rect2.setAttribute("width", "10");
+        rect2.setAttribute("height", "10");
+        rect2.setAttribute("rx", "2");
+        rect2.setAttribute("fill", "#c9a961");
+        const label2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label2.setAttribute("x", "196");
+        label2.setAttribute("y", "9");
+        label2.setAttribute("class", "svg-legend-text");
+        label2.textContent = textLabels.fig2L2;
+        legendGroup.appendChild(rect2);
+        legendGroup.appendChild(label2);
+
+        // Legend Item 3: L3
+        const rect3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect3.setAttribute("x", "330");
+        rect3.setAttribute("width", "10");
+        rect3.setAttribute("height", "10");
+        rect3.setAttribute("rx", "2");
+        rect3.setAttribute("fill", "#2d5f47");
+        const label3 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label3.setAttribute("x", "346");
+        label3.setAttribute("y", "9");
+        label3.setAttribute("class", "svg-legend-text");
+        label3.textContent = textLabels.fig2L3;
+        legendGroup.appendChild(rect3);
+        legendGroup.appendChild(label3);
+
+        clonedSvg.appendChild(legendGroup);
+
+        // 8. Create and append the caption text element at the very bottom with line wrap
+        const textCaption = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textCaption.setAttribute("x", "10");
+        textCaption.setAttribute("y", (origHeight + topPadding + 42).toString());
+        textCaption.setAttribute("class", "svg-caption");
+
+        const captionLines = wrapSvgText(textLabels.fig2Caption, 115);
+        captionLines.forEach((line, index) => {
+          const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+          tspan.setAttribute("x", "10");
+          tspan.setAttribute("dy", index === 0 ? "0" : "13");
+          tspan.textContent = line;
+          textCaption.appendChild(tspan);
+        });
+
+        clonedSvg.appendChild(textCaption);
+
+        try {
+          const serializer = new XMLSerializer();
+          const svgString = serializer.serializeToString(clonedSvg);
+          const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+          const svgUrl = URL.createObjectURL(svgBlob);
+          
+          const downloadLink = document.createElement("a");
+          downloadLink.href = svgUrl;
+          downloadLink.download = `physaflow-stranded-capacity-modes-${lang.toLowerCase()}.svg`;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          URL.revokeObjectURL(svgUrl);
+
+          if (onShowToast) {
+            onShowToast(
+              lang === "EN"
+                ? "Figure 2 SVG exported with title, legend and wrapped caption."
+                : "Figura 2 SVG exportada con título, leyenda y pie de página multilínea."
+            );
+          }
+        } catch (err) {
+          console.error("Failed to generate SVG download", err);
+        }
       }
     }
   };
@@ -193,14 +230,6 @@ export default function GraficoBarrasDesperdicio({
     fig2L3: labels.fig2L3 || "CARGA DE TRABAJO (L3)",
     fig2Waste: labels.fig2Waste || "Desperdicio:",
   };
-
-  if (!mounted) {
-    return (
-      <div className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm h-[440px] flex items-center justify-center text-[13px] text-[var(--ink-muted)]">
-        Loading chart...
-      </div>
-    );
-  }
 
   return (
     <figure id="fig-bar-chart-figure" className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">

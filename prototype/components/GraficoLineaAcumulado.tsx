@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   AreaChart,
   Area,
@@ -32,111 +32,133 @@ interface GraficoLineaAcumuladoProps {
   onShowToast?: (msg: string) => void;
 }
 
+// Utility to wrap SVG text into lines
+function wrapSvgText(text: string, maxCharsPerLine: number = 115): string[] {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let currentLine = "";
+
+  words.forEach((word) => {
+    if ((currentLine + " " + word).trim().length <= maxCharsPerLine) {
+      currentLine = (currentLine + " " + word).trim();
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  });
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+  return lines;
+}
+
 export default function GraficoLineaAcumulado({
   data = defaultData,
   lang = "ES",
   labels = {},
   onShowToast,
 }: GraficoLineaAcumuladoProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
-
   const handleDownload = () => {
-    const figureEl = document.getElementById("fig-area-chart-figure");
-    if (figureEl) {
-      const clonedFigure = figureEl.cloneNode(true) as HTMLElement;
-      
-      // Remove the SVG download button from the exported image
-      const button = clonedFigure.querySelector("button");
-      if (button) {
-        button.remove();
-      }
-
-      const width = figureEl.offsetWidth || 800;
-      const height = figureEl.offsetHeight || 480;
-
-      const styles = `
-        figure {
-          background-color: #f7f4ec !important;
-          color: #1a1814 !important;
-          font-family: sans-serif !important;
-          padding: 24px !important;
-          margin: 0 !important;
-          box-sizing: border-box;
-          width: 100%;
-          height: 100%;
-        }
-        .eyebrow {
-          font-family: sans-serif;
-          font-size: 10px;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          color: #8a8775;
-          font-weight: bold;
-          margin-bottom: 4px;
-        }
-        .font-display {
-          font-family: Georgia, serif;
-          font-size: 16px;
-          color: #0d2818;
-          font-weight: 500;
-        }
-        figcaption {
-          font-family: sans-serif;
-          font-size: 11px;
-          color: #8a8775;
-          margin-top: 16px;
-          border-top: 1px solid #e7e1cf;
-          padding-top: 8px;
-          line-height: 1.4;
-        }
-        text {
-          font-family: sans-serif;
-          font-size: 10px;
-          fill: #8a8775;
-        }
-        .recharts-cartesian-grid-horizontal line {
-          stroke: #e7e1cf;
-          stroke-dasharray: 3 3;
-        }
-      `;
-
-      const svgContent = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-          <foreignObject width="100%" height="100%">
-            <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%;">
-              <style>${styles}</style>
-              ${clonedFigure.outerHTML}
-            </div>
-          </foreignObject>
-        </svg>
-      `;
-
-      try {
-        const svgBlob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
-        const svgUrl = URL.createObjectURL(svgBlob);
+    const container = document.getElementById("fig-area-chart-container");
+    if (container) {
+      const svgEl = container.querySelector("svg");
+      if (svgEl) {
+        // Clone the SVG element
+        const clonedSvg = svgEl.cloneNode(true) as SVGElement;
         
-        const downloadLink = document.createElement("a");
-        downloadLink.href = svgUrl;
-        downloadLink.download = `physaflow-stranded-capacity-trend-${lang.toLowerCase()}.svg`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        URL.revokeObjectURL(svgUrl);
+        // 1. Get current width and height attributes
+        const origWidthStr = clonedSvg.getAttribute("width") || "800";
+        const origHeightStr = clonedSvg.getAttribute("height") || "280";
+        const origWidth = parseInt(origWidthStr, 10);
+        const origHeight = parseInt(origHeightStr, 10);
 
-        if (onShowToast) {
-          onShowToast(
-            lang === "EN"
-              ? "Figure 3 SVG exported successfully with full context."
-              : "Figura 3 SVG exportada exitosamente con todo el contexto."
-          );
+        // 2. Define paddings for top and bottom metadata info
+        const topPadding = 60;
+        const bottomPadding = 60; // Increased to fit wrapped caption
+        const newHeight = origHeight + topPadding + bottomPadding;
+
+        // 3. Set the new height and viewbox attributes on the root SVG
+        clonedSvg.setAttribute("height", newHeight.toString());
+        clonedSvg.setAttribute("viewBox", `0 0 ${origWidth} ${newHeight}`);
+        clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+        // 4. Wrap the existing children in a group shifted down by the top padding
+        const gWrapper = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        gWrapper.setAttribute("transform", `translate(0, ${topPadding})`);
+        
+        while (clonedSvg.firstChild) {
+          gWrapper.appendChild(clonedSvg.firstChild);
         }
-      } catch (err) {
-        console.error("Failed to generate SVG download", err);
+        clonedSvg.appendChild(gWrapper);
+
+        // 5. Add styling elements
+        const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+        style.textContent = `
+          text { font-family: sans-serif; font-size: 11px; fill: #8a8775; }
+          .recharts-cartesian-grid-horizontal line { stroke: #e7e1cf; stroke-dasharray: 3 3; }
+          .svg-eyebrow { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #8a8775; letter-spacing: 0.12em; text-transform: uppercase; }
+          .svg-title { font-family: Georgia, serif; font-size: 15px; font-weight: 500; fill: #0d2818; }
+          .svg-caption { font-family: sans-serif; font-size: 9px; fill: #8a8775; }
+        `;
+        clonedSvg.insertBefore(style, clonedSvg.firstChild);
+
+        // 6. Create and append the title text elements
+        const textEyebrow = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textEyebrow.setAttribute("x", "10");
+        textEyebrow.setAttribute("y", "20");
+        textEyebrow.setAttribute("class", "svg-eyebrow");
+        textEyebrow.textContent = textLabels.fig3;
+
+        const textTitle = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textTitle.setAttribute("x", "10");
+        textTitle.setAttribute("y", "40");
+        textTitle.setAttribute("class", "svg-title");
+        textTitle.textContent = textLabels.fig3Title;
+
+        clonedSvg.appendChild(textEyebrow);
+        clonedSvg.appendChild(textTitle);
+
+        // 7. Create and append the caption text element at the bottom with line wrap
+        const textCaption = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textCaption.setAttribute("x", "10");
+        textCaption.setAttribute("y", (origHeight + topPadding + 22).toString());
+        textCaption.setAttribute("class", "svg-caption");
+
+        const captionLines = wrapSvgText(textLabels.fig3Caption, 115);
+        captionLines.forEach((line, index) => {
+          const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+          tspan.setAttribute("x", "10");
+          tspan.setAttribute("dy", index === 0 ? "0" : "13");
+          tspan.textContent = line;
+          textCaption.appendChild(tspan);
+        });
+
+        clonedSvg.appendChild(textCaption);
+
+        try {
+          const serializer = new XMLSerializer();
+          const svgString = serializer.serializeToString(clonedSvg);
+          const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+          const svgUrl = URL.createObjectURL(svgBlob);
+          
+          const downloadLink = document.createElement("a");
+          downloadLink.href = svgUrl;
+          downloadLink.download = `physaflow-stranded-capacity-trend-${lang.toLowerCase()}.svg`;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          URL.revokeObjectURL(svgUrl);
+
+          if (onShowToast) {
+            onShowToast(
+              lang === "EN"
+                ? "Figure 3 SVG exported with title and wrapped caption."
+                : "Figura 3 SVG exportada con título y pie de página multilínea."
+            );
+          }
+        } catch (err) {
+          console.error("Failed to generate SVG download", err);
+        }
       }
     }
   };
@@ -148,14 +170,6 @@ export default function GraficoLineaAcumulado({
     fig3Year: labels.fig3Year || "Año",
     fig3Waste: labels.fig3Waste || "Capacidad Varada:",
   };
-
-  if (!mounted) {
-    return (
-      <div className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm h-[400px] flex items-center justify-center text-[13px] text-[var(--ink-muted)]">
-        Loading chart...
-      </div>
-    );
-  }
 
   return (
     <figure id="fig-area-chart-figure" className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">
