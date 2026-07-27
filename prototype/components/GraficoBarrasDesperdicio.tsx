@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -45,6 +45,13 @@ export default function GraficoBarrasDesperdicio({
   labels = {},
   onShowToast,
 }: GraficoBarrasDesperdicioProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
   const handleDownload = () => {
     const figureEl = document.getElementById("fig-bar-chart-figure");
     if (figureEl) {
@@ -59,7 +66,6 @@ export default function GraficoBarrasDesperdicio({
       const width = figureEl.offsetWidth || 800;
       const height = figureEl.offsetHeight || 520;
 
-      // Bundle standard design system styling definitions for standalone SVG compatibility
       const styles = `
         figure {
           background-color: #f7f4ec !important;
@@ -128,7 +134,6 @@ export default function GraficoBarrasDesperdicio({
         }
       `;
 
-      // Structure legend wrapper for static XML compliance
       const legendDiv = clonedFigure.querySelector(".mt-4.flex");
       if (legendDiv) {
         legendDiv.className = "legend-container";
@@ -188,6 +193,14 @@ export default function GraficoBarrasDesperdicio({
     fig2L3: labels.fig2L3 || "CARGA DE TRABAJO (L3)",
     fig2Waste: labels.fig2Waste || "Desperdicio:",
   };
+
+  if (!mounted) {
+    return (
+      <div className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm h-[440px] flex items-center justify-center text-[13px] text-[var(--ink-muted)]">
+        Loading chart...
+      </div>
+    );
+  }
 
   return (
     <figure id="fig-bar-chart-figure" className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">

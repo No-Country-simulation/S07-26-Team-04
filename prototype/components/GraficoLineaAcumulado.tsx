@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   AreaChart,
   Area,
@@ -38,6 +38,13 @@ export default function GraficoLineaAcumulado({
   labels = {},
   onShowToast,
 }: GraficoLineaAcumuladoProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
   const handleDownload = () => {
     const figureEl = document.getElementById("fig-area-chart-figure");
     if (figureEl) {
@@ -52,7 +59,6 @@ export default function GraficoLineaAcumulado({
       const width = figureEl.offsetWidth || 800;
       const height = figureEl.offsetHeight || 480;
 
-      // Standalone styling definitions matching the application's clean design system
       const styles = `
         figure {
           background-color: #f7f4ec !important;
@@ -142,6 +148,14 @@ export default function GraficoLineaAcumulado({
     fig3Year: labels.fig3Year || "Año",
     fig3Waste: labels.fig3Waste || "Capacidad Varada:",
   };
+
+  if (!mounted) {
+    return (
+      <div className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm h-[400px] flex items-center justify-center text-[13px] text-[var(--ink-muted)]">
+        Loading chart...
+      </div>
+    );
+  }
 
   return (
     <figure id="fig-area-chart-figure" className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">
