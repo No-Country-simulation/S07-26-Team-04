@@ -188,12 +188,17 @@ model Reporte {
 
 ## 5. Responsabilidades por Rol
 
-### Backend (Alexis, Orlando)
+### Tech Lead (Hernán)
+1. Definir el esquema final y revisar los Pull Requests del equipo.
+2. Coordinar el desarrollo en paralelo de frontend y backend.
+3. Configurar el entorno de despliegue en Vercel.
+
+### Backend (Alexis, Orlando, Gabriela)
 1. Configurar base de datos en PostgreSQL e inicializar el esquema de Prisma simplificado (una sola tabla `Reporte`).
 2. Programar el endpoint `/api/reporte/upload` usando `gray-matter` para recibir el archivo y guardarlo en la DB.
 3. Programar el endpoint `/api/reporte` para retornar el reporte consultando a la base de datos.
 
-### Frontend (Elias, Erika)
+### Frontend (Elias, Erika, Sergio)
 1. Diseñar el **Dashboard de Administración**: Una pantalla simple con un input de tipo `file` para que el administrador seleccione su archivo `.mdx` y lo envíe al backend.
 2. *(Opcional)* En el Dashboard, integrar un editor de texto Markdown simple (tipo caja de texto/textarea grande pre-poblada con la estructura del archivo `ejemplo-reporte.mdx`) para que el usuario pueda editar y subir el contenido directamente desde la web.
 3. Diseñar y programar los componentes de visualización (`DiagramaCapas`, `GraficoBarras`, `GraficoLinea`, `StepCard`) y hacer que consuman los campos JSON que entrega la API.
