@@ -21,9 +21,9 @@ export default function StepCard({
       <div className="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">
         {title}
       </div>
-      <p className="text-[13px] leading-[1.6] text-[var(--ink-muted)]">
+      <div className="text-[13px] leading-[1.6] text-[var(--ink-muted)]">
         {children}
-      </p>
+      </div>
     </div>
   );
 }
