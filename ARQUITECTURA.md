@@ -193,17 +193,20 @@ model Reporte {
 2. Coordinar el desarrollo en paralelo de frontend y backend.
 3. Configurar el entorno de despliegue en Vercel.
 
-### Backend (Alexis, Orlando)
+### Backend (Alexis, Orlando, Gabriela)
 1. Configurar base de datos en PostgreSQL e inicializar el esquema de Prisma simplificado (una sola tabla `Reporte`).
 2. Programar el endpoint `GET /api/reporte` para retornar el reporte consultando a la base de datos (con datos iniciales precargados).
 3. Programar el endpoint `POST /api/reporte/upload` (utilizando `gray-matter`) para permitir la actualización del reporte subiendo un archivo `.mdx`.
+4. **(Opcional):** Programar el endpoint `POST /api/chat` usando el SDK `@google/genai` (modelo `gemini-3.5-flash`) para el asistente académico en streaming y con soporte para *Context Caching*.
 
 ### Frontend (Elias, Erika, Sergio)
 1. **Página Principal del Reporte (Prioridad Máxima):** Diseñar la estructura visual, tipografía, paleta de colores y la maquetación premium del reporte interactivo (`app/page.tsx`).
 2. **Componentes de Visualización:** Diseñar y animar los gráficos interactivos (`GraficoBarras`, `GraficoLinea`) y la taxonomía interactiva (`DiagramaCapas` y `<StepCard />`).
 3. **Renderizado del Contenido:** Consumir los datos desde la API y renderizar el cuerpo de texto largo (`contenido`) utilizando `react-markdown` o MDX dinámico.
 4. **Dashboard de Administración (Prioridad Secundaria):** Diseñar una pantalla simple en el panel de administración (`app/admin/page.tsx`) con un formulario básico para subir el archivo `.mdx` y actualizar el reporte.
+5. **(Opcional):** Desarrollar el componente flotante de chat (`ChatAyudante`) que consuma la API en streaming y actualice las burbujas de texto en tiempo real.
 
 ### QA (Andrés)
 1. Validar la fidelidad del diseño visual, la interactividad de los gráficos, y el correcto funcionamiento en dispositivos móviles y de escritorio.
 2. Probar el flujo de actualización: subir un archivo `.mdx` de prueba en el panel de administración y verificar que la página principal cambie y muestre el nuevo reporte de inmediato.
+3. *(Opcional)* Probar la coherencia de las respuestas del asistente de IA y la fluidez del streaming de texto.
