@@ -63,8 +63,10 @@ Todo el código de la aplicación vive en la carpeta `frontend/`.
 │   ├── app/
 │   │   ├── page.tsx            ← Página principal del reporte (consume la DB)
 │   │   ├── layout.tsx          ← Layout global
+│   │   ├── login/
+│   │   │   └── page.tsx        ← (Opcional) Pantalla de login de administración
 │   │   ├── admin/
-│   │   │   └── page.tsx        ← Panel/Dashboard para subir archivos MDX
+│   │   │   └── page.tsx        ← Panel/Dashboard para subir archivos MDX (protegido)
 │   │   └── api/                ← API Routes
 │   │       ├── reporte/
 │   │       │   ├── route.ts            ← GET: datos generales del reporte
@@ -198,6 +200,7 @@ model Reporte {
 2. Programar el endpoint `GET /api/reporte` para retornar el reporte consultando a la base de datos (con datos iniciales precargados).
 3. Programar el endpoint `POST /api/reporte/upload` (utilizando `gray-matter`) para permitir la actualización del reporte subiendo un archivo `.mdx`.
 4. **(Opcional):** Programar el endpoint `POST /api/chat` usando el SDK `@google/genai` (modelo `gemini-3.5-flash`) para el asistente académico en streaming y con soporte para *Context Caching*.
+5. **(Opcional):** Configurar autenticación básica (ej. NextAuth o middleware con contraseña estática) para proteger el panel de administración.
 
 ### Frontend (Elias, Erika, Sergio)
 1. **Página Principal del Reporte (Prioridad Máxima):** Diseñar la estructura visual, tipografía, paleta de colores y la maquetación premium del reporte interactivo (`app/page.tsx`).
@@ -205,6 +208,7 @@ model Reporte {
 3. **Renderizado del Contenido:** Consumir los datos desde la API y renderizar el cuerpo de texto largo (`contenido`) utilizando `react-markdown` o MDX dinámico.
 4. **Dashboard de Administración (Prioridad Secundaria):** Diseñar una pantalla simple en el panel de administración (`app/admin/page.tsx`) con un formulario básico para subir el archivo `.mdx` y actualizar el reporte.
 5. **(Opcional):** Desarrollar el componente flotante de chat (`ChatAyudante`) que consuma la API en streaming y actualice las burbujas de texto en tiempo real.
+6. **(Opcional):** Diseñar la pantalla de Inicio de Sesión (`app/login/page.tsx`) y proteger el acceso al panel de administración redirigiendo si no está autenticado.
 
 ### QA (Andrés)
 1. Validar la fidelidad del diseño visual, la interactividad de los gráficos, y el correcto funcionamiento en dispositivos móviles y de escritorio.
@@ -229,4 +233,5 @@ model Reporte {
 | 10 | Pruebas del flujo de carga completa (Subir MDX -> Actualización inmediata) | QA | 1 día | Media |
 | 11 | **(Opcional)** API de Asistente de IA `POST /api/chat` (Gemini, Streaming, Caching) | Backend | 1 día | Baja |
 | 12 | **(Opcional)** Interfaz flotante de Chat (`ChatAyudante`) en streaming de texto | Frontend | 1 día | Baja |
+| 13 | **(Opcional)** Pantalla de Login y protección de ruta del Dashboard | Frontend/Backend | 1 día | Baja |
 
