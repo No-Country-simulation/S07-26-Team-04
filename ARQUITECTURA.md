@@ -191,7 +191,7 @@ model Reporte {
 ### Tech Lead (Hernán)
 1. Definir el esquema final y revisar los Pull Requests del equipo.
 2. Coordinar el desarrollo en paralelo de frontend y backend.
-3. Configurar el entorno de despliegue en Vercel.
+
 
 ### Backend (Alexis, Orlando, Gabriela)
 1. Configurar base de datos en PostgreSQL e inicializar el esquema de Prisma simplificado (una sola tabla `Reporte`).
@@ -210,3 +210,23 @@ model Reporte {
 1. Validar la fidelidad del diseño visual, la interactividad de los gráficos, y el correcto funcionamiento en dispositivos móviles y de escritorio.
 2. Probar el flujo de actualización: subir un archivo `.mdx` de prueba en el panel de administración y verificar que la página principal cambie y muestre el nuevo reporte de inmediato.
 3. *(Opcional)* Probar la coherencia de las respuestas del asistente de IA y la fluidez del streaming de texto.
+
+---
+
+## 6. Backlog Priorizado
+
+| # | Tarea | Responsable | Estimación | Prioridad |
+|---|-------|-------------|------------|-----------|
+| 1 | Setup Prisma + PostgreSQL (Esquema simplificado de una tabla) | Backend | 1 día | Alta |
+| 2 | Diseño visual y maquetación de la Página Principal (`app/page.tsx`) con datos locales | Frontend | 2 días | Alta |
+| 3 | Componente interactivo de capas y tarjetas (`DiagramaCapas` y `StepCard`) | Frontend | 2 días | Alta |
+| 4 | Componentes de gráficos interactivos con Recharts (`GraficoBarras`, `GraficoLinea`) | Frontend | 2 días | Alta |
+| 5 | Endpoint `GET /api/reporte` (servir datos desde la base de datos) | Backend | 1 día | Alta |
+| 6 | Integrar frontend con API para consumir datos dinámicos y renderizar markdown | Frontend | 1 día | Alta |
+| 7 | Endpoint `POST /api/reporte/upload` (recibir MDX, parsear frontmatter con gray-matter) | Backend | 2 días | Media |
+| 8 | Pantalla simple de Dashboard para subir archivos `.mdx` (`app/admin/page.tsx`) | Frontend | 1 día | Media |
+| 9 | Pruebas de compatibilidad móvil, responsive y accesibilidad | QA | 1 día | Media |
+| 10 | Pruebas del flujo de carga completa (Subir MDX -> Actualización inmediata) | QA | 1 día | Media |
+| 11 | **(Opcional)** API de Asistente de IA `POST /api/chat` (Gemini, Streaming, Caching) | Backend | 1 día | Baja |
+| 12 | **(Opcional)** Interfaz flotante de Chat (`ChatAyudante`) en streaming de texto | Frontend | 1 día | Baja |
+
