@@ -193,17 +193,17 @@ model Reporte {
 2. Coordinar el desarrollo en paralelo de frontend y backend.
 3. Configurar el entorno de despliegue en Vercel.
 
-### Backend (Alexis, Orlando, Gabriela)
+### Backend (Alexis, Orlando)
 1. Configurar base de datos en PostgreSQL e inicializar el esquema de Prisma simplificado (una sola tabla `Reporte`).
-2. Programar el endpoint `/api/reporte/upload` usando `gray-matter` para recibir el archivo y guardarlo en la DB.
-3. Programar el endpoint `/api/reporte` para retornar el reporte consultando a la base de datos.
+2. Programar el endpoint `GET /api/reporte` para retornar el reporte consultando a la base de datos (con datos iniciales precargados).
+3. Programar el endpoint `POST /api/reporte/upload` (utilizando `gray-matter`) para permitir la actualización del reporte subiendo un archivo `.mdx`.
 
 ### Frontend (Elias, Erika, Sergio)
-1. Diseñar el **Dashboard de Administración**: Una pantalla simple con un input de tipo `file` para que el administrador seleccione su archivo `.mdx` y lo envíe al backend.
-2. *(Opcional)* En el Dashboard, integrar un editor de texto Markdown simple (tipo caja de texto/textarea grande pre-poblada con la estructura del archivo `ejemplo-reporte.mdx`) para que el usuario pueda editar y subir el contenido directamente desde la web.
-3. Diseñar y programar los componentes de visualización (`DiagramaCapas`, `GraficoBarras`, `GraficoLinea`, `StepCard`) y hacer que consuman los campos JSON que entrega la API.
-4. Renderizar el cuerpo del texto (`contenido`) en el frontend mediante `react-markdown` o una librería equivalente.
+1. **Página Principal del Reporte (Prioridad Máxima):** Diseñar la estructura visual, tipografía, paleta de colores y la maquetación premium del reporte interactivo (`app/page.tsx`).
+2. **Componentes de Visualización:** Diseñar y animar los gráficos interactivos (`GraficoBarras`, `GraficoLinea`) y la taxonomía interactiva (`DiagramaCapas` y `<StepCard />`).
+3. **Renderizado del Contenido:** Consumir los datos desde la API y renderizar el cuerpo de texto largo (`contenido`) utilizando `react-markdown` o MDX dinámico.
+4. **Dashboard de Administración (Prioridad Secundaria):** Diseñar una pantalla simple en el panel de administración (`app/admin/page.tsx`) con un formulario básico para subir el archivo `.mdx` y actualizar el reporte.
 
 ### QA (Andrés)
-1. Verificar que al subir un archivo `.mdx` de prueba en el Dashboard, se actualice todo el contenido del reporte e impacte correctamente en la base de datos.
-2. Validar que la interfaz se visualice correctamente en español y que las descargas de datos funcionen adecuadamente.
+1. Validar la fidelidad del diseño visual, la interactividad de los gráficos, y el correcto funcionamiento en dispositivos móviles y de escritorio.
+2. Probar el flujo de actualización: subir un archivo `.mdx` de prueba en el panel de administración y verificar que la página principal cambie y muestre el nuevo reporte de inmediato.
