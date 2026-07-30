@@ -66,23 +66,27 @@ Responde en Español. Da formato a tus respuestas usando Markdown (negritas, lis
     
     // Get the past messages for conversation history
     const history = messages.slice(0, messages.length - 1);
-    const formattedHistory = history
-      .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
-      .join("\n");
 
-    // 4. Construct the final input for the interactions model
-    const inputPrompt = `${systemPrompt}
+    // 3. Build the structured messages history for the contents parameter
+    const contents = [
+      ...history.map((m) => ({
+        role: m.role === "user" ? "user" : "model",
+        parts: [{ text: m.content }],
+      })),
+      {
+        role: "user",
+        parts: [{ text: lastUserMessage }],
+      },
+    ];
 
-Conversation History:
-${formattedHistory}
-
-User: ${lastUserMessage}
-Assistant:`;
-
-    // 5. Call the Gemini API with generateContentStream
+    // 4. Call the Gemini API using generateContentStream with config.systemInstruction
+    // This allows Gemini to cache the large system prompt (MDX context) automatically.
     const responseStream = await ai.models.generateContentStream({
-      model: "gemini-2.5-flash", // gemini-2.5-flash has excellent latency and reliability
-      contents: inputPrompt,
+      model: "gemini-3.5-flash",
+      contents: contents,
+      config: {
+        systemInstruction: systemPrompt,
+      },
     });
 
     const encoder = new TextEncoder();
