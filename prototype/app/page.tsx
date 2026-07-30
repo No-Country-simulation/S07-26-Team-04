@@ -27,6 +27,7 @@ export default async function Home({ searchParams }: PageProps) {
     notFound();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let MdxComponent: React.ComponentType<{ components: Record<string, React.ComponentType<any>> }>;
   let reportMeta: {
     title: string;
