@@ -6,7 +6,12 @@ const nextConfig: NextConfig = {
 };
 
 const withMDX = createMDX({
-  // Add markdown plugins here if desired
+  options: {
+    remarkPlugins: [
+      "remark-frontmatter",
+      ["remark-mdx-frontmatter", { name: "metadata" }],
+    ],
+  },
 });
 
 export default withMDX(nextConfig);
