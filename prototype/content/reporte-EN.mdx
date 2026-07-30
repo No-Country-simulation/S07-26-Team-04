@@ -227,26 +227,18 @@ The taxonomy is organized by the physical layer where the failure originates. Ea
 The Stranded Capacity Index synthesizes three sources of evidence: measured facility telemetry, scheduler export logs, and structured operator interviews. Each failure mode in the taxonomy must be observable in at least two of the three sources to be retained.
 
 <div className="grid sm:grid-cols-2 gap-6 mb-12">
-  <div className="border-l-2 border-[var(--forest-700)] pl-5">
-    <div className="step-num text-[36px] font-display text-[var(--gold-500)]">01</div>
-    <div className="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Telemetry Ingestion</div>
-    <p className="text-[13px] leading-[1.6] text-[var(--ink-muted)]">kW per PDU, inlet temperature per rack, and BMC power per node at 5-minute resolution across 41 sites for 18 months. A total of 4.2 GW of energized IT load was sampled.</p>
-  </div>
-  <div className="border-l-2 border-[var(--gold-500)] pl-5">
-    <div className="step-num text-[36px] font-display text-[var(--gold-500)]">02</div>
-    <div className="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Scheduler Exports</div>
-    <p className="text-[13px] leading-[1.6] text-[var(--ink-muted)]">Orchestrator state snapshots (Kubernetes, Slurm, proprietary) at 1-minute resolution. Captures registered vs. schedulable nodes, queue depth, and affinity rule sets.</p>
-  </div>
-  <div className="border-l-2 border-[var(--forest-500)] pl-5">
-    <div className="step-num text-[36px] font-display text-[var(--gold-500)]">03</div>
-    <div className="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Operator Interviews</div>
-    <p className="text-[13px] leading-[1.6] text-[var(--ink-muted)]">63 structured interviews across facility owners, IT architects, and workload teams. Each failure mode named in the taxonomy was validated against the working language used by operators.</p>
-  </div>
-  <div className="border-l-2 border-[var(--forest-800)] pl-5">
-    <div className="step-num text-[36px] font-display text-[var(--gold-500)]">04</div>
-    <div className="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Naming & Peer Review</div>
-    <p className="text-[13px] leading-[1.6] text-[var(--ink-muted)]">Each named failure mode was reviewed by at least three operators from different organizations. Names were retained only when at least two-thirds agreed the term matched their working vocabulary.</p>
-  </div>
+  <StepCard num="01" title="Telemetry Ingestion" borderColor="border-[var(--forest-700)]">
+    kW per PDU, inlet temperature per rack, and BMC power per node at 5-minute resolution across 41 sites for 18 months. A total of 4.2 GW of energized IT load was sampled.
+  </StepCard>
+  <StepCard num="02" title="Scheduler Exports" borderColor="border-[var(--gold-500)]">
+    Orchestrator state snapshots (Kubernetes, Slurm, proprietary) at 1-minute resolution. Captures registered vs. schedulable nodes, queue depth, and affinity rule sets.
+  </StepCard>
+  <StepCard num="03" title="Operator Interviews" borderColor="border-[var(--forest-500)]">
+    63 structured interviews across facility owners, IT architects, and workload teams. Each failure mode named in the taxonomy was validated against the working language used by operators.
+  </StepCard>
+  <StepCard num="04" title="Naming & Peer Review" borderColor="border-[var(--forest-800)]">
+    Each named failure mode was reviewed by at least three operators from different organizations. Names were retained only when at least two-thirds agreed the term matched their working vocabulary.
+  </StepCard>
 </div>
 
 <div className="cite-box p-5 text-[12px] text-[var(--ink-muted)] leading-[1.6] rounded-sm">

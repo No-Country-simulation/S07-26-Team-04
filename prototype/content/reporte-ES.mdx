@@ -227,26 +227,18 @@ La taxonomía se organiza por la capa física donde se origina el fallo. Cada ca
 El Índice de Capacidad Varada sintetiza tres fuentes de evidencia: telemetría de instalaciones medida, datos de exportación del programador y entrevistas estructuradas a operadores. Cada modo de fallo en la taxonomía debe ser observable en al menos dos de las tres fuentes para ser retenido.
 
 <div className="grid sm:grid-cols-2 gap-6 mb-12">
-  <div className="border-l-2 border-[var(--forest-700)] pl-5">
-    <div className="step-num text-[36px] font-display text-[var(--gold-500)]">01</div>
-    <div className="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Ingesta de telemetría</div>
-    <p className="text-[13px] leading-[1.6] text-[var(--ink-muted)]">kW por PDU, temperatura de entrada por rack y energía BMC por nodo con resolución de 5 minutos en 41 sitios durante 18 meses. Se muestrearon 4,2 GW de carga IT energizada.</p>
-  </div>
-  <div className="border-l-2 border-[var(--gold-500)] pl-5">
-    <div className="step-num text-[36px] font-display text-[var(--gold-500)]">02</div>
-    <div className="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Exportación del programador</div>
-    <p className="text-[13px] leading-[1.6] text-[var(--ink-muted)]">Instantáneas del estado del orquestador (Kubernetes, Slurm, propietario) con resolución de 1 minuto. Captura nodos registrados vs. programables, profundidad de cola y conjunto de reglas de afinidad.</p>
-  </div>
-  <div className="border-l-2 border-[var(--forest-500)] pl-5">
-    <div className="step-num text-[36px] font-display text-[var(--gold-500)]">03</div>
-    <div className="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Entrevistas a operadores</div>
-    <p className="text-[13px] leading-[1.6] text-[var(--ink-muted)]">63 entrevistas estructuradas entre propietarios de instalaciones, TI y cargas de trabajo. Cada modo de fallo nombrado en la taxonomía fue validado contra el lenguaje de trabajo utilizado por los operadores.</p>
-  </div>
-  <div className="border-l-2 border-[var(--forest-800)] pl-5">
-    <div className="step-num text-[36px] font-display text-[var(--gold-500)]">04</div>
-    <div className="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Nombramiento y revisión por pares</div>
-    <p className="text-[13px] leading-[1.6] text-[var(--ink-muted)]">Cada modo de fallo nombrado fue revisado por al menos tres operadores de diferentes organizaciones. Los nombres se retuvieron solo cuando al menos dos tercios estuvieron de acuerdo en que el término coincía con su vocabulario de trabajo.</p>
-  </div>
+  <StepCard num="01" title="Ingesta de telemetría" borderColor="border-[var(--forest-700)]">
+    kW por PDU, temperatura de entrada por rack y energía BMC por nodo con resolución de 5 minutos en 41 sitios durante 18 meses. Se muestrearon 4,2 GW de carga IT energizada.
+  </StepCard>
+  <StepCard num="02" title="Exportación del programador" borderColor="border-[var(--gold-500)]">
+    Instantáneas del estado del orquestador (Kubernetes, Slurm, propietario) con resolución de 1 minuto. Captura nodos registrados vs. programables, profundidad de cola y conjunto de reglas de afinidad.
+  </StepCard>
+  <StepCard num="03" title="Entrevistas a operadores" borderColor="border-[var(--forest-500)]">
+    63 entrevistas estructuradas entre propietarios de instalaciones, TI y cargas de trabajo. Cada modo de fallo nombrado en la taxonomía fue validado contra el lenguaje de trabajo utilizado por los operadores.
+  </StepCard>
+  <StepCard num="04" title="Nombramiento y revisión por pares" borderColor="border-[var(--forest-800)]">
+    Cada modo de fallo nombrado fue revisado por al menos tres operadores de diferentes organizaciones. Los nombres se retuvieron solo cuando al menos dos tercios estuvieron de acuerdo en que el término coincía con su vocabulario de trabajo.
+  </StepCard>
 </div>
 
 <div className="cite-box p-5 text-[12px] text-[var(--ink-muted)] leading-[1.6] rounded-sm">

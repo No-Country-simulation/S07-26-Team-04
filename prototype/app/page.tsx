@@ -5,6 +5,7 @@ import GraficoBarrasDesperdicio from "@/components/GraficoBarrasDesperdicio";
 import GraficoLineaAcumulado from "@/components/GraficoLineaAcumulado";
 import CitationBlock from "@/components/CitationBlock";
 import DiagramaCapas, { Layer, LabelTranslations } from "@/components/DiagramaCapas";
+import StepCard from "@/components/StepCard";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,7 +27,7 @@ export default async function Home({ searchParams }: PageProps) {
     notFound();
   }
 
-  let MdxComponent: React.ComponentType<{ components: Record<string, React.ComponentType<Record<string, unknown>>> }>;
+  let MdxComponent: React.ComponentType<{ components: Record<string, React.ComponentType<any>> }>;
   let reportMeta: {
     title: string;
     subtitle: string;
@@ -121,6 +122,9 @@ export default async function Home({ searchParams }: PageProps) {
               />
             );
           },
+          StepCard: (props: React.ComponentProps<typeof StepCard>) => (
+            <StepCard {...props} />
+          ),
         }}
       />
     </ReportLayout>
