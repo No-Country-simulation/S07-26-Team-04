@@ -72,16 +72,46 @@ export default function ChatAyudante({ lang = "ES" }: ChatAyudanteProps) {
         throw new Error("Network response was not ok");
       }
 
-      const data = await response.json();
-      const replyText = data.reply || (isEn ? "Sorry, I couldn't get a response." : "Lo siento, no pude obtener una respuesta.");
+      if (!response.body) {
+        throw new Error("Response body is not readable");
+      }
 
-      setMessages((prev) => [...prev, { role: "model", content: replyText }]);
-      
+      setIsLoading(false);
+
+      // Append an empty model response that will be filled dynamically
+      setMessages((prev) => [...prev, { role: "model", content: "" }]);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let accumulatedText = "";
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          const chunkValue = decoder.decode(value);
+          accumulatedText += chunkValue;
+          
+          setMessages((prev) => {
+            const copy = [...prev];
+            if (copy.length > 0 && copy[copy.length - 1].role === "model") {
+              copy[copy.length - 1] = {
+                ...copy[copy.length - 1],
+                content: accumulatedText,
+              };
+            }
+            return copy;
+          });
+        }
+      }
+
       if (!isOpen) {
         setHasUnread(true);
       }
     } catch (error) {
       console.error("Error communicating with chat API:", error);
+      setIsLoading(false);
       setMessages((prev) => [
         ...prev,
         {
@@ -91,8 +121,6 @@ export default function ChatAyudante({ lang = "ES" }: ChatAyudanteProps) {
             : "Error: No se pudo conectar con el servidor del asistente.",
         },
       ]);
-    } finally {
-      setIsLoading(false);
     }
   };
 

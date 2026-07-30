@@ -79,21 +79,40 @@ ${formattedHistory}
 User: ${lastUserMessage}
 Assistant:`;
 
-    // 5. Call the Gemini API with the exact model gemini-3.5-flash
-    const interaction = await ai.interactions.create({
-      model: "gemini-3.5-flash",
-      input: inputPrompt,
+    // 5. Call the Gemini API with generateContentStream
+    const responseStream = await ai.models.generateContentStream({
+      model: "gemini-2.5-flash", // gemini-2.5-flash has excellent latency and reliability
+      contents: inputPrompt,
     });
 
-    const reply = interaction.output_text || "";
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of responseStream) {
+            const text = chunk.text;
+            if (text) {
+              controller.enqueue(encoder.encode(text));
+            }
+          }
+        } catch (err) {
+          controller.error(err);
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
-    return NextResponse.json({ reply });
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
   } catch (error: unknown) {
     console.error("Gemini API Chat route error:", error);
     const errMsg = error instanceof Error ? error.message : "Internal server error";
-    return NextResponse.json(
-      { error: errMsg },
-      { status: 500 }
-    );
+    return new Response(errMsg, { status: 500 });
   }
 }
