@@ -18,6 +18,7 @@ const defaultData = [
   { year: "2023", value: 16.0 },
   { year: "2024", value: 26.0 },
   { year: "2025", value: 31.4 },
+  { year: "2026", value: 38.2 },
 ];
 
 export interface CumulativeItem {
@@ -27,7 +28,6 @@ export interface CumulativeItem {
 
 interface GraficoLineaAcumuladoProps {
   data?: CumulativeItem[];
-  lang?: string;
   labels?: Record<string, string | undefined>;
   onShowToast?: (msg: string) => void;
 }
@@ -54,7 +54,6 @@ function wrapSvgText(text: string, maxCharsPerLine: number = 115): string[] {
 
 export default function GraficoLineaAcumulado({
   data = defaultData,
-  lang = "ES",
   labels = {},
   onShowToast,
 }: GraficoLineaAcumuladoProps) {
@@ -143,18 +142,14 @@ export default function GraficoLineaAcumulado({
           
           const downloadLink = document.createElement("a");
           downloadLink.href = svgUrl;
-          downloadLink.download = `physaflow-stranded-capacity-trend-${lang.toLowerCase()}.svg`;
+          downloadLink.download = "physaflow-stranded-capacity-trend.svg";
           document.body.appendChild(downloadLink);
           downloadLink.click();
           document.body.removeChild(downloadLink);
           URL.revokeObjectURL(svgUrl);
 
           if (onShowToast) {
-            onShowToast(
-              lang === "EN"
-                ? "Figure 3 SVG exported with title and wrapped caption."
-                : "Figura 3 SVG exportada con título y pie de página multilínea."
-            );
+            onShowToast("Figura 3 SVG exportada con título y pie de página multilínea.");
           }
         } catch (err) {
           console.error("Failed to generate SVG download", err);
@@ -170,6 +165,8 @@ export default function GraficoLineaAcumulado({
     fig3Year: labels.fig3Year || "Año",
     fig3Waste: labels.fig3Waste || "Capacidad Varada:",
   };
+
+  const chartData = (data && data.length > 0) ? data : defaultData;
 
   return (
     <figure id="fig-area-chart-figure" className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">
@@ -198,7 +195,7 @@ export default function GraficoLineaAcumulado({
 
       <div id="fig-area-chart-container" className="w-full h-[280px] text-[11px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
+          <AreaChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#143a26" stopOpacity={0.2} />

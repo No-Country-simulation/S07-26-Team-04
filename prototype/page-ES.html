@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Índice de Capacidad Varada — PhysaFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --paper:#f7f4ec;
+    --paper-2:#fbf9f3;
+    --ink:#1a1814;
+    --ink-muted:#5c5a4d;
+    --ink-soft:#8a8775;
+    --forest-900:#0a1f15;
+    --forest-800:#0d2818;
+    --forest-700:#143a26;
+    --forest-600:#1a4d3a;
+    --forest-500:#2d5f47;
+    --forest-300:#7ba78c;
+    --gold-700:#8a6f2e;
+    --gold-500:#c9a961;
+    --gold-400:#d9bc7a;
+    --gold-200:#ecdcb8;
+    --rule:#d8d2c0;
+    --rule-soft:#e7e1cf;
+  }
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    font-feature-settings:"ss01","cv11";
+    -webkit-font-smoothing:antialiased;
+  }
+  .font-display{font-family:'Fraunces',serif;font-optical-sizing:auto}
+  .font-mono{font-family:'JetBrains Mono',monospace}
+  
+  /* Paper texture */
+  .paper-texture{
+    background-image:
+      radial-gradient(circle at 25% 25%, rgba(26,77,58,0.015) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(201,169,97,0.02) 0%, transparent 50%);
+  }
+  
+  /* Editorial rule */
+  .rule-soft{border-color:var(--rule-soft)}
+  .rule{border-color:var(--rule)}
+  
+  /* Small caps label */
+  .eyebrow{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--forest-600);
+  }
+  .eyebrow-gold{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--gold-700);
+  }
+  
+  /* Drop cap */
+  .dropcap::first-letter{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:5.2rem;
+    line-height:0.85;
+    float:left;
+    margin:0.3rem 0.8rem 0 0;
+    color:var(--forest-700);
+  }
+  
+  /* TOC active */
+  .toc-link{
+    color:var(--ink-muted);
+    transition:all .2s ease;
+    border-left:1px solid transparent;
+  }
+  .toc-link:hover{color:var(--forest-700);border-left-color:var(--gold-500)}
+  .toc-link.active{color:var(--forest-700);border-left-color:var(--forest-700);font-weight:500}
+  
+  /* Taxonomy card */
+  .tax-card{
+    background:var(--paper-2);
+    border:1px solid var(--rule-soft);
+    transition:all .3s ease;
+    position:relative;
+  }
+  .tax-card:hover{
+    border-color:var(--gold-500);
+    box-shadow:0 1px 0 var(--gold-500), 0 12px 32px -16px rgba(20,58,38,0.18);
+  }
+  .tax-card::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;
+    width:3px;height:0;
+    background:var(--gold-500);
+    transition:height .3s ease;
+  }
+  .tax-card:hover::before{height:100%}
+  
+  /* Section number */
+  .sec-num{
+    font-family:'Fraunces',serif;
+    font-weight:300;
+    color:var(--gold-500);
+    font-variant-numeric:lining-nums;
+  }
+  
+  /* Pull quote */
+  .pullquote{
+    border-left:2px solid var(--gold-500);
+    background:linear-gradient(90deg, rgba(201,169,97,0.06), transparent 60%);
+  }
+  
+  /* Stat block */
+  .stat-num{
+    font-family:'Fraunces',serif;
+    font-weight:400;
+    font-variant-numeric:lining-nums tabular-nums;
+    letter-spacing:-0.02em;
+  }
+  
+  /* Citation box */
+  .cite-box{
+    background:var(--paper-2);
+    border:1px solid var(--rule-soft);
+    border-left:3px solid var(--forest-700);
+  }
+  
+  /* Hover link underline */
+  .ulink{
+    background-image:linear-gradient(currentColor,currentColor);
+    background-size:100% 1px;
+    background-repeat:no-repeat;
+    background-position:0 100%;
+    transition:background-size .25s ease;
+  }
+  .ulink:hover{background-size:0% 1px;background-position:100% 100%}
+  
+  /* Top nav */
+  .nav-blur{
+    background:rgba(247,244,236,0.85);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--rule-soft);
+  }
+  
+  /* Forest hero */
+  .hero-forest{
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(201,169,97,0.10), transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(45,95,71,0.18), transparent 50%),
+      linear-gradient(180deg, #0d2818 0%, #0a1f15 100%);
+  }
+  
+  .hero-grain{
+    position:absolute;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.78 0 0 0 0 0.66 0 0 0 0 0.38 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:0.15;mix-blend-mode:overlay;pointer-events:none;
+  }
+  
+  /* Diagram bars */
+  .bar-cell{transition:opacity .3s ease}
+  .bar-cell:hover{opacity:0.7}
+  
+  /* Toast */
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--forest-800);color:var(--paper);
+    padding:12px 20px;border-radius:4px;
+    font-size:13px;letter-spacing:0.02em;
+    opacity:0;pointer-events:none;
+    transition:all .3s ease;
+    border-left:2px solid var(--gold-500);
+    z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+  
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--paper)}
+  ::-webkit-scrollbar-thumb{background:var(--rule);border-radius:0}
+  ::-webkit-scrollbar-thumb:hover{background:var(--forest-300)}
+  
+  /* Selection */
+  ::selection{background:var(--gold-200);color:var(--forest-900)}
+  
+  /* Layer badge */
+  .layer-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;font-weight:500;
+    letter-spacing:0.08em;text-transform:uppercase;
+    padding:3px 8px;border-radius:2px;
+  }
+  .layer-facility{background:rgba(20,58,38,0.08);color:var(--forest-700)}
+  .layer-it{background:rgba(201,169,97,0.15);color:var(--gold-700)}
+  .layer-workload{background:rgba(45,95,71,0.10);color:var(--forest-600)}
+  
+  /* Figure caption */
+  figcaption{
+    font-size:12px;color:var(--ink-muted);
+    border-top:1px solid var(--rule-soft);
+    padding-top:10px;margin-top:14px;
+    letter-spacing:0.01em;
+  }
+  
+  /* Method step */
+  .step-num{
+    font-family:'Fraunces',serif;
+    font-weight:300;
+    font-size:2.5rem;
+    line-height:1;
+    color:var(--gold-500);
+  }
+  
+  /* Soft animation on scroll */
+  .reveal{opacity:0;transform:translateY(12px);transition:all .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:translateY(0)}
+  
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    html{scroll-behavior:auto}
+  }
+  
+  /* Footnote sup */
+  sup{font-size:0.7em;color:var(--gold-700);font-weight:600;padding:0 0.1em}
+  
+  /* Reading width */
+  .read-width{max-width:680px}
+  
+  /* Print-friendly */
+  @media print{
+    .no-print{display:none}
+  }
+</style>
+</head>
+<body class="paper-texture">
+
+<!-- ============ NAVEGACIÓN SUPERIOR ============ -->
+<nav class="nav-blur sticky top-0 z-40 no-print">
+  <div class="max-w-[1400px] mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-3 group">
+      <!-- Marca PhysaFlow -->
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect x="2" y="2" width="24" height="24" rx="2" fill="#0d2818"/>
+        <path d="M8 18 L8 10 L14 18 L14 10" stroke="#c9a961" stroke-width="1.6" stroke-linecap="square" fill="none"/>
+        <circle cx="20" cy="14" r="2.4" fill="#c9a961"/>
+      </svg>
+      <div class="leading-tight">
+        <div class="font-display font-medium text-[15px] text-[var(--forest-800)]">PhysaFlow</div>
+        <div class="text-[10px] tracking-[0.16em] uppercase text-[var(--ink-soft)] font-medium">Investigación</div>
+      </div>
+    </a>
+
+    <div class="hidden md:flex items-center gap-7 text-[13px] text-[var(--ink-muted)]">
+      <a href="#abstract" class="hover:text-[var(--forest-700)] transition">Resumen</a>
+      <a href="#taxonomy" class="hover:text-[var(--forest-700)] transition">Taxonomía</a>
+      <a href="#methodology" class="hover:text-[var(--forest-700)] transition">Metodología</a>
+      <a href="#figures" class="hover:text-[var(--forest-700)] transition">Figuras</a>
+      <a href="#cite" class="hover:text-[var(--forest-700)] transition">Citar</a>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button onclick="window.print()" class="hidden sm:flex items-center gap-2 px-3 h-9 text-[12px] font-medium text-[var(--ink-muted)] hover:text-[var(--forest-700)] transition border border-[var(--rule)] rounded-sm">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4 4V1h8v3M4 12H2V6h12v6h-2M5 12h6v3H5z" stroke="currentColor" stroke-width="1.3"/></svg>
+        PDF
+      </button>
+      <button class="flex items-center gap-2 px-4 h-9 text-[12px] font-semibold text-[var(--paper)] bg-[var(--forest-700)] hover:bg-[var(--forest-800)] transition rounded-sm">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1v10m0 0L4 7m4 4l4-4M2 13h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg>
+        Descargar Informe
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header id="top" class="hero-forest relative overflow-hidden">
+  <div class="hero-grain"></div>
+  <div class="max-w-[1400px] mx-auto px-6 lg:px-10 pt-16 pb-20 lg:pt-24 lg:pb-32 relative">
+    
+    <div class="flex items-center gap-3 mb-10">
+      <span class="text-[10px] tracking-[0.22em] uppercase text-[var(--gold-400)] font-semibold">Volumen I · Edición 2025</span>
+      <span class="w-8 h-px bg-[var(--gold-500)] opacity-50"></span>
+      <span class="text-[10px] tracking-[0.22em] uppercase text-[var(--forest-300)] font-medium">Informe Público</span>
+    </div>
+
+    <h1 class="font-display font-light text-[var(--paper)] leading-[0.95] tracking-[-0.02em] text-[44px] sm:text-[64px] lg:text-[88px] max-w-[16ch]">
+      El Índice de Capacidad <span class="italic font-normal text-[var(--gold-400)]">Varada</span>
+    </h1>
+
+    <p class="font-display text-[var(--forest-300)] text-[18px] lg:text-[22px] leading-[1.5] mt-8 max-w-[58ch] font-light">
+      Una taxonomía nominal de infraestructura pagada, energizada y no productiva en las tres capas físicas del centro de datos moderno: instalaciones, TI y carga de trabajo.
+    </p>
+
+    <div class="mt-12 lg:mt-16 flex flex-wrap items-end gap-x-12 gap-y-6 pt-8 border-t border-[var(--forest-600)]/40">
+      <div>
+        <div class="text-[10px] tracking-[0.18em] uppercase text-[var(--forest-300)] font-medium mb-2">Autor</div>
+        <div class="font-display text-[var(--paper)] text-[18px]">Dr. Adrián Marín</div>
+        <div class="text-[12px] text-[var(--forest-300)] mt-0.5">Fundador, PhysaFlow</div>
+      </div>
+      <div>
+        <div class="text-[10px] tracking-[0.18em] uppercase text-[var(--forest-300)] font-medium mb-2">Publicado</div>
+        <div class="font-display text-[var(--paper)] text-[18px]">Octubre 2025</div>
+        <div class="text-[12px] text-[var(--forest-300)] mt-0.5">Revisión 1.0 · DOI: physaflow/sci-2025-001</div>
+      </div>
+      <div>
+        <div class="text-[10px] tracking-[0.18em] uppercase text-[var(--forest-300)] font-medium mb-2">Tiempo de lectura</div>
+        <div class="font-display text-[var(--paper)] text-[18px]">~22 minutos</div>
+        <div class="text-[12px] text-[var(--forest-300)] mt-0.5">9 secciones · 7 figuras</div>
+      </div>
+      <div class="ml-auto hidden lg:block">
+        <div class="text-[10px] tracking-[0.18em] uppercase text-[var(--gold-400)] font-semibold mb-2">Acceso abierto</div>
+        <div class="flex items-center gap-2 text-[12px] text-[var(--forest-300)]">
+          <span class="w-1.5 h-1.5 bg-[var(--gold-400)] rounded-full"></span>
+          CC BY-SA 4.0
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- regla inferior -->
+  <div class="h-1 bg-gradient-to-r from-[var(--gold-500)] via-[var(--gold-400)] to-[var(--gold-500)]"></div>
+</header>
+
+<!-- ============ DISEÑO PRINCIPAL ============ -->
+<div class="max-w-[1400px] mx-auto px-6 lg:px-10">
+
+  <div class="grid grid-cols-12 gap-8 lg:gap-14 py-12 lg:py-20">
+
+    <!-- ====== TOC PEGAJOSO ====== -->
+    <aside class="hidden lg:block col-span-3 no-print">
+      <div class="sticky top-24">
+        <div class="eyebrow mb-4">Contenido</div>
+        <nav class="space-y-1.5 text-[13px] border-l border-[var(--rule-soft)] pl-4">
+          <a href="#abstract" class="toc-link block pl-3 py-1">01 — Resumen</a>
+          <a href="#intro" class="toc-link block pl-3 py-1">02 — Introducción</a>
+          <a href="#taxonomy" class="toc-link block pl-3 py-1">03 — Descripción general de la taxonomía</a>
+          <a href="#facility" class="toc-link block pl-3 py-1">03.1 — Capa de instalaciones</a>
+          <a href="#it" class="toc-link block pl-3 py-1">03.2 — Capa de TI</a>
+          <a href="#workload" class="toc-link block pl-3 py-1">03.3 — Capa de carga de trabajo</a>
+          <a href="#methodology" class="toc-link block pl-3 py-1">04 — Metodología</a>
+          <a href="#figures" class="toc-link block pl-3 py-1">05 — Figuras y descargas</a>
+          <a href="#cite" class="toc-link block pl-3 py-1">06 — Cómo citar</a>
+        </nav>
+
+        <div class="mt-10 pt-6 border-t border-[var(--rule-soft)]">
+          <div class="eyebrow-gold mb-3">Hallazgo clave</div>
+          <p class="font-display text-[15px] leading-[1.4] text-[var(--ink)]">
+            El <span class="stat-num text-[var(--forest-700)]">31,4%</span> de la capacidad energizada pagada en instalaciones hiperescala no produce ningún cómputo útil en una hora determinada.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ====== CONTENIDO ====== -->
+    <main class="col-span-12 lg:col-span-9 read-width lg:max-w-[720px]">
+
+      <!-- RESUMEN -->
+      <section id="abstract" class="reveal">
+        <div class="flex items-baseline gap-4 mb-6">
+          <span class="sec-num text-[22px]">01</span>
+          <span class="eyebrow">Resumen</span>
+        </div>
+        <h2 class="font-display text-[34px] lg:text-[42px] leading-[1.05] tracking-[-0.01em] mb-8 text-[var(--forest-800)]">
+          El impuesto oculto del cómputo moderno.
+        </h2>
+        <div class="cite-box p-6 lg:p-8 mb-10">
+          <p class="text-[15px] leading-[1.75] text-[var(--ink)]">
+            Un centro de datos es una pila de tres contratos negociados: energía con la empresa de servicios públicos, racks con el operador de TI y programación con el propietario de la carga de trabajo. Cada capa se aprovisiona para el pico máximo de la capa superior, y cada capa mide la utilización en función de su propio denominador. El resultado es una sobrecarga compuesta que nunca se ha nombrado, medido o valorado como un fenómeno único.
+          </p>
+          <p class="text-[15px] leading-[1.75] text-[var(--ink)] mt-4">
+            Este informe presenta el <strong>Índice de Capacidad Varada (SCI)</strong>, una taxonomía de nueve modos de fallo con nombre distribuidos en tres capas físicas. La taxonomía pretende ser un vocabulario común para los operadores de instalaciones, arquitectos de TI y programadores de cargas de trabajo — las tres comunidades cuyos incentivos actualmente no están alineados.
+          </p>
+        </div>
+      </section>
+
+      <!-- INTRODUCCIÓN -->
+      <section id="intro" class="reveal mt-20">
+        <div class="flex items-baseline gap-4 mb-6">
+          <span class="sec-num text-[22px]">02</span>
+          <span class="eyebrow">Introducción</span>
+        </div>
+        <h2 class="font-display text-[34px] lg:text-[42px] leading-[1.05] tracking-[-0.01em] mb-8 text-[var(--forest-800)]">
+          Por qué existe este informe.
+        </h2>
+
+        <p class="dropcap text-[17px] leading-[1.75] text-[var(--ink)] mb-6">
+          Durante la última década, la conversación sobre la eficiencia de los centros de datos ha estado dominada por una única métrica: PUE. El PUE te dice cuánta de la energía que compraste llegó realmente a los servidores. No te dice si esos servidores hicieron algo útil. A medida que aumenta la densidad, que los clústeres de GPU reemplazan a las granjas de CPU y que los plazos de aprovisionamiento se alargan hasta años, la pregunta más interesante se ha movido un nivel más arriba: <em>de la capacidad que pagamos y energizamos, ¿cuánta está produciendo realmente trabajo?</em>
+        </p>
+
+        <p class="text-[15px] leading-[1.75] text-[var(--ink)] mb-6">
+          La respuesta, extraída de entrevistas con operadores y datos de instalaciones medidos recopilados para este informe, es incómoda. En los 41 sitios hiperescala y de colocación muestreados, el sitio mediano reporta <strong>31,4% de la capacidad energizada como no productiva</strong> en cualquier hora dada — pagada, encendida, consumiendo energía de base y sin producir ningún cómputo útil.<sup>1</sup>
+        </p>
+
+        <div class="pullquote my-10 p-6 lg:p-8">
+          <p class="font-display text-[20px] lg:text-[24px] leading-[1.4] text-[var(--forest-800)] italic">
+            "No tenemos un problema de energía. Tenemos un problema de coordinación disfrazado de problema de energía."
+          </p>
+          <div class="mt-4 text-[12px] text-[var(--ink-muted)] tracking-wide uppercase">
+            — Director de Infraestructura, hiperescalador de nivel 1 (anonimizado)
+          </div>
+        </div>
+
+        <p class="text-[15px] leading-[1.75] text-[var(--ink)] mb-6">
+          La tesis de este informe es que la capacidad varada no es un problema con una única solución. Es una familia de nueve modos de fallo distintos, cada uno con su propia firma, su propio coste y su propia causa raíz — distribuidos en las tres capas físicas de la instalación. Hasta que la industria tenga un nombre común para cada uno de ellos, los operadores seguirán describiendo fenómenos diferentes con la misma palabra, y el capital seguirá desplegándose contra la capa equivocada.
+        </p>
+
+        <p class="text-[15px] leading-[1.75] text-[var(--ink)]">
+          Lo que sigue es un vocabulario propuesto. Es abierto, público y pretende ser debatido.
+        </p>
+
+        <div class="mt-8 pt-4 border-t border-[var(--rule-soft)] text-[12px] text-[var(--ink-soft)]">
+          <sup>1</sup> La muestra cubre 41 sitios en Norteamérica, Europa y APAC, con un total de 4,2 GW de carga IT energizada. Véase <a href="#methodology" class="ulink text-[var(--forest-700)]">§04 Metodología</a>.
+        </div>
+      </section>
+
+      <!-- DESCRIPCIÓN GENERAL DE LA TAXONOMÍA -->
+      <section id="taxonomy" class="reveal mt-20">
+        <div class="flex items-baseline gap-4 mb-6">
+          <span class="sec-num text-[22px]">03</span>
+          <span class="eyebrow">Descripción general de la taxonomía</span>
+        </div>
+        <h2 class="font-display text-[34px] lg:text-[42px] leading-[1.05] tracking-[-0.01em] mb-8 text-[var(--forest-800)]">
+          Tres capas, nueve fallos con nombre.
+        </h2>
+
+        <p class="text-[15px] leading-[1.75] text-[var(--ink)] mb-10">
+          La taxonomía se organiza por la capa física donde se origina el fallo. Cada capa tiene sus propios operadores, su propia instrumentación y su propio lenguaje. Un fallo en una capa suele manifestarse como un síntoma en la capa superior — razón por la cual la industria ha atribuido históricamente la capacidad varada a la causa equivocada.
+        </p>
+
+        <!-- Diagrama de capas -->
+        <figure class="mb-12 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8">
+          <div class="flex flex-col gap-3">
+            <!-- Capa de carga de trabajo (arriba) -->
+            <div class="border border-[var(--forest-500)]/30 bg-[var(--forest-700)]/5 p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                  <span class="font-mono text-[11px] text-[var(--forest-600)] font-semibold">L3</span>
+                  <span class="font-display text-[18px] text-[var(--forest-800)]">Capa de carga de trabajo</span>
+                </div>
+                <span class="layer-badge layer-workload">Programación · Orquestación</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-[12px]">
+                <div class="bg-[var(--paper)] px-3 py-2 border-l-2 border-[var(--forest-500)]"><strong>Asignaciones huérfanas</strong></div>
+                <div class="bg-[var(--paper)] px-3 py-2 border-l-2 border-[var(--forest-500)]"><strong>Inanición por afinidad</strong></div>
+                <div class="bg-[var(--paper)] px-3 py-2 border-l-2 border-[var(--forest-500)]"><strong>Latencia de marea</strong></div>
+              </div>
+            </div>
+            <!-- Flecha -->
+            <div class="flex justify-center"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 0v12M3 8l4 4 4-4" stroke="#c9a961" stroke-width="1.4" fill="none"/></svg></div>
+            <!-- Capa de TI -->
+            <div class="border border-[var(--gold-500)]/40 bg-[var(--gold-200)]/20 p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                  <span class="font-mono text-[11px] text-[var(--gold-700)] font-semibold">L2</span>
+                  <span class="font-display text-[18px] text-[var(--forest-800)]">Capa de TI</span>
+                </div>
+                <span class="layer-badge layer-it">Racks · Nodos · Topología</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-[12px]">
+                <div class="bg-[var(--paper)] px-3 py-2 border-l-2 border-[var(--gold-500)]"><strong>Racks comatosos</strong></div>
+                <div class="bg-[var(--paper)] px-3 py-2 border-l-2 border-[var(--gold-500)]"><strong>Nodos durmientes</strong></div>
+                <div class="bg-[var(--paper)] px-3 py-2 border-l-2 border-[var(--gold-500)]"><strong>Bloqueo de topología</strong></div>
+              </div>
+            </div>
+            <div class="flex justify-center"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 0v12M3 8l4 4 4-4" stroke="#c9a961" stroke-width="1.4" fill="none"/></svg></div>
+            <!-- Capa de instalaciones -->
+            <div class="border border-[var(--forest-800)]/30 bg-[var(--forest-800)] p-5 text-[var(--paper)]">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                  <span class="font-mono text-[11px] text-[var(--gold-400)] font-semibold">L1</span>
+                  <span class="font-display text-[18px] text-[var(--paper)]">Capa de instalaciones</span>
+                </div>
+                <span class="layer-badge" style="background:rgba(201,169,97,0.18);color:var(--gold-400)">Energía · Refrigeración · Espacio</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-[12px]">
+                <div class="bg-[var(--forest-900)]/60 px-3 py-2 border-l-2 border-[var(--gold-500)]"><strong>Deriva del pasillo frío</strong></div>
+                <div class="bg-[var(--forest-900)]/60 px-3 py-2 border-l-2 border-[var(--gold-500)]"><strong>Sobresuscripción térmica</strong></div>
+                <div class="bg-[var(--forest-900)]/60 px-3 py-2 border-l-2 border-[var(--gold-500)]"><strong>Aprovisionamiento en sombra</strong></div>
+              </div>
+            </div>
+          </div>
+          <figcaption>Figura 1 — El modelo de tres capas de la capacidad varada. Los fallos se propagan hacia arriba; los síntomas se observan en la capa superior.</figcaption>
+        </figure>
+
+        <!-- Fila de estadísticas clave -->
+        <div class="grid grid-cols-3 gap-4 mb-12">
+          <div class="border-t-2 border-[var(--forest-700)] pt-4">
+            <div class="stat-num text-[36px] text-[var(--forest-700)]">14,8%</div>
+            <div class="text-[11px] uppercase tracking-wide text-[var(--ink-muted)] mt-1">Pérdida en instalaciones</div>
+            <div class="text-[12px] text-[var(--ink-soft)] mt-1">de kW energizados</div>
+          </div>
+          <div class="border-t-2 border-[var(--gold-500)] pt-4">
+            <div class="stat-num text-[36px] text-[var(--gold-700)]">9,7%</div>
+            <div class="text-[11px] uppercase tracking-wide text-[var(--ink-muted)] mt-1">Pérdida en TI</div>
+            <div class="text-[12px] text-[var(--ink-soft)] mt-1">de cómputo instalado</div>
+          </div>
+          <div class="border-t-2 border-[var(--forest-500)] pt-4">
+            <div class="stat-num text-[36px] text-[var(--forest-600)]">6,9%</div>
+            <div class="text-[11px] uppercase tracking-wide text-[var(--ink-muted)] mt-1">Pérdida en carga de trabajo</div>
+            <div class="text-[12px] text-[var(--ink-soft)] mt-1">de capacidad programada</div>
+          </div>
+        </div>
+
+        <!-- =========== CAPA DE INSTALACIONES =========== -->
+        <div id="facility" class="pt-10 border-t border-[var(--rule)]">
+          <div class="flex items-baseline gap-4 mb-3">
+            <span class="sec-num text-[18px]">03.1</span>
+            <span class="eyebrow">Capa de instalaciones</span>
+          </div>
+          <h3 class="font-display text-[26px] lg:text-[30px] text-[var(--forest-800)] mb-3">Donde la energía entra al edificio.</h3>
+          <p class="text-[14px] leading-[1.7] text-[var(--ink-muted)] mb-8">
+            La capa de instalaciones es todo lo que hay entre el medidor de la empresa de servicios públicos y el PDU del rack. Sus operadores miden el éxito en tiempo de actividad, PUE y cumplimiento térmico — ninguno de los cuales captura si los kilovatios están haciendo un trabajo útil. Tres modos de fallo con nombre viven aquí.
+          </p>
+
+          <div class="space-y-4">
+
+            <!-- Deriva del pasillo frío -->
+            <article class="tax-card p-6 lg:p-7">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="layer-badge layer-facility">L1 · F-01</span>
+                    <span class="font-mono text-[11px] text-[var(--ink-soft)]">~4,2% mediana</span>
+                  </div>
+                  <h4 class="font-display text-[22px] text-[var(--forest-800)]">Deriva del pasillo frío</h4>
+                </div>
+                <div class="stat-num text-[28px] text-[var(--forest-700)] hidden sm:block">4,2%</div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-4 mt-4 text-[13px]">
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Qué se ve</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Racks que reportan temperaturas de entrada conformes mientras el aire de retorno de los CRAH sube 2–4 °C por encima del punto de consigna en un lado de la sala.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Cuánto cuesta</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">CRAH sobredimensionados para compensar; ~6–9% de los kW de enfriadores gastados en enfriar aire que nunca llega a una entrada de servidor.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Por qué ocurre</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Paneles de contención instalados según el diseño construido; adiciones posteriores de racks rompen el plano de presión. La deriva es invisible para el BMS hasta que se activa un punto caliente.</p>
+                </div>
+              </div>
+            </article>
+
+            <!-- Sobresuscripción térmica -->
+            <article class="tax-card p-6 lg:p-7">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="layer-badge layer-facility">L1 · F-02</span>
+                    <span class="font-mono text-[11px] text-[var(--ink-soft)]">~6,1% mediana</span>
+                  </div>
+                  <h4 class="font-display text-[22px] text-[var(--forest-800)]">Sobresuscripción térmica</h4>
+                </div>
+                <div class="stat-num text-[28px] text-[var(--forest-700)] hidden sm:block">6,1%</div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-4 mt-4 text-[13px]">
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Qué se ve</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Racks descalificados por el operador de TI para mantenerse bajo un techo térmico que la instalación fue contratada para entregar pero no puede sostener.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Cuánto cuesta</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">kW contratados disponibles pero inalcanzables. El operador reporta "no hay energía disponible" mientras el medidor de la empresa muestra margen.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Por qué ocurre</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Instalación vendida con kW IT de placa; refrigeración diseñada para una densidad media de racks que ya no refleja la carga de trabajo desplegada.</p>
+                </div>
+              </div>
+            </article>
+
+            <!-- Aprovisionamiento en sombra -->
+            <article class="tax-card p-6 lg:p-7">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="layer-badge layer-facility">L1 · F-03</span>
+                    <span class="font-mono text-[11px] text-[var(--ink-soft)]">~4,5% mediana</span>
+                  </div>
+                  <h4 class="font-display text-[22px] text-[var(--forest-800)]">Aprovisionamiento en sombra</h4>
+                </div>
+                <div class="stat-num text-[28px] text-[var(--forest-700)] hidden sm:block">4,5%</div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-4 mt-4 text-[13px]">
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Qué se ve</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Capacidad de interruptor energizada reservada para un despliegue futuro de racks que no ha ocurrido 12+ meses después de la puesta en servicio.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Cuánto cuesta</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Cargos de demanda por capacidad que no genera ingresos; coste de oportunidad de los PDUs, UPS y refrigeración mantenidos en reserva.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Por qué ocurre</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Los contratos de adquisición recompensan la capacidad reservada; no existe un mecanismo para liberar interruptores energizados pero no utilizados de vuelta al grupo de la instalación.</p>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </div>
+
+        <!-- =========== CAPA DE TI =========== -->
+        <div id="it" class="pt-10 mt-12 border-t border-[var(--rule)]">
+          <div class="flex items-baseline gap-4 mb-3">
+            <span class="sec-num text-[18px]">03.2</span>
+            <span class="eyebrow">Capa de TI</span>
+          </div>
+          <h3 class="font-display text-[26px] lg:text-[30px] text-[var(--forest-800)] mb-3">Donde los racks se encuentran con la red.</h3>
+          <p class="text-[14px] leading-[1.7] text-[var(--ink-muted)] mb-8">
+            La capa de TI es todo lo que hay entre el PDU del rack y el programador de cargas de trabajo. Sus operadores miden el éxito en tiempo de actividad de los nodos y disponibilidad de la red — ninguno de los cuales captura si el silicio está haciendo un trabajo útil. Tres modos de fallo con nombre viven aquí.
+          </p>
+
+          <div class="space-y-4">
+
+            <article class="tax-card p-6 lg:p-7">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="layer-badge layer-it">L2 · I-01</span>
+                    <span class="font-mono text-[11px] text-[var(--ink-soft)]">~3,8% mediana</span>
+                  </div>
+                  <h4 class="font-display text-[22px] text-[var(--forest-800)]">Racks comatosos</h4>
+                </div>
+                <div class="stat-num text-[28px] text-[var(--gold-700)] hidden sm:block">3,8%</div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-4 mt-4 text-[13px]">
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Qué se ve</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Racks completamente poblados que consumen energía de base (PSUs en reposo, BMCs, ventiladores) sin ninguna carga de trabajo despachada durante 30+ días consecutivos.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Cuánto cuesta</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Amortización del gasto de capital en silicio muerto; ~12% de los kW de placa consumidos continuamente sin salida.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Por qué ocurre</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">La descomisión requiere tickets de gestión de cambios que nadie posee. Los racks permanecen "en servicio" porque nadie está incentivado a sacarlos.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="tax-card p-6 lg:p-7">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="layer-badge layer-it">L2 · I-02</span>
+                    <span class="font-mono text-[11px] text-[var(--ink-soft)]">~2,9% mediana</span>
+                  </div>
+                  <h4 class="font-display text-[22px] text-[var(--forest-800)]">Nodos durmientes</h4>
+                </div>
+                <div class="stat-num text-[28px] text-[var(--gold-700)] hidden sm:block">2,9%</div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-4 mt-4 text-[13px]">
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Qué se ve</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Nodos marcados como "disponibles" por el orquestador pero excluidos de la programación — fallan en las comprobaciones de salud, están mal etiquetados o en un segmento de red aislado.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Cuánto cuesta</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">El clúster parece estar al 80% de utilización mientras el 20% de los nodos están oscuros. La expansión de capacidad se aprueba contra un denominador falso.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Por qué ocurre</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">El orquestador reporta nodos "registrados", no nodos "programables". La diferencia es invisible para los planificadores de capacidad que leen el panel de control, no el estado del clúster.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="tax-card p-6 lg:p-7">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="layer-badge layer-it">L2 · I-03</span>
+                    <span class="font-mono text-[11px] text-[var(--ink-soft)]">~3,0% mediana</span>
+                  </div>
+                  <h4 class="font-display text-[22px] text-[var(--forest-800)]">Bloqueo de topología</h4>
+                </div>
+                <div class="stat-num text-[28px] text-[var(--gold-700)] hidden sm:block">3,0%</div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-4 mt-4 text-[13px]">
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Qué se ve</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Existe cómputo libre en dos pods, pero una carga de trabajo que podría caber en cualquiera de ellos debe esperar — porque la topología de red entre ellos no puede transportar el flujo.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Cuánto cuesta</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">La utilización efectiva es <em>menor</em> que la utilización física. La cola de programación crece mientras la capacidad permanece inactiva detrás de una red troncal sobresuscrita.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Por qué ocurre</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Topología Clos diseñada para el ancho de banda este-oeste de una generación anterior. Los flujos de entrenamiento de IA expusieron la suposición de que no todos los racks hablan con todos los racks al mismo tiempo.</p>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </div>
+
+        <!-- =========== CAPA DE CARGA DE TRABAJO =========== -->
+        <div id="workload" class="pt-10 mt-12 border-t border-[var(--rule)]">
+          <div class="flex items-baseline gap-4 mb-3">
+            <span class="sec-num text-[18px]">03.3</span>
+            <span class="eyebrow">Capa de carga de trabajo</span>
+          </div>
+          <h3 class="font-display text-[26px] lg:text-[30px] text-[var(--forest-800)] mb-3">Donde el programador se encuentra con el usuario.</h3>
+          <p class="text-[14px] leading-[1.7] text-[var(--ink-muted)] mb-8">
+            La capa de carga de trabajo es todo lo que hay entre el programador y la aplicación. Sus operadores miden el éxito en profundidad de la cola y cumplimiento de SLA — ninguno de los cuales captura si la capacidad reservada está haciendo un trabajo útil. Tres modos de fallo con nombre viven aquí.
+          </p>
+
+          <div class="space-y-4">
+
+            <article class="tax-card p-6 lg:p-7">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="layer-badge layer-workload">L3 · W-01</span>
+                    <span class="font-mono text-[11px] text-[var(--ink-soft)]">~3,1% mediana</span>
+                  </div>
+                  <h4 class="font-display text-[22px] text-[var(--forest-800)]">Asignaciones huérfanas</h4>
+                </div>
+                <div class="stat-num text-[28px] text-[var(--forest-600)] hidden sm:block">3,1%</div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-4 mt-4 text-[13px]">
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Qué se ve</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">VMs, pods o slots de contenedores reservados contra una cuota pero produciendo cero peticiones, cero tráfico, cero salida de registros durante semanas.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Cuánto cuesta</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Cuota agotada para nuevos inquilinos mientras los existentes mantienen asignaciones no utilizadas. Expansión de capacidad impulsada por cuota, no por demanda.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Por qué ocurre</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Ningún propietario quiere ser quien libere capacidad que podría necesitar mañana. Las asignaciones huérfanas son una opción, no un error — hasta que se acumulan.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="tax-card p-6 lg:p-7">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="layer-badge layer-workload">L3 · W-02</span>
+                    <span class="font-mono text-[11px] text-[var(--ink-soft)]">~2,2% mediana</span>
+                  </div>
+                  <h4 class="font-display text-[22px] text-[var(--forest-800)]">Inanición por afinidad</h4>
+                </div>
+                <div class="stat-num text-[28px] text-[var(--forest-600)] hidden sm:block">2,2%</div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-4 mt-4 text-[13px]">
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Qué se ve</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">La carga de trabajo no puede programarse a pesar de la capacidad libre — las reglas de afinidad (tipo de GPU, NUMA, localidad, nivel de licencia) restringen demasiado el gráfico de colocación.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Cuánto cuesta</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">La espera en cola aumenta; los usuarios perciben una escasez de capacidad. La adquisición aprueba nuevos nodos que no habrían sido necesarios con restricciones relajadas.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Por qué ocurre</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Las reglas de afinidad son escritas por ingenieros en el momento del despliegue y nunca se revisitan. La restricción que era correcta en la v1 sobrevive hasta la v4, donde ya no es necesaria.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="tax-card p-6 lg:p-7">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="layer-badge layer-workload">L3 · W-03</span>
+                    <span class="font-mono text-[11px] text-[var(--ink-soft)]">~1,6% mediana</span>
+                  </div>
+                  <h4 class="font-display text-[22px] text-[var(--forest-800)]">Latencia de marea</h4>
+                </div>
+                <div class="stat-num text-[28px] text-[var(--forest-600)] hidden sm:block">1,6%</div>
+              </div>
+              <div class="grid md:grid-cols-3 gap-4 mt-4 text-[13px]">
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Qué se ve</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Capacidad aprovisionada para un pico diario o semanal que dura 30–90 minutos. Las otras 22 horas, el silicio está caliente, inactivo y facturado al pico.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Cuánto cuesta</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">Capital desplegado contra una curva de marea; no puede liberarse de vuelta a la capa de instalaciones entre mareas. La forma más cara de capacidad varada por kilovatio.</p>
+                </div>
+                <div>
+                  <div class="eyebrow-gold mb-1.5">Por qué ocurre</div>
+                  <p class="text-[var(--ink-muted)] leading-[1.6]">La adquisición y la programación de cargas de trabajo funcionan con relojes diferentes. La instalación no puede reducir la potencia entre mareas; el programador no puede predecir la próxima marea.</p>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- METODOLOGÍA -->
+      <section id="methodology" class="reveal mt-20">
+        <div class="flex items-baseline gap-4 mb-6">
+          <span class="sec-num text-[22px]">04</span>
+          <span class="eyebrow">Metodología</span>
+        </div>
+        <h2 class="font-display text-[34px] lg:text-[42px] leading-[1.05] tracking-[-0.01em] mb-8 text-[var(--forest-800)]">
+          Cómo se construyó el índice.
+        </h2>
+
+        <p class="text-[15px] leading-[1.75] text-[var(--ink)] mb-10">
+          El Índice de Capacidad Varada sintetiza tres fuentes de evidencia: telemetría de instalaciones medida, datos de exportación del programador y entrevistas estructuradas a operadores. Cada modo de fallo en la taxonomía debe ser observable en al menos dos de las tres fuentes para ser retenido.
+        </p>
+
+        <div class="grid sm:grid-cols-2 gap-6 mb-12">
+          <div class="border-l-2 border-[var(--forest-700)] pl-5">
+            <div class="step-num">01</div>
+            <div class="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Ingesta de telemetría</div>
+            <p class="text-[13px] leading-[1.6] text-[var(--ink-muted)]">kW por PDU, temperatura de entrada por rack y energía BMC por nodo con resolución de 5 minutos en 41 sitios durante 18 meses. Se muestrearon 4,2 GW de carga IT energizada.</p>
+          </div>
+          <div class="border-l-2 border-[var(--gold-500)] pl-5">
+            <div class="step-num">02</div>
+            <div class="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Exportación del programador</div>
+            <p class="text-[13px] leading-[1.6] text-[var(--ink-muted)]">Instantáneas del estado del orquestador (Kubernetes, Slurm, propietario) con resolución de 1 minuto. Captura nodos registrados vs. programables, profundidad de cola y conjunto de reglas de afinidad.</p>
+          </div>
+          <div class="border-l-2 border-[var(--forest-500)] pl-5">
+            <div class="step-num">03</div>
+            <div class="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Entrevistas a operadores</div>
+            <p class="text-[13px] leading-[1.6] text-[var(--ink-muted)]">63 entrevistas estructuradas entre propietarios de instalaciones, TI y cargas de trabajo. Cada modo de fallo nombrado en la taxonomía fue validado contra el lenguaje de trabajo utilizado por los operadores.</p>
+          </div>
+          <div class="border-l-2 border-[var(--forest-800)] pl-5">
+            <div class="step-num">04</div>
+            <div class="font-display text-[18px] mt-2 mb-2 text-[var(--forest-800)]">Nombramiento y revisión por pares</div>
+            <p class="text-[13px] leading-[1.6] text-[var(--ink-muted)]">Cada modo de fallo nombrado fue revisado por al menos tres operadores de diferentes organizaciones. Los nombres se retuvieron solo cuando al menos dos tercios estuvieron de acuerdo en que el término coincidía con su vocabulario de trabajo.</p>
+          </div>
+        </div>
+
+        <div class="cite-box p-5 text-[12px] text-[var(--ink-muted)] leading-[1.6]">
+          <strong class="text-[var(--forest-800)]">Limitaciones.</strong> La muestra se inclina hacia operadores hiperescala y de colocación grandes; los sitios periféricos y empresariales están subrepresentados. La cifra principal del 31,4% es una mediana de la muestra, no una estimación poblacional — los intervalos de confianza se reportan por modo de fallo en el conjunto de datos descargable.
+        </div>
+      </section>
+
+      <!-- FIGURAS -->
+      <section id="figures" class="reveal mt-20">
+        <div class="flex items-baseline gap-4 mb-6">
+          <span class="sec-num text-[22px]">05</span>
+          <span class="eyebrow">Figuras y descargas</span>
+        </div>
+        <h2 class="font-display text-[34px] lg:text-[42px] leading-[1.05] tracking-[-0.01em] mb-8 text-[var(--forest-800)]">
+          Visualizando el índice.
+        </h2>
+
+        <p class="text-[15px] leading-[1.75] text-[var(--ink)] mb-10">
+          Todas las figuras se publican bajo CC BY-SA 4.0 con atribución a <em>Fuente: Índice de Capacidad Varada de PhysaFlow</em>. Versiones en SVG y PNG de alta resolución están disponibles para descarga.
+        </p>
+
+        <!-- Figura 2: gráfico de barras por modo de fallo -->
+        <figure class="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <div class="eyebrow mb-1">Figura 2</div>
+              <div class="font-display text-[16px] text-[var(--forest-800)]">Capacidad varada por modo de fallo con nombre (% de kW energizados)</div>
+            </div>
+            <button class="text-[11px] font-medium text-[var(--forest-700)] hover:text-[var(--forest-800)] flex items-center gap-1.5 border border-[var(--rule)] px-2.5 py-1.5 rounded-sm" onclick="showToast('Figura 2 — SVG descargado. Se requiere atribución.')">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1v10m0 0L4 7m4 4l4-4M2 13h12" stroke="currentColor" stroke-width="1.4"/></svg>
+              SVG
+            </button>
+          </div>
+          <!-- Gráfico de barras SVG -->
+          <svg viewBox="0 0 700 320" class="w-full" font-family="Inter, sans-serif">
+            <defs>
+              <linearGradient id="gFac" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#1a4d3a"/>
+                <stop offset="1" stop-color="#143a26"/>
+              </linearGradient>
+              <linearGradient id="gIT" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#c9a961"/>
+                <stop offset="1" stop-color="#a8893f"/>
+              </linearGradient>
+              <linearGradient id="gWL" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#2d5f47"/>
+                <stop offset="1" stop-color="#1a4d3a"/>
+              </linearGradient>
+            </defs>
+            <!-- Cuadrícula -->
+            <g stroke="#e7e1cf" stroke-width="1">
+              <line x1="180" y1="40" x2="180" y2="280"/>
+              <line x1="180" y1="280" x2="690" y2="280"/>
+              <line x1="180" y1="220" x2="690" y2="220" stroke-dasharray="2 4"/>
+              <line x1="180" y1="160" x2="690" y2="160" stroke-dasharray="2 4"/>
+              <line x1="180" y1="100" x2="690" y2="100" stroke-dasharray="2 4"/>
+            </g>
+            <!-- Etiquetas Y -->
+            <g font-size="10" fill="#8a8775" text-anchor="end">
+              <text x="170" y="284">0%</text>
+              <text x="170" y="224">2%</text>
+              <text x="170" y="164">4%</text>
+              <text x="170" y="104">6%</text>
+              <text x="170" y="44">8%</text>
+            </g>
+            <!-- Barras: 9 modos de fallo -->
+            <!-- F-01 Deriva del pasillo frío 4,2 -->
+            <g class="bar-cell">
+              <rect x="195" y="154" width="42" height="126" fill="url(#gFac)"/>
+              <text x="216" y="146" font-size="10" fill="#1a1814" text-anchor="middle" font-weight="600">4,2</text>
+              <text x="216" y="298" font-size="9" fill="#5c5a4d" text-anchor="middle">Deriva</text>
+              <text x="216" y="310" font-size="9" fill="#5c5a4d" text-anchor="middle">pasillo frío</text>
+            </g>
+            <!-- F-02 Sobresuscripción térmica 6,1 -->
+            <g class="bar-cell">
+              <rect x="248" y="97" width="42" height="183" fill="url(#gFac)"/>
+              <text x="269" y="89" font-size="10" fill="#1a1814" text-anchor="middle" font-weight="600">6,1</text>
+              <text x="269" y="298" font-size="9" fill="#5c5a4d" text-anchor="middle">Sobresusc.</text>
+              <text x="269" y="310" font-size="9" fill="#5c5a4d" text-anchor="middle">térmica</text>
+            </g>
+            <!-- F-03 Aprovisionamiento en sombra 4,5 -->
+            <g class="bar-cell">
+              <rect x="301" y="145" width="42" height="135" fill="url(#gFac)"/>
+              <text x="322" y="137" font-size="10" fill="#1a1814" text-anchor="middle" font-weight="600">4,5</text>
+              <text x="322" y="298" font-size="9" fill="#5c5a4d" text-anchor="middle">Aprovision.</text>
+              <text x="322" y="310" font-size="9" fill="#5c5a4d" text-anchor="middle">en sombra</text>
+            </g>
+            <!-- I-01 Racks comatosos 3,8 -->
+            <g class="bar-cell">
+              <rect x="365" y="166" width="42" height="114" fill="url(#gIT)"/>
+              <text x="386" y="158" font-size="10" fill="#1a1814" text-anchor="middle" font-weight="600">3,8</text>
+              <text x="386" y="298" font-size="9" fill="#5c5a4d" text-anchor="middle">Racks</text>
+              <text x="386" y="310" font-size="9" fill="#5c5a4d" text-anchor="middle">comatosos</text>
+            </g>
+            <!-- I-02 Nodos durmientes 2,9 -->
+            <g class="bar-cell">
+              <rect x="418" y="193" width="42" height="87" fill="url(#gIT)"/>
+              <text x="439" y="185" font-size="10" fill="#1a1814" text-anchor="middle" font-weight="600">2,9</text>
+              <text x="439" y="298" font-size="9" fill="#5c5a4d" text-anchor="middle">Nodos</text>
+              <text x="439" y="310" font-size="9" fill="#5c5a4d" text-anchor="middle">durmientes</text>
+            </g>
+            <!-- I-03 Bloqueo de topología 3,0 -->
+            <g class="bar-cell">
+              <rect x="471" y="190" width="42" height="90" fill="url(#gIT)"/>
+              <text x="492" y="182" font-size="10" fill="#1a1814" text-anchor="middle" font-weight="600">3,0</text>
+              <text x="492" y="298" font-size="9" fill="#5c5a4d" text-anchor="middle">Bloqueo</text>
+              <text x="492" y="310" font-size="9" fill="#5c5a4d" text-anchor="middle">de topología</text>
+            </g>
+            <!-- W-01 Asignaciones huérfanas 3,1 -->
+            <g class="bar-cell">
+              <rect x="535" y="187" width="42" height="93" fill="url(#gWL)"/>
+              <text x="556" y="179" font-size="10" fill="#1a1814" text-anchor="middle" font-weight="600">3,1</text>
+              <text x="556" y="298" font-size="9" fill="#5c5a4d" text-anchor="middle">Asignaciones</text>
+              <text x="556" y="310" font-size="9" fill="#5c5a4d" text-anchor="middle">huérfanas</text>
+            </g>
+            <!-- W-02 Inanición por afinidad 2,2 -->
+            <g class="bar-cell">
+              <rect x="588" y="214" width="42" height="66" fill="url(#gWL)"/>
+              <text x="609" y="206" font-size="10" fill="#1a1814" text-anchor="middle" font-weight="600">2,2</text>
+              <text x="609" y="298" font-size="9" fill="#5c5a4d" text-anchor="middle">Inanición</text>
+              <text x="609" y="310" font-size="9" fill="#5c5a4d" text-anchor="middle">por afinidad</text>
+            </g>
+            <!-- W-03 Latencia de marea 1,6 -->
+            <g class="bar-cell">
+              <rect x="641" y="232" width="42" height="48" fill="url(#gWL)"/>
+              <text x="662" y="224" font-size="10" fill="#1a1814" text-anchor="middle" font-weight="600">1,6</text>
+              <text x="662" y="298" font-size="9" fill="#5c5a4d" text-anchor="middle">Latencia</text>
+              <text x="662" y="310" font-size="9" fill="#5c5a4d" text-anchor="middle">de marea</text>
+            </g>
+            <!-- Separadores de capas -->
+            <g stroke="#c9a961" stroke-width="0.5" stroke-dasharray="1 2">
+              <line x1="357" y1="40" x2="357" y2="280"/>
+              <line x1="527" y1="40" x2="527" y2="280"/>
+            </g>
+            <!-- Etiquetas de capas -->
+            <g font-size="9" font-weight="600" letter-spacing="0.1em">
+              <text x="276" y="32" fill="#143a26" text-anchor="middle">INSTALACIONES (L1)</text>
+              <text x="447" y="32" fill="#8a6f2e" text-anchor="middle">TI (L2)</text>
+              <text x="598" y="32" fill="#2d5f47" text-anchor="middle">CARGA DE TRABAJO (L3)</text>
+            </g>
+          </svg>
+          <figcaption>Figura 2 — Capacidad varada mediana por modo de fallo con nombre. Muestra n=41 sitios. <em>Fuente: Índice de Capacidad Varada de PhysaFlow, 2025.</em></figcaption>
+        </figure>
+
+        <!-- Figura 3: línea acumulativa -->
+        <figure class="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <div class="eyebrow mb-1">Figura 3</div>
+              <div class="font-display text-[16px] text-[var(--forest-800)]">Capacidad varada acumulada, 2020 – 2025 (% de kW energizados)</div>
+            </div>
+            <button class="text-[11px] font-medium text-[var(--forest-700)] hover:text-[var(--forest-800)] flex items-center gap-1.5 border border-[var(--rule)] px-2.5 py-1.5 rounded-sm" onclick="showToast('Figura 3 — SVG descargado. Se requiere atribución.')">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1v10m0 0L4 7m4 4l4-4M2 13h12" stroke="currentColor" stroke-width="1.4"/></svg>
+              SVG
+            </button>
+          </div>
+          <svg viewBox="0 0 700 280" class="w-full" font-family="Inter, sans-serif">
+            <g stroke="#e7e1cf" stroke-width="1">
+              <line x1="60" y1="240" x2="690" y2="240"/>
+              <line x1="60" y1="40" x2="60" y2="240"/>
+              <line x1="60" y1="190" x2="690" y2="190" stroke-dasharray="2 4"/>
+              <line x1="60" y1="140" x2="690" y2="140" stroke-dasharray="2 4"/>
+              <line x1="60" y1="90" x2="690" y2="90" stroke-dasharray="2 4"/>
+            </g>
+            <g font-size="10" fill="#8a8775" text-anchor="end">
+              <text x="50" y="244">0%</text>
+              <text x="50" y="194">10%</text>
+              <text x="50" y="144">20%</text>
+              <text x="50" y="94">30%</text>
+            </g>
+            <!-- Etiquetas X -->
+            <g font-size="10" fill="#5c5a4d" text-anchor="middle">
+              <text x="80" y="260">2020</text>
+              <text x="184" y="260">2021</text>
+              <text x="288" y="260">2022</text>
+              <text x="392" y="260">2023</text>
+              <text x="496" y="260">2024</text>
+              <text x="600" y="260">2025</text>
+            </g>
+            <!-- Relleno de área -->
+            <path d="M 80,225 L 184,215 L 288,195 L 392,160 L 496,110 L 600,82 L 600,240 L 80,240 Z" fill="url(#areaG)" opacity="0.15"/>
+            <defs>
+              <linearGradient id="areaG" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#1a4d3a"/>
+                <stop offset="1" stop-color="#1a4d3a" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Línea -->
+            <path d="M 80,225 L 184,215 L 288,195 L 392,160 L 496,110 L 600,82" fill="none" stroke="#143a26" stroke-width="2"/>
+            <!-- Puntos -->
+            <g fill="#c9a961" stroke="#143a26" stroke-width="1.5">
+              <circle cx="80" cy="225" r="4"/>
+              <circle cx="184" cy="215" r="4"/>
+              <circle cx="288" cy="195" r="4"/>
+              <circle cx="392" cy="160" r="4"/>
+              <circle cx="496" cy="110" r="4"/>
+              <circle cx="600" cy="82" r="5" fill="#143a26" stroke="#c9a961" stroke-width="2"/>
+            </g>
+            <!-- Anotación -->
+            <g font-size="10" fill="#143a26">
+              <line x1="600" y1="82" x2="630" y2="55" stroke="#c9a961" stroke-width="1"/>
+              <text x="635" y="48" font-weight="600">31,4%</text>
+              <text x="635" y="60" fill="#5c5a4d">2025</text>
+            </g>
+          </svg>
+          <figcaption>Figura 3 — Capacidad varada acumulada como porcentaje de kilovatios energizados, muestreada anualmente 2020–2025. <em>Fuente: Índice de Capacidad Varada de PhysaFlow, 2025.</em></figcaption>
+        </figure>
+
+        <!-- Cuadrícula de descargas -->
+        <div class="grid sm:grid-cols-3 gap-3 mb-4">
+          <button onclick="showToast('Conjunto de datos — CSV descargado. Se requiere atribución.')" class="cite-box p-4 text-left hover:border-[var(--gold-500)] transition group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-[10px] text-[var(--ink-soft)]">CSV</span>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="text-[var(--forest-700)] group-hover:translate-y-0.5 transition"><path d="M8 1v10m0 0L4 7m4 4l4-4M2 13h12" stroke="currentColor" stroke-width="1.4"/></svg>
+            </div>
+            <div class="font-display text-[14px] text-[var(--forest-800)]">Conjunto de datos completo</div>
+            <div class="text-[11px] text-[var(--ink-muted)] mt-1">Por sitio, por modo de fallo · 41 filas</div>
+          </button>
+          <button onclick="showToast('Paquete de figuras — ZIP descargado.')" class="cite-box p-4 text-left hover:border-[var(--gold-500)] transition group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-[10px] text-[var(--ink-soft)]">SVG + PNG</span>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="text-[var(--forest-700)] group-hover:translate-y-0.5 transition"><path d="M8 1v10m0 0L4 7m4 4l4-4M2 13h12" stroke="currentColor" stroke-width="1.4"/></svg>
+            </div>
+            <div class="font-display text-[14px] text-[var(--forest-800)]">Paquete de figuras</div>
+            <div class="text-[11px] text-[var(--ink-muted)] mt-1">7 figuras · alta resolución · CC BY-SA</div>
+          </button>
+          <button onclick="showToast('Archivo de citación — BibTeX descargado.')" class="cite-box p-4 text-left hover:border-[var(--gold-500)] transition group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-[10px] text-[var(--ink-soft)]">BibTeX</span>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="text-[var(--forest-700)] group-hover:translate-y-0.5 transition"><path d="M8 1v10m0 0L4 7m4 4l4-4M2 13h12" stroke="currentColor" stroke-width="1.4"/></svg>
+            </div>
+            <div class="font-display text-[14px] text-[var(--forest-800)]">Archivo de citación</div>
+            <div class="text-[11px] text-[var(--ink-muted)] mt-1">BibTeX + RIS + .json</div>
+          </button>
+        </div>
+      </section>
+
+      <!-- CITACIÓN -->
+      <section id="cite" class="reveal mt-20">
+        <div class="flex items-baseline gap-4 mb-6">
+          <span class="sec-num text-[22px]">06</span>
+          <span class="eyebrow">Cómo citar</span>
+        </div>
+        <h2 class="font-display text-[34px] lg:text-[42px] leading-[1.05] tracking-[-0.01em] mb-8 text-[var(--forest-800)]">
+          Citar este informe.
+        </h2>
+
+        <p class="text-[15px] leading-[1.75] text-[var(--ink)] mb-8">
+          Este informe se publica bajo CC BY-SA 4.0. Se requiere atribución para cualquier uso derivado, incluida la redistribución de figuras. Los formatos de citación sugeridos están a continuación.
+        </p>
+
+        <div class="space-y-4">
+
+          <!-- Académico -->
+          <div class="cite-box p-5 lg:p-6">
+            <div class="flex items-center justify-between mb-3">
+              <span class="eyebrow">Académico (APA 7)</span>
+              <button onclick="copyText(this, 'Marín, A. (2025). The Stranded Capacity Index: A named taxonomy of paid, energized, and unproductive infrastructure across the three physical layers of the modern data center. PhysaFlow Research, Vol. I. https://doi.org/physaflow/sci-2025-001')" class="text-[11px] font-medium text-[var(--forest-700)] hover:text-[var(--forest-800)] flex items-center gap-1.5">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="4" y="4" width="9" height="9" stroke="currentColor" stroke-width="1.3"/><path d="M3 11V3h8" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>
+                Copiar
+              </button>
+            </div>
+            <p class="font-mono text-[12.5px] leading-[1.7] text-[var(--ink)]">
+              Marín, A. (2025). <em>The Stranded Capacity Index: A named taxonomy of paid, energized, and unproductive infrastructure across the three physical layers of the modern data center.</em> PhysaFlow Research, Vol. I. https://doi.org/physaflow/sci-2025-001
+            </p>
+          </div>
+
+          <!-- Periodístico -->
+          <div class="cite-box p-5 lg:p-6">
+            <div class="flex items-center justify-between mb-3">
+              <span class="eyebrow">Periodístico</span>
+              <button onclick="copyText(this, 'Según el Índice de Capacidad Varada de PhysaFlow (2025), el 31,4% de la capacidad energizada pagada en centros de datos hiperescala no produce ningún cómputo útil en una hora determinada. El informe nombra nueve modos de fallo en las capas de instalaciones, TI y carga de trabajo.')" class="text-[11px] font-medium text-[var(--forest-700)] hover:text-[var(--forest-800)] flex items-center gap-1.5">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="4" y="4" width="9" height="9" stroke="currentColor" stroke-width="1.3"/><path d="M3 11V3h8" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>
+                Copiar
+              </button>
+            </div>
+            <p class="font-mono text-[12.5px] leading-[1.7] text-[var(--ink)]">
+              Según el Índice de Capacidad Varada de PhysaFlow (2025), el 31,4% de la capacidad energizada pagada en centros de datos hiperescala no produce ningún cómputo útil en una hora determinada. El informe nombra nueve modos de fallo en las capas de instalaciones, TI y carga de trabajo.
+            </p>
+          </div>
+
+          <!-- BibTeX -->
+          <div class="cite-box p-5 lg:p-6">
+            <div class="flex items-center justify-between mb-3">
+              <span class="eyebrow">BibTeX</span>
+              <button onclick="copyText(this, '@techreport{marin2025sci,\n  author      = {Marín, Adrián},\n  title       = {The Stranded Capacity Index},\n  institution = {PhysaFlow Research},\n  year        = {2025},\n  number      = {Vol. I, Rev. 1.0},\n  doi         = {physaflow/sci-2025-001},\n  license     = {CC BY-SA 4.0}\n}')" class="text-[11px] font-medium text-[var(--forest-700)] hover:text-[var(--forest-800)] flex items-center gap-1.5">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="4" y="4" width="9" height="9" stroke="currentColor" stroke-width="1.3"/><path d="M3 11V3h8" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>
+                Copiar
+              </button>
+            </div>
+            <pre class="font-mono text-[12px] leading-[1.7] text-[var(--ink)] whitespace-pre-wrap">@techreport{marin2025sci,
+  author      = {Marín, Adrián},
+  title       = {The Stranded Capacity Index},
+  institution = {PhysaFlow Research},
+  year        = {2025},
+  number      = {Vol. I, Rev. 1.0},
+  doi         = {physaflow/sci-2025-001},
+  license     = {CC BY-SA 4.0}
+}</pre>
+          </div>
+
+        </div>
+
+        <!-- Correspondencia -->
+        <div class="mt-10 pt-8 border-t border-[var(--rule)]">
+          <div class="eyebrow mb-3">Correspondencia</div>
+          <p class="text-[14px] leading-[1.7] text-[var(--ink-muted)]">
+            Para correcciones, preguntas metodológicas o envío de datos adicionales de sitios, contacta a <a href="#" class="ulink text-[var(--forest-700)] font-medium">research@physaflow.com</a>. El SCI está concebido como un documento vivo; las revisiones se publicarán trimestralmente con DOIs versionados.
+          </p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ PIE DE PÁGINA ============ -->
+<footer class="bg-[var(--forest-900)] text-[var(--paper)] mt-20">
+  <div class="max-w-[1400px] mx-auto px-6 lg:px-10 py-16">
+    <div class="grid md:grid-cols-12 gap-10">
+      <div class="md:col-span-5">
+        <div class="flex items-center gap-3 mb-5">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="2" y="2" width="24" height="24" rx="2" fill="#0d2818" stroke="#c9a961" stroke-width="1"/>
+            <path d="M8 18 L8 10 L14 18 L14 10" stroke="#c9a961" stroke-width="1.6" stroke-linecap="square" fill="none"/>
+            <circle cx="20" cy="14" r="2.4" fill="#c9a961"/>
+          </svg>
+          <div>
+            <div class="font-display text-[16px]">PhysaFlow</div>
+            <div class="text-[10px] tracking-[0.16em] uppercase text-[var(--forest-300)]">División de Investigación</div>
+          </div>
+        </div>
+        <p class="font-display text-[20px] leading-[1.4] text-[var(--paper)] max-w-md">
+          Construyendo el vocabulario compartido para la capa física de la inteligencia artificial.
+        </p>
+        <div class="mt-6 text-[12px] text-[var(--forest-300)]">
+          © 2025 PhysaFlow, Inc. Este informe está licenciado bajo <a href="#" class="ulink text-[var(--gold-400)]">CC BY-SA 4.0</a>.
+        </div>
+      </div>
+
+      <div class="md:col-span-3">
+        <div class="eyebrow-gold mb-4">Informe</div>
+        <ul class="space-y-2.5 text-[13px] text-[var(--forest-300)]">
+          <li><a href="#abstract" class="hover:text-[var(--paper)] transition">Resumen</a></li>
+          <li><a href="#taxonomy" class="hover:text-[var(--paper)] transition">Taxonomía</a></li>
+          <li><a href="#methodology" class="hover:text-[var(--paper)] transition">Metodología</a></li>
+          <li><a href="#figures" class="hover:text-[var(--paper)] transition">Figuras</a></li>
+          <li><a href="#cite" class="hover:text-[var(--paper)] transition">Cómo citar</a></li>
+        </ul>
+      </div>
+
+      <div class="md:col-span-2">
+        <div class="eyebrow-gold mb-4">Recursos</div>
+        <ul class="space-y-2.5 text-[13px] text-[var(--forest-300)]">
+          <li><a href="#" class="hover:text-[var(--paper)] transition">Conjunto de datos (CSV)</a></li>
+          <li><a href="#" class="hover:text-[var(--paper)] transition">Figuras (SVG)</a></li>
+          <li><a href="#" class="hover:text-[var(--paper)] transition">BibTeX</a></li>
+          <li><a href="#" class="hover:text-[var(--paper)] transition">Registro de cambios</a></li>
+        </ul>
+      </div>
+
+      <div class="md:col-span-2">
+        <div class="eyebrow-gold mb-4">Contacto</div>
+        <ul class="space-y-2.5 text-[13px] text-[var(--forest-300)]">
+          <li>research@<br/>physaflow.com</li>
+          <li class="pt-2"><a href="#" class="hover:text-[var(--paper)] transition">Suscribirse a revisiones</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-[var(--forest-700)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] text-[var(--forest-300)]">
+      <div>DOI: physaflow/sci-2025-001 · Revisión 1.0 · Publicado octubre 2025</div>
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 bg-[var(--gold-400)] rounded-full"></span>
+        Documento vivo · Próxima revisión Q1 2026
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+  // Toast
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;
+    t.classList.add('show');
+    clearTimeout(window._tt);
+    window._tt=setTimeout(()=>t.classList.remove('show'),2400);
+  }
+
+  // Copiar texto
+  function copyText(btn, text){
+    navigator.clipboard.writeText(text).then(()=>{
+      showToast('Copiado al portapapeles');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="1.6"/></svg> Copiado';
+      setTimeout(()=>{btn.innerHTML=orig;},1800);
+    });
+  }
+
+  // TOC enlace activo al desplazarse
+  const sections = document.querySelectorAll('section[id], div[id="facility"], div[id="it"], div[id="workload"]');
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const id = entry.target.id;
+        tocLinks.forEach(l=>{
+          l.classList.toggle('active', l.getAttribute('href') === '#'+id);
+        });
+      }
+    });
+  },{rootMargin:'-30% 0px -60% 0px', threshold:0});
+  sections.forEach(s=>observer.observe(s));
+
+  // Revelar al desplazarse
+  const revealObs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        revealObs.unobserve(e.target);
+      }
+    });
+  },{rootMargin:'0px 0px -10% 0px', threshold:0.05});
+  document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+</script>
+
+</body>
+</html>
