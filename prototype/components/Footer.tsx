@@ -1,18 +1,16 @@
 import React from "react";
 
 interface FooterProps {
-  lang: string;
-  license: string;
-  csvUrl: string;
-  bibtexUrl: string;
-  onDownloadAllSvgs: () => void;
+  license?: string;
+  csvUrl?: string;
+  bibtexUrl?: string;
+  onDownloadAllSvgs?: () => void;
 }
 
 export default function Footer({
-  lang,
-  license,
-  csvUrl,
-  bibtexUrl,
+  license = "CC BY-SA 4.0",
+  csvUrl = "/api/reporte/csv",
+  bibtexUrl = "/api/reporte/bibtex",
   onDownloadAllSvgs,
 }: FooterProps) {
   return (
@@ -35,17 +33,15 @@ export default function Footer({
               <div>
                 <div className="font-display text-[16px]">PhysaFlow</div>
                 <div className="text-[10px] tracking-[0.16em] uppercase text-[var(--forest-300)]">
-                  {lang === "ES" ? "División de Investigación" : "Research Division"}
+                  División de Investigación
                 </div>
               </div>
             </div>
             <p className="font-display text-[20px] leading-[1.4] text-[var(--paper)] max-w-md">
-              {lang === "ES"
-                ? "Construyendo el vocabulario compartido para la capa física de la inteligencia artificial."
-                : "Building the shared vocabulary for the physical layer of artificial intelligence."}
+              Construyendo el vocabulario compartido para la capa física de la inteligencia artificial.
             </p>
             <div className="mt-6 text-[12px] text-[var(--forest-300)]">
-              © 2025 PhysaFlow, Inc. {lang === "ES" ? "Este informe está licenciado bajo" : "This report is licensed under"}{" "}
+              © 2025 PhysaFlow, Inc. Este informe está licenciado bajo{" "}
               <a href="#" className="ulink text-[var(--gold-400)]">
                 {license}
               </a>
@@ -54,49 +50,56 @@ export default function Footer({
           </div>
 
           <div className="md:col-span-3">
-            <div className="eyebrow-gold mb-4">{lang === "ES" ? "Informe" : "Report"}</div>
+            <div className="eyebrow-gold mb-4">Informe</div>
             <ul className="space-y-2.5 text-[13px] text-[var(--forest-300)]">
               <li>
-                <a href="#abstract" className="hover:text-[var(--paper)] transition">
-                  {lang === "ES" ? "Resumen" : "Abstract"}
+                <a href="#01--resumen" className="hover:text-[var(--paper)] transition">
+                  Resumen
                 </a>
               </li>
               <li>
-                <a href="#taxonomy" className="hover:text-[var(--paper)] transition">
-                  {lang === "ES" ? "Taxonomía" : "Taxonomy"}
+                <a href="#02--introduccin" className="hover:text-[var(--paper)] transition">
+                  Introducción
                 </a>
               </li>
               <li>
-                <a href="#methodology" className="hover:text-[var(--paper)] transition">
-                  {lang === "ES" ? "Metodología" : "Methodology"}
+                <a href="#03--descripcin-general-de-la-taxonoma" className="hover:text-[var(--paper)] transition">
+                  Taxonomía
                 </a>
               </li>
               <li>
-                <a href="#figures" className="hover:text-[var(--paper)] transition">
-                  {lang === "ES" ? "Figuras" : "Figures"}
+                <a href="#04--metodologa" className="hover:text-[var(--paper)] transition">
+                  Metodología
                 </a>
               </li>
               <li>
-                <a href="#cite" className="hover:text-[var(--paper)] transition">
-                  {lang === "ES" ? "Cómo citar" : "How to cite"}
+                <a href="#05--figuras-y-descargas" className="hover:text-[var(--paper)] transition">
+                  Figuras
+                </a>
+              </li>
+              <li>
+                <a href="#06--cmo-citar" className="hover:text-[var(--paper)] transition">
+                  Cómo citar
                 </a>
               </li>
             </ul>
           </div>
 
           <div className="md:col-span-2">
-            <div className="eyebrow-gold mb-4">{lang === "ES" ? "Recursos" : "Resources"}</div>
+            <div className="eyebrow-gold mb-4">Recursos</div>
             <ul className="space-y-2.5 text-[13px] text-[var(--forest-300)]">
               <li>
                 <a href={csvUrl} className="hover:text-[var(--paper)] transition text-left block">
-                  {lang === "ES" ? "Conjunto de datos (CSV)" : "Dataset (CSV)"}
+                  Conjunto de datos (CSV)
                 </a>
               </li>
-              <li>
-                <button onClick={onDownloadAllSvgs} className="hover:text-[var(--paper)] transition text-left cursor-pointer">
-                  {lang === "ES" ? "Figuras (SVG)" : "Figures (SVG)"}
-                </button>
-              </li>
+              {onDownloadAllSvgs && (
+                <li>
+                  <button onClick={onDownloadAllSvgs} className="hover:text-[var(--paper)] transition text-left cursor-pointer">
+                    Figuras (SVG)
+                  </button>
+                </li>
+              )}
               <li>
                 <a href={bibtexUrl} className="hover:text-[var(--paper)] transition text-left block">
                   BibTeX

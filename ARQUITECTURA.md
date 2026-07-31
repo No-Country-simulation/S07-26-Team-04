@@ -1,53 +1,54 @@
 # Arquitectura PhysaFlow — Documento de Referencia del Equipo
 
-> **Propósito:** Este documento describe cómo está organizado el proyecto en la carpeta `frontend/`, cómo se comunican frontend y backend (Next.js App Router fullstack), y cómo los datos de un archivo MDX se vuelcan automáticamente en una base de datos PostgreSQL.
+> **Propósito:** Este documento describe la arquitectura técnica del proyecto, detallando cómo se estructura el código en la carpeta `frontend/`, la comunicación fullstack mediante Next.js App Router, y el flujo de ingesta de datos mediante el cual un archivo MDX se parsea y almacena automáticamente en una base de datos PostgreSQL.
 >
-> ⚠️ **El prototipo en `prototype/` es un ejemplo a grandes rasgos de cómo podría verse la UI. No es una guía de código a seguir.** El equipo de frontend y backend tiene libertad para definir la estética, la estructura de componentes y el flujo exacto del código.
+> ⚠️ **Nota sobre el diseño:** El prototipo ubicado en `prototype/` es una referencia visual a grandes rasgos. No es una guía estricta de código. El equipo de frontend y backend tiene total libertad para definir la estética final, la estructura de componentes y el flujo óptimo del código, manteniendo como objetivo principal la "autoridad académica".
 
 ---
 
 ## 1. Filosofía General
 
-El proyecto PhysaFlow es un **sitio de referencia académica** sobre "Stranded Capacity" (capacidad varada) en centros de datos. 
-* El contenido principal y sus métricas asociadas se redactan en archivos **MDX** con cabecera **YAML Frontmatter**.
-* Un usuario administrador puede subir el archivo `.mdx` directamente a la base de datos a través del panel de administración (Dashboard).
-* El backend parsea el archivo `.mdx`, extrae la información del Frontmatter y el cuerpo de texto, y puebla la base de datos.
-* El sitio web es **exclusivamente en Español** (simplifica la lógica de traducción y bases de datos).
+PhysaFlow es un **portal de referencia académica** enfocado en el fenómeno de "Stranded Capacity" (capacidad varada) en centros de datos modernos. La arquitectura del proyecto se basa en los siguientes pilares:
 
-### Flujo de datos simplificado
+* **Autoría basada en MDX:** El contenido principal, las métricas y las estructuras de datos del reporte se redactan en un archivo `.mdx` utilizando **YAML Frontmatter** para los metadatos y Markdown estándar para el cuerpo del texto.
+* **Ingesta sin fricción:** Un administrador (el autor del reporte) sube el archivo `.mdx` directamente a través de un panel de administración (Dashboard), evitando el uso de formularios web complejos.
+* **Procesamiento Backend:** El backend recibe el archivo, utiliza `gray-matter` para separar el frontmatter del cuerpo de texto, y vuelca estos datos de forma estructurada en PostgreSQL.
+* **Alcance idiomático:** El sitio web está exclusivamente en Español, lo que simplifica la lógica de traducción y el modelado de la base de datos.
 
-```
+### Flujo de Datos Arquitectónico
+
+```text
 ┌──────────────────────────────────────┐
-│   Editor escribe reporte en MDX      │
-│   (cabecera --- YAML + cuerpo texto) │
+│   1. Autor redacta el reporte (MDX)  │
+│   (Cabecera YAML + Cuerpo Markdown)  │
 └──────────────────┬───────────────────┘
                    │
                    ▼
 ┌──────────────────────────────────────┐
-│   Dashboard (Subir Archivo .mdx)     │
+│   2. Dashboard (Subir Archivo .mdx)  │
 │   POST /api/reporte/upload           │
 └──────────────────┬───────────────────┘
                    │
                    ▼
 ┌──────────────────────────────────────┐
-│   Backend (Next.js API route)        │
-│   1. Lee el archivo cargado          │
-│   2. Parsea frontmatter con gray-matter│
-│   3. Guarda en PostgreSQL            │
+│   3. Backend (Next.js API Route)     │
+│   - Lee el archivo cargado           │
+│   - Parsea con `gray-matter`         │
+│   - Mapea a esquema Prisma           │
 └──────────────────┬───────────────────┘
                    │
                    ▼
 ┌──────────────────────────────────────┐
-│   Base de Datos (PostgreSQL)         │
-│   Un solo registro por reporte       │
-│   (Metadatos, JSONs y cuerpo MDX)    │
+│   4. Base de Datos (PostgreSQL)      │
+│   Tabla `Reporte` (Metadatos, JSONs, │
+│   y cuerpo de texto como String)     │
 └──────────────────┬───────────────────┘
                    │
                    ▼
 ┌──────────────────────────────────────┐
-│   Frontend (Server Components)       │
-│   Consume Prisma y renderiza la UI    │
-│   con ReactMarkdown o MDX            │
+│   5. Frontend (React Server Comp.)   │
+│   Consulta la DB y renderiza la UI   │
+│   con `react-markdown` y Recharts    │
 └──────────────────────────────────────┘
 ```
 
@@ -55,48 +56,50 @@ El proyecto PhysaFlow es un **sitio de referencia académica** sobre "Stranded C
 
 ## 2. Estructura del Proyecto
 
-Todo el código de la aplicación vive en la carpeta `frontend/`.
+Toda la aplicación fullstack reside en la carpeta `frontend/`.
 
-```
+```text
 /
-├── frontend/                   ← TODO EL CÓDIGO VIVE ACÁ (Next.js fullstack)
+├── frontend/                   ← Aplicación Fullstack (Next.js)
 │   ├── app/
 │   │   ├── page.tsx            ← Página principal del reporte (consume la DB)
 │   │   ├── layout.tsx          ← Layout global
 │   │   ├── login/
-│   │   │   └── page.tsx        ← (Opcional) Pantalla de login de administración
+│   │   │   └── page.tsx        ← (Opcional) Pantalla de login
 │   │   ├── admin/
-│   │   │   └── page.tsx        ← Panel/Dashboard para subir archivos MDX (protegido)
-│   │   └── api/                ← API Routes
+│   │   │   └── page.tsx        ← Dashboard para subir archivos MDX (Protegido)
+│   │   └── api/                ← API Routes (Route Handlers)
 │   │       ├── reporte/
-│   │       │   ├── route.ts            ← GET: datos generales del reporte
-│   │       │   ├── upload/route.ts     ← POST: subir MDX, parsear y guardar en DB
-│   │       │   └── citacion/route.ts   ← GET: descarga de BibTeX / APA
-│   │       └── health/route.ts         ← GET: health check
+│   │       │   ├── route.ts            ← GET: Devuelve el reporte activo
+│   │       │   ├── upload/route.ts     ← POST: Ingesta de MDX y guardado en DB
+│   │       │   └── citacion/route.ts   ← GET: Generación de formatos BibTeX / APA
+│   │       └── health/route.ts         ← GET: Health check del servicio
 │   ├── components/
-│   │   ├── ui/                 ← Componentes base (shadcn / base-ui)
-│   │   ├── DiagramaCapas.tsx   ← Taxonomía visual
-│   │   ├── GraficoBarras.tsx   ← Gráfico de barras de modos de fallo
-│   │   ├── GraficoLinea.tsx    ← Gráfico acumulado
-│   │   └── StepCard.tsx        ← Componente para las tarjetas de metodología
+│   │   ├── ui/                 ← Componentes base (shadcn/ui)
+│   │   ├── DiagramaCapas.tsx   ← Taxonomía visual interactiva
+│   │   ├── GraficoBarras.tsx   ← Gráfico de barras (Recharts)
+│   │   ├── GraficoLinea.tsx    ← Gráfico acumulado (Recharts)
+│   │   └── StepCard.tsx        ← Tarjetas de metodología
 │   ├── lib/
 │   │   ├── prisma.ts           ← Cliente Prisma singleton
-│   │   └── utils.ts            ← Utilidades
+│   │   └── utils.ts            ← Utilidades generales
 │   ├── prisma/
-│   │   └── schema.prisma       ← Esquema simplificado de la base de datos
+│   │   └── schema.prisma       ← Esquema de la base de datos
 │   ├── package.json
 │   └── next.config.ts
 │
-├── prototype/                  ← Prototipo interactivo de referencia visual
-├── ejemplo-reporte.mdx         ← Plantilla de reporte con YAML Frontmatter
-└── ARQUITECTURA.md             ← Este archivo
+├── prototype/                  ← Prototipo interactivo (referencia visual)
+├── ejemplo-reporte.mdx         ← Plantilla guía para el autor
+└── ARQUITECTURA.md             ← Este documento
 ```
 
 ---
 
-## 3. Base de Datos Simplificada — Schema Prisma
+## 3. Base de Datos — Schema Prisma
 
-Para evitar que el esquema de la base de datos se vuelva demasiado grande y complejo (con relaciones cruzadas complejas, claves foráneas, etc.), **simplificamos la estructura a una única tabla principal utilizando campos JSON nativos de PostgreSQL**. Esto hace que poblar la base de datos desde un archivo MDX sea directo y libre de errores transaccionales.
+Para mantener la agilidad y evitar la complejidad de un modelo relacional tradicional (múltiples tablas, claves foráneas y migraciones frágiles), **se ha diseñado un esquema de tabla única apoyándose en campos `Json` nativos de PostgreSQL**. 
+
+Esto permite que la ingesta de datos desde el YAML sea una operación atómica, directa y libre de transacciones complejas.
 
 ```prisma
 generator client {
@@ -111,34 +114,30 @@ datasource db {
 model Reporte {
   id             String   @id @default(cuid())
   
-  // Metadatos Básicos (YAML)
+  // Metadatos Básicos (Extraídos del Frontmatter)
   titulo         String
   subtitulo      String?
   autor          String
-  published      String   // "Octubre 2025"
+  published      String   // Ej: "Octubre 2025"
   doi            String
-  readingTime    String   // "~22 minutos"
-  license        String   // "CC BY-SA 4.0"
+  readingTime    String   // Ej: "~22 minutos"
+  license        String   // Ej: "CC BY-SA 4.0"
   
   // Métricas de Impacto Global
-  medianaGlobal  String   // "31,4%"
-  lossFacilities String  // "14,8%"
-  lossIT         String   // "9,7%"
-  lossWorkload   String   // "6,9%"
+  medianaGlobal  String   // Ej: "31,4%"
+  lossFacilities String   // Ej: "14,8%"
+  lossIT         String   // Ej: "9,7%"
+  lossWorkload   String   // Ej: "6,9%"
   
-  // Estructuras Complejas (Almacenadas como JSON)
-  // Guarda el array de capas y sus cards de modos de fallo
-  layers         Json     
-  
-  // Guarda los puntos de datos para el gráfico de barras
-  taxonomyData   Json     
-  
-  // Guarda los puntos de datos para el gráfico de línea acumulado
-  cumulativeData Json     
+  // Estructuras Complejas y UI Labels (Almacenadas como JSON nativo)
+  labels         Json?    // Textos y captions configurables de UI
+  layers         Json     // Array de capas y sus modos de fallo (tarjetas)
+  methodologySteps Json?  // Pasos de metodología (StepCards)
+  taxonomyData   Json     // Puntos de datos para el gráfico de barras
+  cumulativeData Json     // Puntos de datos para el gráfico acumulado
   
   // Cuerpo del Reporte
-  // Guarda el contenido completo en Markdown/MDX para renderizado directo
-  contenido      String   
+  contenido      String   // String completo en Markdown para renderizado directo
   
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -150,20 +149,21 @@ model Reporte {
 ## 4. Endpoints de API
 
 ### `POST /api/reporte/upload`
-* **Acción:** Sube un archivo `.mdx` y puebla la base de datos.
+* **Acción:** Recibe un archivo `.mdx`, lo parsea, valida con Zod y actualiza o crea el reporte en la base de datos.
 * **Procesamiento en Backend:**
-  1. Recibe el archivo `.mdx` mediante `FormData`.
-  2. Lee el contenido como string de texto.
-  3. Ejecuta `gray-matter` para separar la metadata del cuerpo de texto:
+  1. Recepción del archivo mediante `FormData`.
+  2. Lectura del contenido como `String`.
+  3. Parseo con `gray-matter` para separar metadatos (`data`) y texto (`content`):
      ```javascript
      const { data, content } = matter(fileContent);
      ```
-  4. Inserta o actualiza en la tabla `Reporte` mapeando directamente los campos:
+  4. **Validación con Zod:** Verificar que `data` cumpla con los campos obligatorios y tipos requeridos antes de la inserción para prevenir errores en la UI.
+  5. Inserción o actualización en la tabla `Reporte` mediante `upsert`:
      ```javascript
-     await prisma.reporte.create({
-       data: {
+     await prisma.reporte.upsert({
+       where: { id: "global-report" }, // O lógica de año
+       update: {
          titulo: data.title,
-         subtitulo: data.subtitle,
          autor: data.author,
          published: data.published,
          doi: data.doi,
@@ -173,47 +173,67 @@ model Reporte {
          lossFacilities: data.lossFacilities,
          lossIT: data.lossIT,
          lossWorkload: data.lossWorkload,
-         layers: data.layers,                 // Guardado directo como JSON
-         taxonomyData: data.taxonomyData,     // Guardado directo como JSON
-         cumulativeData: data.cumulativeData, // Guardado directo como JSON
-         contenido: content,                  // El cuerpo markdown del archivo
+         labels: data.labels,
+         layers: data.layers,
+         methodologySteps: data.methodologySteps,
+         taxonomyData: data.taxonomyData,
+         cumulativeData: data.cumulativeData,
+         contenido: content,
+       },
+       create: {
+         titulo: data.title,
+         autor: data.author,
+         published: data.published,
+         doi: data.doi,
+         readingTime: data.readingTime,
+         license: data.license,
+         medianaGlobal: data.medianaGlobal,
+         lossFacilities: data.lossFacilities,
+         lossIT: data.lossIT,
+         lossWorkload: data.lossWorkload,
+         labels: data.labels,
+         layers: data.layers,
+         methodologySteps: data.methodologySteps,
+         taxonomyData: data.taxonomyData,
+         cumulativeData: data.cumulativeData,
+         contenido: content,
        }
      });
      ```
-  5. Retorna `{ success: true }`.
+  6. Respuesta exitosa: `{ success: true }`.
 
 ### `GET /api/reporte`
-* **Acción:** Devuelve el reporte activo (por ejemplo, el último publicado por fecha).
-* **Respuesta:** Objeto JSON completo con los metadatos, los JSONs de datos y el `contenido` (markdown).
+* **Acción:** Devuelve el reporte activo (idealmente el más reciente según `createdAt` o un identificador estático).
+* **Respuesta:** Objeto JSON estructurado con metadatos, los arrays JSON para gráficos y el campo `contenido` (texto Markdown).
 
 ---
 
 ## 5. Responsabilidades por Rol
 
 ### Tech Lead (Hernán)
-1. Definir el esquema final y revisar los Pull Requests del equipo.
-2. Coordinar el desarrollo en paralelo de frontend y backend.
-
+1. Definir y aprobar el esquema final de base de datos y estructura de carpetas.
+2. Revisar y aprobar Pull Requests, asegurando buenas prácticas.
+3. Coordinar la integración entre los equipos de frontend y backend.
 
 ### Backend (Alexis, Orlando, Gabriela)
-1. Configurar base de datos en PostgreSQL e inicializar el esquema de Prisma simplificado (una sola tabla `Reporte`).
-2. Programar el endpoint `GET /api/reporte` para retornar el reporte consultando a la base de datos (con datos iniciales precargados).
-3. Programar el endpoint `POST /api/reporte/upload` (utilizando `gray-matter`) para permitir la actualización del reporte subiendo un archivo `.mdx`.
-4. **(Opcional):** Programar el endpoint `POST /api/chat` usando el SDK `@google/genai` (modelo `gemini-3.5-flash`) para el asistente académico en streaming y con soporte para *Context Caching*.
-5. **(Opcional):** Configurar autenticación básica (ej. NextAuth o middleware con contraseña estática) para proteger el panel de administración.
+1. Configurar la instancia de PostgreSQL e inicializar el esquema Prisma (tabla única `Reporte`).
+2. Desarrollar el endpoint `GET /api/reporte` para retornar el reporte activo.
+3. Implementar la lógica del endpoint `POST /api/reporte/upload` utilizando `gray-matter` para la ingesta de archivos `.mdx` y **Zod** para la validación de la estructura del YAML.
+4. **(Opcional):** Desarrollar el endpoint `POST /api/chat` utilizando el SDK `@google/genai` (modelo `gemini-3.5-flash`) para un asistente académico con streaming y *Context Caching*.
+5. **(Opcional):** Implementar autenticación básica (NextAuth o middleware) para proteger el panel `/admin`.
 
 ### Frontend (Elias, Erika, Sergio)
-1. **Página Principal del Reporte (Prioridad Máxima):** Diseñar la estructura visual, tipografía, paleta de colores y la maquetación premium del reporte interactivo (`app/page.tsx`).
-2. **Componentes de Visualización:** Diseñar y animar los gráficos interactivos (`GraficoBarras`, `GraficoLinea`) y la taxonomía interactiva (`DiagramaCapas` y `<StepCard />`).
-3. **Renderizado del Contenido:** Consumir los datos desde la API y renderizar el cuerpo de texto largo (`contenido`) utilizando `react-markdown` o MDX dinámico.
-4. **Dashboard de Administración (Prioridad Secundaria):** Diseñar una pantalla simple en el panel de administración (`app/admin/page.tsx`) con un formulario básico para subir el archivo `.mdx` y actualizar el reporte.
-5. **(Opcional):** Desarrollar el componente flotante de chat (`ChatAyudante`) que consuma la API en streaming y actualice las burbujas de texto en tiempo real.
-6. **(Opcional):** Diseñar la pantalla de Inicio de Sesión (`app/login/page.tsx`) y proteger el acceso al panel de administración redirigiendo si no está autenticado.
+1. **Página Principal (Prioridad Máxima):** Diseñar la maquetación premium, tipografía y UI del reporte (`app/page.tsx`), incluyendo un Hero Header y una barra lateral de navegación (Sidebar) que se genere dinámicamente a partir de los títulos (`##`) del Markdown.
+2. **Visualización de Datos:** Implementar gráficos interactivos con Recharts (`GraficoBarras`, `GraficoLinea`) alimentados por los JSON de la DB. Desarrollar la taxonomía interactiva (`DiagramaCapas` y `StepCard`).
+3. **Renderizado de Contenido:** Consumir la API y renderizar el campo `contenido` (String Markdown) utilizando la librería `react-markdown` configurada con soporte para etiquetas JSX directas (`<DiagramaCapas />`, `<StepCards />`, `<GraficosDesperdicio />`, `<CitationBlock />`).
+4. **Dashboard (Prioridad Secundaria):** Construir una interfaz simple en `/admin` con un formulario de arrastrar y soltar (drag & drop) para la carga del archivo `.mdx`.
+5. **(Opcional):** Desarrollar la interfaz flotante del `ChatAyudante` con manejo de respuestas en streaming.
+6. **(Opcional):** Implementar la pantalla de Inicio de Sesión y protección de rutas.
 
 ### QA (Andrés)
-1. Validar la fidelidad del diseño visual, la interactividad de los gráficos, y el correcto funcionamiento en dispositivos móviles y de escritorio.
-2. Probar el flujo de actualización: subir un archivo `.mdx` de prueba en el panel de administración y verificar que la página principal cambie y muestre el nuevo reporte de inmediato.
-3. *(Opcional)* Probar la coherencia de las respuestas del asistente de IA y la fluidez del streaming de texto.
+1. Validar la fidelidad visual, la interactividad de los componentes y el diseño responsive (móvil/escritorio).
+2. Ejecutar pruebas E2E del flujo de actualización: subir un `.mdx` de prueba y verificar el reflejo inmediato en la página principal.
+3. *(Opcional)* Probar la latencia y coherencia del asistente de IA.
 
 ---
 
@@ -221,17 +241,17 @@ model Reporte {
 
 | # | Tarea | Responsable | Estimación | Prioridad |
 |---|-------|-------------|------------|-----------|
-| 1 | Setup Prisma + PostgreSQL (Esquema simplificado de una tabla) | Backend | 1 día | Alta |
-| 2 | Diseño visual y maquetación de la Página Principal (`app/page.tsx`) con datos locales | Frontend | 2 días | Alta |
-| 3 | Componente interactivo de capas y tarjetas (`DiagramaCapas` y `StepCard`) | Frontend | 2 días | Alta |
-| 4 | Componentes de gráficos interactivos con Recharts (`GraficoBarras`, `GraficoLinea`) | Frontend | 2 días | Alta |
-| 5 | Endpoint `GET /api/reporte` (servir datos desde la base de datos) | Backend | 1 día | Alta |
-| 6 | Integrar frontend con API para consumir datos dinámicos y renderizar markdown | Frontend | 1 día | Alta |
-| 7 | Endpoint `POST /api/reporte/upload` (recibir MDX, parsear frontmatter con gray-matter) | Backend | 2 días | Media |
-| 8 | Pantalla simple de Dashboard para subir archivos `.mdx` (`app/admin/page.tsx`) | Frontend | 1 día | Media |
-| 9 | Pruebas de compatibilidad móvil, responsive y accesibilidad | QA | 1 día | Media |
-| 10 | Pruebas del flujo de carga completa (Subir MDX -> Actualización inmediata) | QA | 1 día | Media |
-| 11 | **(Opcional)** API de Asistente de IA `POST /api/chat` (Gemini, Streaming, Caching) | Backend | 1 día | Baja |
-| 12 | **(Opcional)** Interfaz flotante de Chat (`ChatAyudante`) en streaming de texto | Frontend | 1 día | Baja |
-| 13 | **(Opcional)** Pantalla de Login y protección de ruta del Dashboard | Frontend/Backend | 1 día | Baja |
-
+| 1 | Setup Prisma + PostgreSQL (Esquema de tabla única) | Backend | 1 día | Alta |
+| 2 | Maquetación y diseño visual de la Página Principal con datos mock | Frontend | 2 días | Alta |
+| 3 | Desarrollo de Sidebar dinámica y componentes de tarjetas (`DiagramaCapas`, `StepCard`) | Frontend | 2 días | Alta |
+| 4 | Implementación de gráficos interactivos con Recharts | Frontend | 2 días | Alta |
+| 5 | Endpoint `GET /api/reporte` (Servir datos desde DB) | Backend | 1 día | Alta |
+| 6 | Integración Frontend-API y renderizado con `react-markdown` | Frontend | 1 día | Alta |
+| 7 | Endpoint `POST /api/reporte/upload` (Parseo con `gray-matter`) | Backend | 2 días | Media |
+| 8 | UI del Dashboard para carga de archivos `.mdx` | Frontend | 1 día | Media |
+| 9 | Pruebas de compatibilidad responsive y accesibilidad | QA | 1 día | Media |
+| 10 | Pruebas del flujo completo de carga y actualización | QA | 1 día | Media |
+| 11 | **(Opcional)** API del Asistente de IA (`POST /api/chat`) | Backend | 1 día | Baja |
+| 12 | **(Opcional)** Interfaz flotante de Chat en streaming | Frontend | 1 día | Baja |
+| 13 | **(Opcional)** Pantalla de Login y protección de rutas | Fullstack | 1 día | Baja |
+```

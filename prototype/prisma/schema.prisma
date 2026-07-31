@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --------------------------------------------------------
+// Modelo de Reporte (Tabla Única con JSONs Nativos)
+// --------------------------------------------------------
+model Reporte {
+  id             String   @id @default("global-report")
+  
+  // Metadatos Básicos (Extraídos del Frontmatter YAML)
+  titulo         String
+  subtitulo      String?
+  autor          String
+  published      String   // Ej: "Octubre 2025"
+  doi            String
+  readingTime    String   // Ej: "~22 minutos"
+  license        String   // Ej: "CC BY-SA 4.0"
+  
+  // Métricas de Impacto Global
+  medianaGlobal  String   // Ej: "31,4%"
+  lossFacilities String   // Ej: "14,8%"
+  lossIT         String   // Ej: "9,7%"
+  lossWorkload   String   // Ej: "6,9%"
+  keyFinding     String?  // Texto dinámico del Hallazgo Clave en la barra lateral
+  
+  // Estructuras Complejas y UI Labels (Almacenadas como JSON nativo)
+  labels         Json?    // Textos y captions configurables de UI
+  layers         Json     // Array de capas y sus modos de fallo (tarjetas)
+  methodologySteps Json?  // Pasos de metodología (StepCards)
+  taxonomyData   Json     // Puntos de datos para el gráfico de barras
+  cumulativeData Json     // Puntos de datos para el gráfico acumulado
+  
+  // Cuerpo del Reporte
+  contenido      String   // String completo en Markdown para renderizado directo
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// --------------------------------------------------------
+// Modelos de Better Auth (Autenticación)
+// --------------------------------------------------------
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}

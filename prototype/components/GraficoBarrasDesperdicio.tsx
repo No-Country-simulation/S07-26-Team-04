@@ -34,7 +34,6 @@ export interface DesperdicioItem {
 
 interface GraficoBarrasDesperdicioProps {
   data?: DesperdicioItem[];
-  lang?: string;
   labels?: Record<string, string | undefined>;
   onShowToast?: (msg: string) => void;
 }
@@ -61,7 +60,6 @@ function wrapSvgText(text: string, maxCharsPerLine: number = 115): string[] {
 
 export default function GraficoBarrasDesperdicio({
   data = defaultData,
-  lang = "ES",
   labels = {},
   onShowToast,
 }: GraficoBarrasDesperdicioProps) {
@@ -81,7 +79,7 @@ export default function GraficoBarrasDesperdicio({
 
         // 2. Define paddings for top and bottom metadata info
         const topPadding = 60;
-        const bottomPadding = 80; // Increased to fit the legend + wrapped caption
+        const bottomPadding = 60; // Increased to fit wrapped caption
         const newHeight = origHeight + topPadding + bottomPadding;
 
         // 3. Set the new height and viewbox attributes on the root SVG
@@ -201,18 +199,14 @@ export default function GraficoBarrasDesperdicio({
           
           const downloadLink = document.createElement("a");
           downloadLink.href = svgUrl;
-          downloadLink.download = `physaflow-stranded-capacity-modes-${lang.toLowerCase()}.svg`;
+          downloadLink.download = "physaflow-stranded-capacity-modes.svg";
           document.body.appendChild(downloadLink);
           downloadLink.click();
           document.body.removeChild(downloadLink);
           URL.revokeObjectURL(svgUrl);
 
           if (onShowToast) {
-            onShowToast(
-              lang === "EN"
-                ? "Figure 2 SVG exported with title, legend and wrapped caption."
-                : "Figura 2 SVG exportada con título, leyenda y pie de página multilínea."
-            );
+            onShowToast("Figura 2 SVG exportada con título, leyenda y pie de página multilínea.");
           }
         } catch (err) {
           console.error("Failed to generate SVG download", err);
@@ -230,6 +224,8 @@ export default function GraficoBarrasDesperdicio({
     fig2L3: labels.fig2L3 || "CARGA DE TRABAJO (L3)",
     fig2Waste: labels.fig2Waste || "Desperdicio:",
   };
+
+  const chartData = (data && data.length > 0) ? data : defaultData;
 
   return (
     <figure id="fig-bar-chart-figure" className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">
@@ -258,7 +254,7 @@ export default function GraficoBarrasDesperdicio({
 
       <div id="fig-bar-chart-container" className="w-full h-[320px] text-[11px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 20, right: 10, left: -20, bottom: 5 }}>
+          <BarChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e7e1cf" vertical={false} />
             <XAxis
               dataKey="name"

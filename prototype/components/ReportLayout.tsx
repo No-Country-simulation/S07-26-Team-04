@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import TocSidebar from "./TocSidebar";
 import ChatAyudante from "./ChatAyudante";
 import Navbar from "./Navbar";
@@ -22,17 +21,18 @@ interface ReportLayoutProps {
     lossFacilities: string;
     lossIT: string;
     lossWorkload: string;
+    keyFinding?: string;
   };
+  tocItems?: Array<{ id: string; label: string }>;
   children: React.ReactNode;
 }
 
 export default function ReportLayout({
   lang,
   frontmatter,
+  tocItems,
   children,
 }: ReportLayoutProps) {
-  const router = useRouter();
-  
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastTimeout, setToastTimeout] = useState<NodeJS.Timeout | null>(null);
 
@@ -47,16 +47,12 @@ export default function ReportLayout({
     setToastTimeout(timeout);
   };
 
-  const changeLanguage = (newLang: string) => {
-    router.push(`/?lang=${newLang.toLowerCase()}`);
-  };
-
   const handlePrint = () => {
     window.print();
   };
 
   const handleDownloadAllSvgs = () => {
-    showToast(lang === "ES" ? "Descargando figuras SVG..." : "Downloading SVG figures...");
+    showToast("Descargando figuras SVG...");
     // Introduce small sequential delays to bypass browser multi-download blocks
     setTimeout(() => {
       document.getElementById("btn-download-fig2")?.click();
@@ -70,26 +66,24 @@ export default function ReportLayout({
     window.print();
   };
 
-  const csvUrl = `/api/reporte/csv?lang=${lang}`;
-  const bibtexUrl = `/api/reporte/bibtex?lang=${lang}`;
+  const csvUrl = `/api/reporte/csv`;
+  const bibtexUrl = `/api/reporte/bibtex`;
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* ============ NAVEGACIÓN SUPERIOR ============ */}
       <Navbar
-        lang={lang}
-        onChangeLanguage={changeLanguage}
         onPrint={handlePrint}
         onDownload={handleDownloadReport}
       />
 
       {/* ============ HERO ============ */}
-      <Hero lang={lang} frontmatter={frontmatter} />
+      <Hero frontmatter={frontmatter} />
 
       {/* ============ DISEÑO PRINCIPAL ============ */}
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 w-full flex-grow">
         <div className="grid grid-cols-12 gap-8 lg:gap-14 py-12 lg:py-20">
-          <TocSidebar />
+          <TocSidebar items={tocItems} keyFinding={frontmatter.keyFinding} />
 
           <main className="col-span-12 lg:col-span-9 max-w-[720px] w-full">
             {children}
@@ -99,7 +93,6 @@ export default function ReportLayout({
 
       {/* ============ PIE DE PÁGINA ============ */}
       <Footer
-        lang={lang}
         license={frontmatter.license}
         csvUrl={csvUrl}
         bibtexUrl={bibtexUrl}

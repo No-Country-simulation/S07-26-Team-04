@@ -1,132 +1,80 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import ReportLayout from "@/components/ReportLayout";
-import GraficoBarrasDesperdicio from "@/components/GraficoBarrasDesperdicio";
-import GraficoLineaAcumulado from "@/components/GraficoLineaAcumulado";
-import CitationBlock from "@/components/CitationBlock";
-import DiagramaCapas, { Layer, LabelTranslations } from "@/components/DiagramaCapas";
-import StepCard from "@/components/StepCard";
+import DynamicReportContent from "@/components/DynamicReportContent";
+import { prisma } from "@/lib/prisma";
+import { Layer, LabelTranslations } from "@/components/DiagramaCapas";
 
+export default async function Home() {
+  const lang = "ES";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const reportsRegistry: Record<string, () => Promise<any>> = {
-  ES: () => import("@/content/reporte-ES.mdx"),
-  EN: () => import("@/content/reporte-EN.mdx"),
-};
+  // Consultar el reporte activo más recientemente actualizado desde PostgreSQL (Neon)
+  const dbReporte = await prisma.reporte.findFirst({
+    orderBy: { updatedAt: "desc" },
+  });
 
-interface PageProps {
-  searchParams: Promise<{ lang?: string }>;
-}
-
-export default async function Home({ searchParams }: PageProps) {
-  const sParams = await searchParams;
-  const lang = (sParams.lang || "es").toUpperCase();
-
-  // Validate language exists
-  if (!reportsRegistry[lang]) {
+  if (!dbReporte) {
     notFound();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let MdxComponent: React.ComponentType<{ components: Record<string, React.ComponentType<any>> }>;
-  let reportMeta: {
-    title: string;
-    subtitle: string;
-    author: string;
-    published: string;
-    doi: string;
-    readingTime: string;
-    license: string;
-    medianaGlobal: string;
-    lossFacilities: string;
-    lossIT: string;
-    lossWorkload: string;
-    layers: Layer[];
-    labels: LabelTranslations;
+  // Parsear campos JSON de Prisma
+  const layers = (dbReporte.layers as unknown as Layer[]) || [];
+  const labels = (dbReporte.labels as unknown as LabelTranslations) || {
+    visible: "Qué se ve",
+    cost: "Cuánto cuesta",
+    reason: "Por qué ocurre",
   };
-  let taxonomyData: Array<{ name: string; label: string; value: number; layer: string; color: string }>;
-  let cumulativeData: Array<{ year: string; value: number }>;
+  const methodologySteps = (dbReporte.methodologySteps as unknown as Array<{ num: string; title: string; borderColor: string; text: string }>) || [];
+  const taxonomyData = (dbReporte.taxonomyData as unknown as Array<{ name: string; label: string; value: number; layer: string; color: string }>) || [];
+  const cumulativeData = (dbReporte.cumulativeData as unknown as Array<{ year: string; value: number }>) || [];
 
-  try {
-    const loadReportModule = reportsRegistry[lang];
-    const mod = await loadReportModule();
-    MdxComponent = mod.default;
-    const metadata = mod.metadata;
+  // 🪄 Extraer dinámicamente los encabezados H2 (##) para la barra lateral (TOC Sidebar)
+  const tocItems: Array<{ id: string; label: string }> = [];
+  dbReporte.contenido.split("\n").forEach((linea) => {
+    if (linea.startsWith("## ")) {
+      const label = linea.replace("## ", "").trim();
+      const id = label
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-");
+      
+      tocItems.push({ id, label });
 
-    reportMeta = {
-      title: metadata.title || "El Índice de Capacidad Varada",
-      subtitle: metadata.subtitle || "",
-      author: metadata.author || "Dr. Adrián Marín",
-      published: metadata.published || "Octubre 2025",
-      doi: metadata.doi || "physaflow/sci-latest",
-      readingTime: metadata.readingTime || "~22 minutos",
-      license: metadata.license || "CC BY-SA 4.0",
-      medianaGlobal: metadata.medianaGlobal || "31,4%",
-      lossFacilities: metadata.lossFacilities || "14,8%",
-      lossIT: metadata.lossIT || "9,7%",
-      lossWorkload: metadata.lossWorkload || "6,9%",
-      layers: metadata.layers || [],
-      labels: metadata.labels || { visible: "Qué se ve", cost: "Cuánto cuesta", reason: "Por qué ocurre" },
-    };
+      // Inyectar subcapas interactivas si corresponde a la taxonomía
+      if (label.includes("03")) {
+        tocItems.push({ id: "facility", label: "03.1 — Capa de instalaciones" });
+        tocItems.push({ id: "it", label: "03.2 — Capa de TI" });
+        tocItems.push({ id: "workload", label: "03.3 — Capa de carga" });
+      }
+    }
+  });
 
-    taxonomyData = metadata.taxonomyData || [];
-    cumulativeData = metadata.cumulativeData || [];
-  } catch (error) {
-    console.error("Failed to load root report page metadata", error);
-    notFound();
-  }
+  const frontmatter = {
+    title: dbReporte.titulo,
+    subtitle: dbReporte.subtitulo || "",
+    author: dbReporte.autor,
+    published: dbReporte.published,
+    doi: dbReporte.doi,
+    readingTime: dbReporte.readingTime,
+    license: dbReporte.license,
+    medianaGlobal: dbReporte.medianaGlobal,
+    lossFacilities: dbReporte.lossFacilities,
+    lossIT: dbReporte.lossIT,
+    lossWorkload: dbReporte.lossWorkload,
+    keyFinding: dbReporte.keyFinding || "El 31,4% de la capacidad energizada pagada en instalaciones hiperescala no produce ningún cómputo útil en una hora determinada.",
+    layers,
+    labels,
+    methodologySteps,
+    taxonomyData,
+    cumulativeData,
+  };
 
   return (
-    <ReportLayout lang={lang} frontmatter={reportMeta}>
-      <MdxComponent
-        components={{
-          // Pass the dynamic datasets straight to the charts
-          DiagramaCapas: (props: React.ComponentProps<typeof DiagramaCapas>) => (
-            <DiagramaCapas
-              {...props}
-              lang={lang}
-              lossFacilities={reportMeta.lossFacilities}
-              lossIT={reportMeta.lossIT}
-              lossWorkload={reportMeta.lossWorkload}
-              layers={reportMeta.layers}
-              labels={reportMeta.labels}
-            />
-          ),
-          GraficoBarrasDesperdicio: (props: React.ComponentProps<typeof GraficoBarrasDesperdicio>) => (
-            <GraficoBarrasDesperdicio
-              {...props}
-              data={taxonomyData}
-              lang={lang}
-              labels={reportMeta.labels}
-            />
-          ),
-          GraficoLineaAcumulado: (props: React.ComponentProps<typeof GraficoLineaAcumulado>) => (
-            <GraficoLineaAcumulado
-              {...props}
-              data={cumulativeData}
-              lang={lang}
-              labels={reportMeta.labels}
-            />
-          ),
-          CitationBlock: (props: React.ComponentProps<typeof CitationBlock>) => {
-            const yearMatch = reportMeta.published.match(/\d{4}/);
-            const citationYear = yearMatch ? yearMatch[0] : "2025";
-            return (
-              <CitationBlock
-                {...props}
-                author={reportMeta.author}
-                title={reportMeta.title}
-                year={citationYear}
-                doi={reportMeta.doi}
-                medianaGlobal={reportMeta.medianaGlobal}
-                labels={reportMeta.labels}
-              />
-            );
-          },
-          StepCard: (props: React.ComponentProps<typeof StepCard>) => (
-            <StepCard {...props} />
-          ),
-        }}
+    <ReportLayout lang={lang} frontmatter={frontmatter} tocItems={tocItems}>
+      <DynamicReportContent
+        content={dbReporte.contenido}
+        lang={lang}
+        frontmatter={frontmatter}
       />
     </ReportLayout>
   );
