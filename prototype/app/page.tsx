@@ -1,36 +1,67 @@
 import React from "react";
-import { notFound } from "next/navigation";
 import ReportLayout from "@/components/ReportLayout";
 import DynamicReportContent from "@/components/DynamicReportContent";
 import { prisma } from "@/lib/prisma";
 import { Layer, LabelTranslations } from "@/components/DiagramaCapas";
+import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 
 export default async function Home() {
   const lang = "ES";
 
-  // Consultar el reporte activo más recientemente actualizado desde PostgreSQL (Neon)
-  const dbReporte = await prisma.reporte.findFirst({
+  // Consultar el reporte activo más recientemente actualizado y publicado desde PostgreSQL (Neon)
+  const dbReport = await prisma.report.findFirst({
+    where: { isPublished: true },
     orderBy: { updatedAt: "desc" },
   });
 
-  if (!dbReporte) {
-    notFound();
+  // Estado Vacío Elegante (Empty State) cuando la DB está limpia
+  if (!dbReport) {
+    return (
+      <div className="min-h-screen bg-[var(--paper)] paper-texture flex flex-col items-center justify-center p-6 antialiased text-[var(--ink)]">
+        <div className="max-w-md w-full bg-[var(--paper-2)] border border-[var(--rule-soft)] p-8 rounded-md shadow-sm text-center space-y-6">
+          <div className="mx-auto w-14 h-14 bg-[var(--forest-700)] text-[var(--gold-400)] rounded-full flex items-center justify-center shadow-sm">
+            <Sparkles className="w-7 h-7" />
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="font-display text-[24px] font-bold text-[var(--forest-800)]">
+              PhysaFlow — Sistema de Publicaciones
+            </h1>
+            <p className="text-[13px] text-[var(--ink-muted)] leading-relaxed">
+              Aún no se ha publicado ningún reporte técnico en PostgreSQL. El equipo editorial está preparando las métricas del Índice de Capacidad Varada.
+            </p>
+          </div>
+
+          <div className="pt-2 border-t border-[var(--rule-soft)] flex flex-col gap-3">
+            <a
+              href="/admin"
+              className="flex items-center justify-center gap-2 px-5 py-3 bg-[var(--forest-700)] hover:bg-[var(--forest-800)] text-white text-[13px] font-semibold rounded-md transition shadow-sm"
+            >
+              <span>Acceder al Panel de Administración</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
+
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--ink-soft)] pt-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Base de Datos Neon PostgreSQL Conectada</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Parsear campos JSON de Prisma
-  const layers = (dbReporte.layers as unknown as Layer[]) || [];
-  const labels = (dbReporte.labels as unknown as LabelTranslations) || {
+  const layers = (dbReport.layers as unknown as Layer[]) || [];
+  const labels = (dbReport.labels as unknown as LabelTranslations) || {
     visible: "Qué se ve",
     cost: "Cuánto cuesta",
     reason: "Por qué ocurre",
   };
-  const methodologySteps = (dbReporte.methodologySteps as unknown as Array<{ num: string; title: string; borderColor: string; text: string }>) || [];
-  const taxonomyData = (dbReporte.taxonomyData as unknown as Array<{ name: string; label: string; value: number; layer: string; color: string }>) || [];
-  const cumulativeData = (dbReporte.cumulativeData as unknown as Array<{ year: string; value: number }>) || [];
 
   // 🪄 Extraer dinámicamente los encabezados H2 (##) para la barra lateral (TOC Sidebar)
   const tocItems: Array<{ id: string; label: string }> = [];
-  dbReporte.contenido.split("\n").forEach((linea) => {
+  dbReport.content.split("\n").forEach((linea: string) => {
     if (linea.startsWith("## ")) {
       const label = linea.replace("## ", "").trim();
       const id = label
@@ -40,39 +71,39 @@ export default async function Home() {
       
       tocItems.push({ id, label });
 
-      // Inyectar subcapas interactivas si corresponde a la taxonomía
-      if (label.includes("03")) {
-        tocItems.push({ id: "facility", label: "03.1 — Capa de instalaciones" });
-        tocItems.push({ id: "it", label: "03.2 — Capa de TI" });
-        tocItems.push({ id: "workload", label: "03.3 — Capa de carga" });
+      // Inyectar subcapas interactivas leyendo los títulos reales de las capas en el idioma del informe (con numeración 03.X —)
+      if (id.includes("03") || id.includes("taxonomia") || id.includes("taxonomy")) {
+        layers.forEach((layer, idx) => {
+          if (layer.id && layer.title) {
+            const subNum = `03.${idx + 1}`;
+            tocItems.push({ id: layer.id, label: `${subNum} — ${layer.title}` });
+          }
+        });
       }
     }
   });
 
   const frontmatter = {
-    title: dbReporte.titulo,
-    subtitle: dbReporte.subtitulo || "",
-    author: dbReporte.autor,
-    published: dbReporte.published,
-    doi: dbReporte.doi,
-    readingTime: dbReporte.readingTime,
-    license: dbReporte.license,
-    medianaGlobal: dbReporte.medianaGlobal,
-    lossFacilities: dbReporte.lossFacilities,
-    lossIT: dbReporte.lossIT,
-    lossWorkload: dbReporte.lossWorkload,
-    keyFinding: dbReporte.keyFinding || "El 31,4% de la capacidad energizada pagada en instalaciones hiperescala no produce ningún cómputo útil en una hora determinada.",
+    title: dbReport.title,
+    subtitle: dbReport.subtitle || "",
+    author: dbReport.author,
+    published: dbReport.publishedDate,
+    doi: dbReport.doi,
+    readingTime: dbReport.readingTime,
+    license: dbReport.license,
+    medianaGlobal: dbReport.globalMedian,
+    lossFacilities: dbReport.lossFacilities,
+    lossIT: dbReport.lossIT,
+    lossWorkload: dbReport.lossWorkload,
+    keyFinding: dbReport.keyFinding || "",
     layers,
     labels,
-    methodologySteps,
-    taxonomyData,
-    cumulativeData,
   };
 
   return (
     <ReportLayout lang={lang} frontmatter={frontmatter} tocItems={tocItems}>
       <DynamicReportContent
-        content={dbReporte.contenido}
+        content={dbReport.content}
         lang={lang}
         frontmatter={frontmatter}
       />

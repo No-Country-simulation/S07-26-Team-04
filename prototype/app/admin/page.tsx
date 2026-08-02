@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
+import MdxEditor from "@/components/MdxEditor";
 import {
   FileText,
   UploadCloud,
@@ -16,28 +17,26 @@ import {
   Sparkles,
   LayoutDashboard,
   FolderOpen,
-  FileCode,
   BookOpen,
   CheckCircle,
   AlertCircle,
   Database,
-  ShieldCheck,
-  TrendingUp,
-  Activity,
   ArrowUpRight,
-  Command,
+  PlusCircle,
 } from "lucide-react";
 
-interface ReporteItem {
+interface ReportItem {
   id: string;
-  titulo: string;
-  subtitulo?: string;
-  autor: string;
-  published: string;
+  slug: string;
+  isPublished: boolean;
+  title: string;
+  subtitle?: string;
+  author: string;
+  publishedDate: string;
   readingTime: string;
   license: string;
   doi: string;
-  medianaGlobal: string;
+  globalMedian: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -46,15 +45,24 @@ export default function AdminPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "reportes" | "upload" | "templates" | "editor">("dashboard");
-  const [reportes, setReportes] = useState<ReporteItem[]>([]);
+  const [activeTab, setActiveTab] = useState<"dashboard" | "reportes" | "borradores" | "upload" | "templates" | "editor">("dashboard");
+  const [reportes, setReportes] = useState<ReportItem[]>([]);
   const [loadingReportes, setLoadingReportes] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [uploadIsPublished, setUploadIsPublished] = useState<boolean>(true);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   const [uploading, setUploading] = useState(false);
-  const [status, setStatus] = useState<{ success?: boolean; message?: string } | null>(null);
+  const [status, setStatus] = useState<{
+    success?: boolean;
+    message?: string;
+    reportId?: string;
+    slug?: string;
+    isPublished?: boolean;
+  } | null>(null);
 
   // Proteger la ruta /admin: Redirigir a /login si no hay sesión activa
   useEffect(() => {
@@ -67,10 +75,10 @@ export default function AdminPage() {
   const fetchReportes = useCallback(async () => {
     setLoadingReportes(true);
     try {
-      const res = await fetch("/api/reportes");
+      const res = await fetch("/api/reports");
       const data = await res.json();
       if (res.ok) {
-        setReportes(data.reportes || []);
+        setReportes(data.reports || []);
       }
     } catch (err) {
       console.error("Error al obtener reportes:", err);
@@ -84,10 +92,10 @@ export default function AdminPage() {
     let isMounted = true;
     const loadReportes = async () => {
       try {
-        const res = await fetch("/api/reportes");
+        const res = await fetch("/api/reports");
         const data = await res.json();
         if (res.ok && isMounted) {
-          setReportes(data.reportes || []);
+          setReportes(data.reports || []);
         }
       } catch (err) {
         console.error("Error al obtener reportes:", err);
@@ -110,6 +118,36 @@ export default function AdminPage() {
     }
   };
 
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile.name.endsWith(".mdx") || droppedFile.name.endsWith(".md")) {
+        setFile(droppedFile);
+        setStatus(null);
+      } else {
+        setStatus({
+          success: false,
+          message: "Formato no válido. Solo se permiten archivos con extensión .mdx o .md",
+        });
+      }
+    }
+  };
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
@@ -119,12 +157,13 @@ export default function AdminPage() {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("isPublished", uploadIsPublished ? "true" : "false");
     if (selectedReportId) {
       formData.append("targetId", selectedReportId);
     }
 
     try {
-      const res = await fetch("/api/reporte/upload", {
+      const res = await fetch("/api/reports/upload", {
         method: "POST",
         body: formData,
       });
@@ -132,9 +171,13 @@ export default function AdminPage() {
       const data = await res.json();
 
       if (res.ok) {
+        const isPub = data.isPublished;
         setStatus({
           success: true,
-          message: `¡Reporte "${data.title}" ${selectedReportId ? "actualizado" : "creado"} con éxito en PostgreSQL!`,
+          message: `¡Reporte "${data.title}" ${selectedReportId ? "actualizado" : "creado"} con éxito! (${isPub ? "Publicado en línea" : "Guardado como borrador"})`,
+          reportId: data.id,
+          slug: data.slug,
+          isPublished: isPub,
         });
         setFile(null);
         setSelectedReportId(null);
@@ -156,13 +199,28 @@ export default function AdminPage() {
     }
   };
 
+  const togglePublishStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      const res = await fetch(`/api/reports/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPublished: !currentStatus }),
+      });
+      if (res.ok) {
+        fetchReportes();
+      }
+    } catch (err) {
+      console.error("Error al cambiar estado de publicación:", err);
+    }
+  };
+
   const handleDeleteReport = async (id: string, titulo: string) => {
     if (!confirm(`¿Estás seguro de que deseas eliminar el reporte "${titulo}"?`)) {
       return;
     }
 
     try {
-      const res = await fetch(`/api/reporte/delete?id=${encodeURIComponent(id)}`, {
+      const res = await fetch(`/api/reports/${id}`, {
         method: "DELETE",
       });
 
@@ -194,17 +252,29 @@ export default function AdminPage() {
     router.push("/login");
   };
 
-  // Buscador inteligente por Título, Autor, ID o Fecha de Publicación (ej. "2025" u "Octubre 2025")
+  // Buscador inteligente y discriminador de Pestañas (Publicados vs Borradores)
   const filteredReportes = reportes.filter((r) => {
+    // 1. Filtrar según la pestaña activa en la barra lateral
+    if (activeTab === "reportes" && !r.isPublished) return false;
+    if (activeTab === "borradores" && r.isPublished) return false;
+
+    // 2. Filtrar por término de búsqueda
     const query = searchQuery.toLowerCase().trim();
     if (!query) return true;
     return (
-      r.titulo.toLowerCase().includes(query) ||
-      r.autor.toLowerCase().includes(query) ||
+      r.title.toLowerCase().includes(query) ||
+      r.author.toLowerCase().includes(query) ||
       r.id.toLowerCase().includes(query) ||
-      r.published.toLowerCase().includes(query)
+      r.publishedDate.toLowerCase().includes(query)
     );
   });
+
+  const ITEMS_PER_PAGE = 3;
+  const totalPages = Math.ceil(filteredReportes.length / ITEMS_PER_PAGE) || 1;
+  const paginatedReportes = filteredReportes.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   if (isPending || (!session && typeof window !== "undefined")) {
     return (
@@ -243,27 +313,12 @@ export default function AdminPage() {
           </a>
         </div>
 
-        {/* Buscador Rápido del Topbar */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[var(--paper)] border border-[var(--rule-soft)] rounded-md w-72 text-xs text-[var(--ink-muted)]">
-          <Search className="w-3.5 h-3.5 text-[var(--ink-soft)]" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar reportes, autores o fecha..."
-            className="w-full bg-transparent outline-none text-[12px] text-[var(--ink)] placeholder-[var(--ink-soft)]"
-          />
-          <kbd className="hidden lg:inline-flex items-center gap-0.5 text-[10px] bg-[var(--paper-2)] px-1.5 py-0.5 rounded border border-[var(--rule-soft)] font-mono text-[var(--ink-soft)]">
-            <Command className="w-2.5 h-2.5" /> K
-          </kbd>
-        </div>
-
         {/* Acciones Topbar & Perfil */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-auto">
           <a
             href="/"
             target="_blank"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--forest-700)] hover:text-[var(--forest-800)] bg-[var(--paper)] hover:bg-white border border-[var(--rule)] rounded-md transition shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--forest-700)] hover:text-[var(--forest-800)] bg-[var(--paper)] hover:bg-white border border-[var(--rule)] rounded-md transition shadow-sm"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>Ver Sitio Público</span>
@@ -320,7 +375,10 @@ export default function AdminPage() {
               </button>
 
               <button
-                onClick={() => setActiveTab("reportes")}
+                onClick={() => {
+                  setCurrentPage(1);
+                  setActiveTab("reportes");
+                }}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-[13px] font-medium transition cursor-pointer ${
                   activeTab === "reportes"
                     ? "bg-[var(--forest-700)] text-[var(--paper)] shadow-sm font-semibold"
@@ -333,10 +391,34 @@ export default function AdminPage() {
                 </div>
                 <span
                   className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
-                    activeTab === "reportes" ? "bg-white/20 text-white" : "bg-[var(--rule-soft)] text-[var(--ink-muted)]"
+                    activeTab === "reportes" ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-800"
                   }`}
                 >
-                  {reportes.length}
+                  {reportes.filter((r) => r.isPublished).length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setCurrentPage(1);
+                  setActiveTab("borradores");
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-[13px] font-medium transition cursor-pointer ${
+                  activeTab === "borradores"
+                    ? "bg-[var(--forest-700)] text-[var(--paper)] shadow-sm font-semibold"
+                    : "text-[var(--ink-muted)] hover:text-[var(--forest-800)] hover:bg-[var(--paper)]"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <FileText className="w-4 h-4 text-amber-500" />
+                  <span>Borradores</span>
+                </div>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
+                    activeTab === "borradores" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  {reportes.filter((r) => !r.isPublished).length}
                 </span>
               </button>
 
@@ -349,7 +431,7 @@ export default function AdminPage() {
                 }`}
               >
                 <UploadCloud className="w-4 h-4" />
-                <span>Ingestar / Subir MDX</span>
+                <span>Subir MDX</span>
               </button>
             </div>
 
@@ -373,38 +455,16 @@ export default function AdminPage() {
 
               <button
                 onClick={() => setActiveTab("editor")}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-[13px] font-medium transition cursor-pointer ${
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition cursor-pointer ${
                   activeTab === "editor"
                     ? "bg-[var(--forest-700)] text-[var(--paper)] shadow-sm font-semibold"
                     : "text-[var(--ink-muted)] hover:text-[var(--forest-800)] hover:bg-[var(--paper)]"
                 }`}
               >
-                <div className="flex items-center gap-2.5">
-                  <Sparkles className="w-4 h-4 text-[var(--gold-500)]" />
-                  <span>Editor MDX</span>
-                </div>
-                <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 bg-[var(--gold-500)]/20 text-[var(--gold-600)] rounded">
-                  Próximamente
-                </span>
+                <Sparkles className="w-4 h-4 text-[var(--gold-500)]" />
+                <span>Editor MDX</span>
               </button>
             </div>
-          </div>
-
-          {/* Tarjeta Inferior de Estado de Base de Datos */}
-          <div className="mt-8 p-3.5 bg-[var(--paper)] border border-[var(--rule-soft)] rounded-md space-y-2 text-[11px]">
-            <div className="flex items-center justify-between font-semibold text-[var(--forest-800)]">
-              <div className="flex items-center gap-1.5">
-                <Database className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Neon PostgreSQL</span>
-              </div>
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
-                Conectado
-              </span>
-            </div>
-            <p className="text-[10px] text-[var(--ink-soft)] leading-relaxed">
-              Auth Server: Better Auth v1.1 <br />
-              Motor: Prisma 7 PgAdapter
-            </p>
           </div>
         </aside>
 
@@ -424,18 +484,10 @@ export default function AdminPage() {
                     Resumen de métricas del reporte científico activo y estado del sistema.
                   </p>
                 </div>
-
-                <a
-                  href="/api/reporte/template"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--paper-2)] hover:bg-white text-[var(--forest-800)] text-[12px] font-semibold rounded-md border border-[var(--rule)] transition shadow-sm self-start sm:self-auto"
-                >
-                  <Download className="w-3.5 h-3.5 text-[var(--forest-700)]" />
-                  <span>Descargar Plantilla MDX</span>
-                </a>
               </div>
 
               {/* Fila de Tarjetas de Métricas (Stat Cards) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-[var(--paper-2)] border border-[var(--rule-soft)] p-5 rounded-md shadow-sm space-y-2">
                   <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--ink-soft)] uppercase tracking-wider">
                     <span>Reportes Publicados</span>
@@ -443,68 +495,32 @@ export default function AdminPage() {
                   </div>
                   <div className="flex items-baseline justify-between">
                     <span className="font-display font-bold text-3xl text-[var(--forest-800)]">
-                      {reportes.length}
+                      {reportes.filter((r) => r.isPublished).length}
                     </span>
                     <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
                       En Línea
                     </span>
                   </div>
                   <p className="text-[11px] text-[var(--ink-muted)]">
-                    {latestReport ? `Último: ${latestReport.published}` : "Sin reportes"}
+                    {latestReport ? `Último: ${latestReport.publishedDate}` : "Sin reportes"}
                   </p>
                 </div>
 
                 <div className="bg-[var(--paper-2)] border border-[var(--rule-soft)] p-5 rounded-md shadow-sm space-y-2">
                   <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--ink-soft)] uppercase tracking-wider">
-                    <span>Mediana Capacidad Varada</span>
-                    <TrendingUp className="w-4 h-4 text-[var(--gold-600)]" />
+                    <span>Borradores</span>
+                    <FileText className="w-4 h-4 text-amber-600" />
                   </div>
                   <div className="flex items-baseline justify-between">
                     <span className="font-display font-bold text-3xl text-[var(--forest-800)]">
-                      {latestReport ? latestReport.medianaGlobal : "31,4%"}
+                      {reportes.filter((r) => !r.isPublished).length}
                     </span>
-                    <span className="text-[11px] text-[var(--forest-700)] font-semibold bg-[var(--forest-50)] border border-[var(--forest-200)] px-2 py-0.5 rounded">
-                      SCI Metric
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-[var(--ink-muted)]">
-                    Basado en n=41 sitios medidos
-                  </p>
-                </div>
-
-                <div className="bg-[var(--paper-2)] border border-[var(--rule-soft)] p-5 rounded-md shadow-sm space-y-2">
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--ink-soft)] uppercase tracking-wider">
-                    <span>Estado del Motor DB</span>
-                    <Activity className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-display font-bold text-xl text-[var(--forest-800)]">
-                      Neon PG
-                    </span>
-                    <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
-                      Saludable
+                    <span className="text-[11px] text-amber-700 font-semibold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
+                      En Edición
                     </span>
                   </div>
                   <p className="text-[11px] text-[var(--ink-muted)]">
-                    Prisma 7 PgPool Conectado
-                  </p>
-                </div>
-
-                <div className="bg-[var(--paper-2)] border border-[var(--rule-soft)] p-5 rounded-md shadow-sm space-y-2">
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--ink-soft)] uppercase tracking-wider">
-                    <span>Autenticación</span>
-                    <ShieldCheck className="w-4 h-4 text-[var(--forest-700)]" />
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-display font-bold text-xl text-[var(--forest-800)]">
-                      Better Auth
-                    </span>
-                    <span className="text-[11px] text-[var(--forest-700)] font-semibold bg-[var(--forest-50)] border border-[var(--forest-200)] px-2 py-0.5 rounded">
-                      Protegido
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-[var(--ink-muted)] truncate">
-                    {session?.user?.email}
+                    Reportes guardados privadamente
                   </p>
                 </div>
               </div>
@@ -536,17 +552,17 @@ export default function AdminPage() {
                     <div className="p-4 bg-[var(--paper)] border border-[var(--rule-soft)] rounded-md space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <h3 className="font-display font-bold text-[18px] text-[var(--forest-800)]">
-                          {latestReport.titulo}
+                          {latestReport.title}
                         </h3>
                         <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[var(--forest-50)] text-[var(--forest-700)] border border-[var(--forest-200)] rounded">
-                          {latestReport.published}
+                          {latestReport.publishedDate}
                         </span>
                       </div>
                       <p className="text-[13px] text-[var(--ink-muted)]">
-                        {latestReport.subtitulo || "Reporte técnico sobre capacidad varada e infraestructura de datos."}
+                        {latestReport.subtitle || "Reporte técnico sobre capacidad varada e infraestructura de datos."}
                       </p>
                       <div className="flex flex-wrap items-center gap-4 text-[12px] text-[var(--ink-soft)] pt-2 border-t border-[var(--rule-soft)]">
-                        <span>Autor: <strong>{latestReport.autor}</strong></span>
+                        <span>Autor: <strong>{latestReport.author}</strong></span>
                         <span>DOI: {latestReport.doi}</span>
                         <span>Lectura: {latestReport.readingTime}</span>
                       </div>
@@ -566,12 +582,26 @@ export default function AdminPage() {
 
                   <div className="space-y-2.5">
                     <button
+                      onClick={() => {
+                        setSelectedReportId(null);
+                        setActiveTab("editor");
+                      }}
+                      className="w-full flex items-center justify-between p-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-md text-[13px] font-semibold transition shadow-sm cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <PlusCircle className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition" />
+                        <span>Crear en Editor MDX</span>
+                      </div>
+                      <ArrowUpRight className="w-4 h-4 text-emerald-200" />
+                    </button>
+
+                    <button
                       onClick={() => setActiveTab("upload")}
                       className="w-full flex items-center justify-between p-3 bg-[var(--paper)] hover:bg-white border border-[var(--rule-soft)] rounded-md text-[13px] font-semibold text-[var(--forest-800)] transition shadow-sm cursor-pointer group"
                     >
                       <div className="flex items-center gap-2.5">
                         <UploadCloud className="w-4 h-4 text-[var(--forest-700)] group-hover:scale-110 transition" />
-                        <span>Subir Nuevo .MDX</span>
+                        <span>Subir Archivo .MDX</span>
                       </div>
                       <ArrowUpRight className="w-4 h-4 text-[var(--ink-soft)]" />
                     </button>
@@ -604,27 +634,42 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* PESTAÑA 2: REPORTES PUBLICADOS */}
-          {activeTab === "reportes" && (
+          {/* PESTAÑA 2: REPORTES PUBLICADOS Y BORRADORES */}
+          {(activeTab === "reportes" || activeTab === "borradores") && (
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--rule-soft)] pb-6 gap-4">
                 <div>
-                  <div className="eyebrow mb-1">Biblioteca General</div>
+                  <div className="eyebrow mb-1">
+                    {activeTab === "reportes" ? "Biblioteca Pública" : "Borradores Privados"}
+                  </div>
                   <h1 className="font-display text-[28px] font-bold text-[var(--forest-800)]">
-                    Reportes Almacenados ({reportes.length})
+                    {activeTab === "reportes" ? "Reportes Publicados" : "Borradores Sin Publicar"} ({filteredReportes.length})
                   </h1>
                   <p className="text-[13px] text-[var(--ink-muted)] mt-1">
-                    Filtra reportes por título, autor o fecha de publicación (ej. &quot;2025&quot; u &quot;Octubre 2025&quot;).
+                    {activeTab === "reportes"
+                      ? "Lista de informes visibles para los usuarios en la web pública."
+                      : "Informes guardados en estado de borrador para revisión o edición futura."}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
+                  <button
+                    onClick={() => {
+                      setSelectedReportId(null);
+                      setActiveTab("editor");
+                    }}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-[12px] font-semibold rounded-md shadow-sm transition cursor-pointer"
+                  >
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    <span>Crear en Editor MDX</span>
+                  </button>
+
                   <button
                     onClick={() => setActiveTab("upload")}
-                    className="flex items-center gap-2 px-4 py-2 bg-[var(--forest-700)] hover:bg-[var(--forest-800)] text-[var(--paper)] text-[12px] font-semibold rounded-md shadow-sm transition cursor-pointer"
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-[var(--paper-2)] hover:bg-white text-[var(--forest-800)] border border-[var(--rule)] text-[12px] font-semibold rounded-md shadow-sm transition cursor-pointer"
                   >
-                    <UploadCloud className="w-3.5 h-3.5" />
-                    <span>Subir Nuevo MDX</span>
+                    <UploadCloud className="w-3.5 h-3.5 text-[var(--forest-700)]" />
+                    <span>Subir MDX</span>
                   </button>
 
                   <button
@@ -664,11 +709,21 @@ export default function AdminPage() {
                     Cargando colección de reportes desde Neon PostgreSQL...
                   </div>
                 ) : filteredReportes.length === 0 ? (
-                  <div className="py-16 text-center text-[13px] text-[var(--ink-muted)]">
-                    No se encontraron reportes que coincidan con &quot;{searchQuery}&quot;.
+                  <div className="py-16 px-6 text-center space-y-4">
+                    <div className="w-12 h-12 bg-[var(--forest-50)] text-[var(--forest-700)] rounded-full flex items-center justify-center mx-auto">
+                      <Database className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <div className="space-y-1 max-w-md mx-auto">
+                      <h3 className="font-display font-bold text-base text-[var(--forest-800)]">
+                        No hay reportes en la base de datos PostgreSQL
+                      </h3>
+                      <p className="text-[12px] text-[var(--ink-muted)]">
+                        No se encontraron reportes registrados para el filtro o estado actual.
+                      </p>
+                    </div>
                   </div>
                 ) : (
-                  filteredReportes.map((rep) => (
+                  paginatedReportes.map((rep) => (
                     <div
                       key={rep.id}
                       className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-[var(--paper)]/60 transition"
@@ -676,47 +731,58 @@ export default function AdminPage() {
                       <div className="space-y-1.5 max-w-2xl">
                         <div className="flex flex-wrap items-center gap-2.5">
                           <h3 className="font-display font-bold text-[18px] text-[var(--forest-800)]">
-                            {rep.titulo}
+                            {rep.title}
                           </h3>
-                          <span className="px-2.5 py-0.5 text-[10px] uppercase font-bold bg-[var(--forest-50)] text-[var(--forest-700)] rounded border border-[var(--forest-200)] font-mono">
-                            {rep.published}
+                          <button
+                            onClick={() => togglePublishStatus(rep.id, rep.isPublished)}
+                            className={`px-2.5 py-0.5 text-[10px] uppercase font-bold rounded border cursor-pointer transition ${
+                              rep.isPublished
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                                : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                            }`}
+                            title="Haz clic para cambiar estado (Borrador/Publicado)"
+                          >
+                            {rep.isPublished ? "Publicado" : "Borrador"}
+                          </button>
+                          <span className="px-2 py-0.5 text-[10px] uppercase font-bold bg-[var(--forest-50)] text-[var(--forest-700)] rounded border border-[var(--forest-200)] font-mono">
+                            {rep.publishedDate}
                           </span>
                         </div>
                         <p className="text-[13px] text-[var(--ink-muted)] line-clamp-1">
-                          {rep.subtitulo || "Reporte técnico sobre capacidad varada e infraestructura de datos."}
+                          {rep.subtitle || "Reporte técnico sobre capacidad varada e infraestructura de datos."}
                         </p>
                         <div className="text-[11px] text-[var(--ink-soft)] flex flex-wrap items-center gap-3 pt-1">
-                          <span>Autor: <strong>{rep.autor}</strong></span>
+                          <span>Autor: <strong>{rep.author}</strong></span>
                           <span>•</span>
                           <span>DOI: {rep.doi}</span>
                           <span>•</span>
-                          <span>Mediana: <strong className="text-[var(--forest-700)]">{rep.medianaGlobal}</strong></span>
+                          <span>Mediana: <strong className="text-[var(--forest-700)]">{rep.globalMedian}</strong></span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
                         <a
-                          href="/"
+                          href={`/reports/${rep.id}/${rep.slug}`}
                           target="_blank"
                           className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--paper)] hover:bg-white text-[12px] font-medium text-[var(--forest-700)] border border-[var(--rule)] rounded-md transition shadow-sm"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
-                          <span>Ver Sitio</span>
+                          <span>Ver Ruta Slug</span>
                         </a>
 
                         <button
                           onClick={() => {
                             setSelectedReportId(rep.id);
-                            setActiveTab("upload");
+                            setActiveTab("editor");
                           }}
                           className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--forest-700)] hover:bg-[var(--forest-800)] text-[var(--paper)] text-[12px] font-semibold rounded-md transition cursor-pointer shadow-sm"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
-                          <span>Reemplazar MDX</span>
+                          <span>Editar en Editor</span>
                         </button>
 
                         <button
-                          onClick={() => handleDeleteReport(rep.id, rep.titulo)}
+                          onClick={() => handleDeleteReport(rep.id, rep.title)}
                           className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md border border-transparent hover:border-red-200 transition cursor-pointer"
                           title="Eliminar Reporte"
                         >
@@ -727,6 +793,32 @@ export default function AdminPage() {
                   ))
                 )}
               </div>
+
+              {/* Controles de Paginación */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between p-4 bg-[var(--paper-2)] border border-[var(--rule-soft)] rounded-md text-[12px]">
+                  <span className="text-[var(--ink-muted)]">
+                    Mostrando página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({filteredReportes.length} reportes)
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1 bg-[var(--paper)] hover:bg-white border border-[var(--rule)] rounded-md font-semibold text-[var(--forest-800)] disabled:opacity-40 transition cursor-pointer"
+                    >
+                      ← Anterior
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1 bg-[var(--paper)] hover:bg-white border border-[var(--rule)] rounded-md font-semibold text-[var(--forest-800)] disabled:opacity-40 transition cursor-pointer"
+                    >
+                      Siguiente →
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -735,13 +827,13 @@ export default function AdminPage() {
             <div className="space-y-8 max-w-4xl">
               <div className="border-b border-[var(--rule-soft)] pb-6">
                 <div className="eyebrow mb-1">
-                  {selectedReportId ? `Actualizando Registro (${selectedReportId})` : "Nuevo Informe"}
+                  Nuevo Informe
                 </div>
                 <h1 className="font-display text-[28px] font-bold text-[var(--forest-800)]">
-                  {selectedReportId ? "Sobrescribir Reporte con nuevo MDX" : "Ingestar Nuevo Reporte (.mdx)"}
+                  SubirNuevo Reporte (.mdx)
                 </h1>
                 <p className="text-[13px] text-[var(--ink-muted)] mt-1">
-                  Sube el archivo .mdx con el Frontmatter YAML. Se procesará con gray-matter y Zod para actualizar PostgreSQL inmediatamente.
+                  Sube un archivo .mdx para crear un nuevo reporte en PostgreSQL.
                 </p>
               </div>
 
@@ -760,7 +852,16 @@ export default function AdminPage() {
               )}
 
               <form onSubmit={handleUpload} className="space-y-6">
-                <div className="border-2 border-dashed border-[var(--rule)] rounded-md p-10 text-center hover:border-[var(--forest-600)] transition-colors cursor-pointer bg-[var(--paper-2)]">
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-md p-10 text-center transition-all cursor-pointer ${
+                    isDragging
+                      ? "border-emerald-600 bg-emerald-50/50 scale-[1.01]"
+                      : "border-[var(--rule)] hover:border-[var(--forest-600)] bg-[var(--paper-2)]"
+                  }`}
+                >
                   <input
                     type="file"
                     accept=".mdx,.md"
@@ -769,12 +870,12 @@ export default function AdminPage() {
                     id="file-upload"
                   />
                   <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center">
-                    <UploadCloud className="w-12 h-12 text-[var(--forest-700)] mb-3" />
+                    <UploadCloud className={`w-12 h-12 mb-3 transition ${isDragging ? "text-emerald-700 scale-110" : "text-[var(--forest-700)]"}`} />
                     <span className="text-[15px] font-semibold text-[var(--forest-800)]">
-                      {file ? file.name : "Haz clic o arrastra tu archivo .mdx aquí"}
+                      {file ? file.name : isDragging ? "¡Suelta tu archivo .mdx aquí!" : "Haz clic o arrastra tu archivo .mdx aquí"}
                     </span>
                     <span className="text-[12px] text-[var(--ink-soft)] mt-1">
-                      Archivos soportados: .mdx con métricas y frontmatter YAML
+                      Archivos soportados: .mdx o .md con métricas y frontmatter YAML
                     </span>
                   </label>
                 </div>
@@ -788,6 +889,46 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Selector de Estado de Ingesta: Publicar inmediatamente o Guardar como Borrador */}
+                <div className="p-4 bg-[var(--paper-2)] border border-[var(--rule-soft)] rounded-md space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-soft)] block">
+                    Estado al Subir el Reporte
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setUploadIsPublished(true)}
+                      className={`flex items-center justify-between p-3 rounded-md border text-[13px] font-medium transition cursor-pointer ${
+                        uploadIsPublished
+                          ? "bg-emerald-50 text-emerald-900 border-emerald-300 font-semibold"
+                          : "bg-[var(--paper)] text-[var(--ink-muted)] border-[var(--rule-soft)] hover:bg-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                        <span>Publicar Inmediatamente</span>
+                      </div>
+                      {uploadIsPublished && <CheckCircle className="w-4 h-4 text-emerald-700" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setUploadIsPublished(false)}
+                      className={`flex items-center justify-between p-3 rounded-md border text-[13px] font-medium transition cursor-pointer ${
+                        !uploadIsPublished
+                          ? "bg-amber-50 text-amber-900 border-amber-300 font-semibold"
+                          : "bg-[var(--paper)] text-[var(--ink-muted)] border-[var(--rule-soft)] hover:bg-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>Guardar como Borrador</span>
+                      </div>
+                      {!uploadIsPublished && <CheckCircle className="w-4 h-4 text-amber-700" />}
+                    </button>
+                  </div>
+                </div>
 
                 {status && (
                   <div
@@ -805,13 +946,31 @@ export default function AdminPage() {
                     <div>
                       <p className="font-semibold leading-snug">{status.message}</p>
                       {status.success && (
-                        <a
-                          href="/"
-                          target="_blank"
-                          className="mt-1.5 inline-block text-emerald-800 underline font-medium hover:text-emerald-950"
-                        >
-                          Ver cambios en el sitio público →
-                        </a>
+                        <div className="mt-2 flex items-center gap-3">
+                          {status.isPublished ? (
+                            <a
+                              href={`/reports/${status.reportId}/${status.slug}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1.5 text-emerald-800 underline font-semibold hover:text-emerald-950 text-[12px]"
+                            >
+                              <span>Ver reporte publicado en el sitio público →</span>
+                            </a>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (status.reportId) {
+                                  setSelectedReportId(status.reportId);
+                                  setActiveTab("editor");
+                                }
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-700 hover:bg-amber-800 text-white rounded text-[11px] font-semibold transition cursor-pointer"
+                            >
+                              <span>✍️ Abrir borrador en el Editor MDX</span>
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -826,7 +985,9 @@ export default function AdminPage() {
                     ? "Procesando ingesta en PostgreSQL..."
                     : selectedReportId
                     ? `Actualizar Reporte (${selectedReportId})`
-                    : "Subir e Ingestar Reporte"}
+                    : uploadIsPublished
+                    ? "Subir y Publicar Reporte"
+                    : "Subir como Borrador"}
                 </button>
               </form>
             </div>
@@ -857,7 +1018,8 @@ export default function AdminPage() {
                   </div>
 
                   <a
-                    href="/api/reporte/template"
+                    href="/templates/plantilla-reporte-physaflow.mdx"
+                    download="plantilla-reporte-physaflow.mdx"
                     className="flex items-center gap-2 px-4 py-2.5 bg-[var(--forest-700)] hover:bg-[var(--forest-800)] text-[var(--paper)] text-[13px] font-semibold rounded-md transition shadow-sm self-start sm:self-auto"
                   >
                     <Download className="w-4 h-4" />
@@ -867,46 +1029,65 @@ export default function AdminPage() {
 
                 <div className="space-y-4">
                   <h4 className="font-display font-semibold text-[15px] text-[var(--forest-800)]">
-                    Campos clave del YAML Frontmatter:
+                    1. Campos del YAML Frontmatter (Encabezado entre ---):
                   </h4>
                   <ul className="text-[13px] space-y-2 text-[var(--ink-muted)] list-disc pl-5">
-                    <li><strong className="text-[var(--forest-700)]">title & author:</strong> Título oficial del reporte e investigador a cargo.</li>
-                    <li><strong className="text-[var(--forest-700)]">published:</strong> Fecha o año de publicación (Ej: <em>&quot;Octubre 2025&quot;</em> o <em>&quot;2025&quot;</em>).</li>
-                    <li><strong className="text-[var(--forest-700)]">medianaGlobal & lossWorkload:</strong> Porcentajes que alimentan los contadores globales.</li>
-                    <li><strong className="text-[var(--forest-700)]">keyFinding:</strong> Frase dinámica que se resalta automáticamente en la barra lateral.</li>
-                    <li><strong className="text-[var(--forest-700)]">layers:</strong> Array estructurado de las 3 capas físicas (Instalaciones, TI, Carga) con sus tarjetas.</li>
+                    <li><strong className="text-[var(--forest-700)]">title, subtitle, author:</strong> Título, subtítulo e investigador principal del informe.</li>
+                    <li><strong className="text-[var(--forest-700)]">publishedDate & doi:</strong> Fecha/Año de publicación (Ej: <em>&quot;Octubre 2026&quot;</em>) y DOI científico.</li>
+                    <li><strong className="text-[var(--forest-700)]">globalMedian & lossWorkload:</strong> Porcentajes que alimentan los contadores y métricas globales.</li>
+                    <li><strong className="text-[var(--forest-700)]">layers:</strong> Lista estructurada de las 3 capas físicas (Instalaciones, TI, Carga de trabajo) y sus tarjetas de fallos.</li>
                   </ul>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-[var(--rule-soft)]">
+                  <h4 className="font-display font-semibold text-[15px] text-[var(--forest-800)]">
+                    2. Componentes JSX disponibles para usar en el Cuerpo (MDX):
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+                    <div className="p-4 bg-[var(--paper)] border border-[var(--rule-soft)] rounded-md space-y-2">
+                      <div className="font-bold text-[var(--forest-800)] flex items-center gap-2">
+                        Gráficos Interactivos (Chart)
+                      </div>
+                      <p className="text-[var(--ink-muted)] text-[11px]">
+                        Inserta gráficos de barras, líneas o torta pasando datos JSON directamente en la propiedad <code className="bg-[var(--paper-2)] px-1 rounded">data=&#39;[...]&#39;</code>:
+                      </p>
+                      <pre className="p-2 bg-[var(--forest-900)] text-[var(--gold-200)] rounded text-[10px] font-mono overflow-x-auto">
+{`<Chart 
+  type="bar|line|pie" 
+  title="Título del gráfico" 
+  data='[{"name":"Ejemplo","value":4.2}]' 
+/>`}
+                      </pre>
+                    </div>
+
+                    <div className="p-4 bg-[var(--paper)] border border-[var(--rule-soft)] rounded-md space-y-2">
+                      <div className="font-bold text-[var(--forest-800)] flex items-center gap-2">
+                       Pasos de Metodología (StepCard)
+                      </div>
+                      <p className="text-[var(--ink-muted)] text-[11px]">
+                        Crea tarjetas destacadas para explicar metodologías, fases o pasos numerados:
+                      </p>
+                      <pre className="p-2 bg-[var(--forest-900)] text-[var(--gold-200)] rounded text-[10px] font-mono overflow-x-auto">
+{`<StepCard num="01" title="Paso 1">
+  Descripción detallada del procedimiento. 
+</StepCard>`}
+                      </pre>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* PESTAÑA 5: ROADMAP EDITOR MDX */}
+          {/* PESTAÑA 5: EDITOR MDX INTERACTIVO */}
           {activeTab === "editor" && (
-            <div className="space-y-8 max-w-4xl">
-              <div className="border-b border-[var(--rule-soft)] pb-6">
-                <div className="eyebrow mb-1">Próxima Fase de Desarrollo</div>
-                <h1 className="font-display text-[28px] font-bold text-[var(--forest-800)] flex items-center gap-3">
-                  Editor MDX Visual e Interactivo
-                  <Sparkles className="w-6 h-6 text-[var(--gold-500)]" />
-                </h1>
-                <p className="text-[13px] text-[var(--ink-muted)] mt-1">
-                  Proyección para la edición directa desde el navegador web.
-                </p>
-              </div>
-
-              <div className="bg-[var(--forest-50)]/50 border border-[var(--forest-200)] p-8 rounded-md space-y-4 shadow-sm">
-                <h3 className="font-display text-[20px] font-bold text-[var(--forest-800)]">
-                  Editor Dual en Tiempo Real
-                </h3>
-                <p className="text-[13px] leading-relaxed text-[var(--ink-muted)]">
-                  En la siguiente iteración se integrará un editor de texto enriquecido con resaltado de sintaxis YAML/Markdown y previsualización del diseño editorial a pantalla dividida. Los autores podrán redactar el reporte, realizar cambios y guardar en Neon PostgreSQL sin necesidad de editores locales.
-                </p>
-                <div className="pt-2 flex items-center gap-2 text-[12px] font-semibold text-[var(--forest-700)]">
-                  <FileCode className="w-4 h-4" />
-                  <span>Cargado automático de la plantilla estática al crear nuevos borradores.</span>
-                </div>
-              </div>
+            <div className="space-y-6">
+              <MdxEditor
+                initialReportId={selectedReportId}
+                onSaved={() => {
+                  fetchReportes();
+                }}
+              />
             </div>
           )}
         </main>
@@ -915,11 +1096,6 @@ export default function AdminPage() {
       <footer className="bg-[var(--paper-2)] border-t border-[var(--rule-soft)] py-4 px-6 lg:px-10 text-[12px] text-[var(--ink-muted)] flex flex-col sm:flex-row items-center justify-between gap-2 mt-auto no-print">
         <div>
           PhysaFlow Admin Suite © 2025 · Panel de Administración de Infraestructura
-        </div>
-        <div className="flex items-center gap-4 text-[11px] font-medium text-[var(--ink-soft)]">
-          <span>Neon PostgreSQL Conectado</span>
-          <span>•</span>
-          <span>Prisma 7 PgAdapter</span>
         </div>
       </footer>
     </div>
