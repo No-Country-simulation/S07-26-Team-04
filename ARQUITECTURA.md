@@ -1,8 +1,8 @@
 # Arquitectura PhysaFlow — Guía de Referencia E Inspiración
 
-> 💡 **Nota del Prototipo:** Este documento presenta una propuesta de arquitectura desarrollada por **Hernán Casasola** a modo de borrador/propuesta visual e interactiva en la carpeta `prototype/`. 
+>  **Nota del Prototipo:** Este documento presenta una propuesta de arquitectura desarrollada por **Hernán Casasola** a modo de borrador/propuesta visual e interactiva en la carpeta `prototype/`. 
 > 
-> No es una guía estricta ni obligatoria. Es una idea compartida entre compañeros de equipo sobre cómo está diseñado el flujo exacto del panel de administración (`/admin`), la gestión de borradores/publicaciones, el editor visual de plantillas MDX, las etiquetas personalizadas de gráficos y la integración con el Chatbot IA. ¡Tienen total libertad de tomar estas ideas, modificarlas o proponer mejoras!
+> No es una guía. Es una idea compartida entre compañeros de equipo sobre cómo está diseñado el flujo exacto del panel de administración (`/admin`), la gestión de borradores/publicaciones, el editor visual de plantillas MDX, las etiquetas personalizadas de gráficos y la integración con el Chatbot IA. ¡Tienen total libertad de tomar estas ideas, modificarlas o proponer mejoras!
 
 ---
 
@@ -12,13 +12,13 @@ El panel de administración (`/admin`) está organizado en secciones claras (**R
 
 El flujo de trabajo soporta 2 caminos principales de autoría:
 
-### 📄 Camino A: Redacción Externa con Plantilla Oficial
+### Camino A: Redacción Externa con Plantilla Oficial
 1. **Descarga de Plantilla:** El usuario hace clic en "Descargar Plantilla MDX" en `/admin` y obtiene el archivo base con la estructura de etiquetas y métricas aceptada por el sistema (`plantilla-reporte-physaflow.mdx`).
 2. **Edición Local:** Redacta el reporte en cualquier editor de su preferencia (VS Code, Obsidian, Typora, Notepad++, etc.).
 3. **Subida (Upload):** Sube el archivo `.mdx` al sistema y **elige si guardarlo como Borrador (`isPublished: false`) o Publicarlo directamente (`isPublished: true`)**.
 4. **Edición Posterior de Borradores:** Si lo subió como Borrador, este aparece en la sección **"Borradores"**. Desde allí puede abrirlo dentro de nuestro **Editor MDX Web**, retocar el contenido, volver a guardarlo como borrador o publicarlo definitivamente.
 
-### ✍️ Camino B: Creación Directa desde el Editor MDX Web
+### Camino B: Creación Directa desde el Editor MDX Web
 1. **Nuevo Reporte:** Al presionar "Nuevo Reporte" en `/admin`, el sistema **NO abre un editor en blanco**.
 2. **Carga Automática de Plantilla:** Se carga automáticamente la plantilla oficial estructurada en el editor web (`components/MdxEditor.tsx`) para asegurar que mantenga el formato correcto y las etiquetas requeridas por PhysaFlow.
 3. **Asignación de ID y Borrador:** Al hacer el primer guardado, la base de datos le asigna un ID único (cuid) y queda guardado como **Borrador**, permitiéndole seguir trabajando más tarde hasta que decida **Publicar**.
@@ -49,7 +49,7 @@ Para que los gráficos estadísticos se rendericen correctamente tanto en el rep
 
 ## 3. Historias de Usuario (User Stories)
 
-### 👤 HU-01: Gestión Flexible de Reportes (Investigador / Autor)
+### HU-01: Gestión Flexible de Reportes (Investigador / Autor)
 > **Como** autor o investigador de reportes,  
 > **Quiero** descargar la plantilla MDX oficial, editar localmente o usar el editor web con plantilla precargada,  
 > **Para** publicar reportes directos o guardarlos como borradores con ID asignado sin romper el formato visual del sitio.
@@ -63,7 +63,7 @@ Para que los gráficos estadísticos se rendericen correctamente tanto en el rep
 
 ---
 
-### 👤 HU-02: Lectura Interactiva y Descarga de Gráficos (Lector Académico)
+### HU-02: Lectura Interactiva y Descarga de Gráficos (Lector Académico)
 > **Como** profesional de infraestructura o estudiante,  
 > **Quiero** explorar las capas físicas (L1, L2, L3) y descargar los gráficos del reporte,  
 > **Para** reutilizar los datos y citar el informe en formato APA o BibTeX.
@@ -75,7 +75,7 @@ Para que los gráficos estadísticos se rendericen correctamente tanto en el rep
 
 ---
 
-### 👤 HU-03: Chatbot Conversacional sobre Métricas y Gráficos (Visitante)
+### HU-03: Chatbot Conversacional sobre Métricas y Gráficos (Visitante)
 > **Como** visitante del portal,  
 > **Quiero** consultar al chatbot flotante de la página principal sobre tendencias y datos de los gráficos,  
 > **Para** obtener explicaciones rápidas sintetizadas por la IA sin demoras.
