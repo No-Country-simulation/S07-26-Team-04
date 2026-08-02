@@ -36,7 +36,7 @@ export interface AiKnowledgeStructure {
     type: "bar" | "line" | "pie" | string;
     title: string;
     caption?: string;
-    data: any;
+    data: unknown;
     aiInterpretation: string;
   }>;
   executiveSummary: string;
@@ -57,12 +57,12 @@ export async function generateAiKnowledge(reportData: {
   lossIT: string;
   lossWorkload: string;
   keyFinding?: string | null;
-  layers: any;
+  layers: unknown;
   content: string;
 }): Promise<AiKnowledgeStructure> {
   // 1. Extraer componentes <Chart /> del contenido MDX
   const chartMatches = reportData.content.match(/<Chart[\s\S]*?\/>/g) || [];
-  const extractedCharts: Array<{ type: string; title: string; caption?: string; data: any }> = [];
+  const extractedCharts: Array<{ type: string; title: string; caption?: string; data: unknown }> = [];
 
   chartMatches.forEach((chartTag) => {
     try {
@@ -137,7 +137,9 @@ Responde ÚNICAMENTE con el objeto JSON válido, sin bloques de código ni markd
     const aiParsed = JSON.parse(responseText);
 
     const visualCharts = extractedCharts.map((c) => {
-      const match = aiParsed.chartsAnalysis?.find((a: any) => a.chartTitle === c.title);
+      const match = aiParsed.chartsAnalysis?.find(
+        (a: { chartTitle?: string; aiInterpretation?: string }) => a.chartTitle === c.title
+      );
       return {
         ...c,
         aiInterpretation: match?.aiInterpretation || "Gráfico representativo de datos estadísticos.",
