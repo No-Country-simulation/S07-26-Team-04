@@ -5,6 +5,7 @@ import matter from "gray-matter";
 import fs from "fs";
 import path from "path";
 import { ReportFrontmatterSchema } from "../lib/report-schema";
+import { generateAiKnowledge } from "../lib/generate-ai-knowledge";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -61,6 +62,22 @@ async function main() {
   const validatedData = ReportFrontmatterSchema.parse(data);
   const slug = generateSlug(validatedData.title, validatedData.publishedDate);
 
+  // Generar la ficha aiKnowledge para la IA
+  const aiKnowledge = await generateAiKnowledge({
+    title: validatedData.title,
+    subtitle: validatedData.subtitle,
+    author: validatedData.author,
+    publishedDate: validatedData.publishedDate,
+    doi: validatedData.doi,
+    globalMedian: validatedData.globalMedian,
+    lossFacilities: validatedData.lossFacilities,
+    lossIT: validatedData.lossIT,
+    lossWorkload: validatedData.lossWorkload,
+    keyFinding: validatedData.keyFinding,
+    layers: validatedData.layers,
+    content: content,
+  });
+
   // Buscar si ya existe un reporte inicial para evitar duplicados
   const firstReport = await prisma.report.findFirst();
 
@@ -82,8 +99,8 @@ async function main() {
         lossIT: validatedData.lossIT,
         lossWorkload: validatedData.lossWorkload,
         keyFinding: validatedData.keyFinding || "El 31,4% de la capacidad energizada pagada en instalaciones hiperescala no produce ningún cómputo útil en una hora determinada.",
-        labels: (validatedData.labels ?? {}) as Prisma.InputJsonValue,
         layers: validatedData.layers as unknown as Prisma.InputJsonValue,
+        aiKnowledge: aiKnowledge as unknown as Prisma.InputJsonValue,
         content: content,
       },
     });
@@ -105,12 +122,12 @@ async function main() {
         lossIT: validatedData.lossIT,
         lossWorkload: validatedData.lossWorkload,
         keyFinding: validatedData.keyFinding || "El 31,4% de la capacidad energizada pagada en instalaciones hiperescala no produce ningún cómputo útil en una hora determinada.",
-        labels: (validatedData.labels ?? {}) as Prisma.InputJsonValue,
         layers: validatedData.layers as unknown as Prisma.InputJsonValue,
+        aiKnowledge: aiKnowledge as unknown as Prisma.InputJsonValue,
         content: content,
       },
     });
-    console.log(`✅ Reporte inicial creado con exito! ID: ${createdReport.id} ("${createdReport.title}")`);
+    console.log(`✅ Reporte inicial creado con exito! ID: ${createdReport.id} ("${validatedData.title}")`);
   }
 }
 

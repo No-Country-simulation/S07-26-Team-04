@@ -30,9 +30,9 @@ model Report {
   lossWorkload   String   // Ej: "6,9%"
   keyFinding     String?  // Texto dinámico del Hallazgo Clave en la barra lateral
   
-  // Estructuras Complejas y UI Labels (Almacenadas como JSON nativo)
-  labels         Json?    // Textos y captions configurables de UI
+  // Estructuras Complejas y Conocimiento IA (Almacenadas como JSON nativo)
   layers         Json     // Array de capas y sus modos de fallo (tarjetas)
+  aiKnowledge    Json?    // Ficha de conocimiento clave-valor estructurada para la IA (incluye síntesis de gráficos)
   
   // Cuerpo del Reporte
   content        String   // String completo en Markdown para renderizado directo
