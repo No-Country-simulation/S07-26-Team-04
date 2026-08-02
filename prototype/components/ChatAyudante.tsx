@@ -10,9 +10,10 @@ interface Message {
 
 interface ChatAyudanteProps {
   lang?: string;
+  reportId?: string;
 }
 
-export default function ChatAyudante({ lang = "ES" }: ChatAyudanteProps) {
+export default function ChatAyudante({ lang = "ES", reportId }: ChatAyudanteProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -64,6 +65,7 @@ export default function ChatAyudante({ lang = "ES" }: ChatAyudanteProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: updatedMessages,
+          reportId,
           lang,
         }),
       });

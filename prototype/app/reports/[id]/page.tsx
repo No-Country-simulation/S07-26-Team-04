@@ -24,7 +24,7 @@ export default async function ReportDetailPage({ params }: ReportPageProps) {
 
   // Parsear campos JSON de Prisma
   const layers = (dbReport.layers as unknown as Layer[]) || [];
-  const labels = (dbReport.labels as unknown as LabelTranslations) || {
+  const labels: LabelTranslations = {
     visible: "Qué se ve",
     cost: "Cuánto cuesta",
     reason: "Por qué ocurre",
@@ -71,7 +71,7 @@ export default async function ReportDetailPage({ params }: ReportPageProps) {
   };
 
   return (
-    <ReportLayout lang={lang} frontmatter={frontmatter} tocItems={tocItems}>
+    <ReportLayout lang={lang} reportId={dbReport.id} frontmatter={frontmatter} tocItems={tocItems}>
       <DynamicReportContent
         content={dbReport.content}
         lang={lang}

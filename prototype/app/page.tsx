@@ -53,7 +53,7 @@ export default async function Home() {
 
   // Parsear campos JSON de Prisma
   const layers = (dbReport.layers as unknown as Layer[]) || [];
-  const labels = (dbReport.labels as unknown as LabelTranslations) || {
+  const labels: LabelTranslations = {
     visible: "Qué se ve",
     cost: "Cuánto cuesta",
     reason: "Por qué ocurre",

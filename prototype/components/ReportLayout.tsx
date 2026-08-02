@@ -9,6 +9,7 @@ import Footer from "./Footer";
 
 interface ReportLayoutProps {
   lang: string;
+  reportId?: string;
   frontmatter: {
     title: string;
     subtitle: string;
@@ -29,6 +30,7 @@ interface ReportLayoutProps {
 
 export default function ReportLayout({
   lang,
+  reportId,
   frontmatter,
   tocItems,
   children,
@@ -107,7 +109,7 @@ export default function ReportLayout({
       )}
 
       {/* ============ CHATBOT FLOAT ============ */}
-      <ChatAyudante lang={lang} />
+      <ChatAyudante lang={lang} reportId={reportId} />
     </div>
   );
 }
