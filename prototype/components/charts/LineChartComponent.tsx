@@ -2,8 +2,8 @@
 
 import React from "react";
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -11,28 +11,29 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const defaultData = [
+export interface LineChartItem {
+  year?: string;
+  name?: string;
+  value: number;
+}
+
+interface LineChartComponentProps {
+  title?: string;
+  caption?: string;
+  data?: LineChartItem[];
+  labels?: Record<string, string | undefined>;
+  onShowToast?: (msg: string) => void;
+}
+
+const defaultData: LineChartItem[] = [
   { year: "2020", value: 3.0 },
   { year: "2021", value: 5.0 },
   { year: "2022", value: 9.0 },
   { year: "2023", value: 16.0 },
   { year: "2024", value: 26.0 },
   { year: "2025", value: 31.4 },
-  { year: "2026", value: 38.2 },
 ];
 
-export interface CumulativeItem {
-  year: string;
-  value: number;
-}
-
-interface GraficoLineaAcumuladoProps {
-  data?: CumulativeItem[];
-  labels?: Record<string, string | undefined>;
-  onShowToast?: (msg: string) => void;
-}
-
-// Utility to wrap SVG text into lines
 function wrapSvgText(text: string, maxCharsPerLine: number = 115): string[] {
   const words = text.split(" ");
   const lines: string[] = [];
@@ -52,36 +53,34 @@ function wrapSvgText(text: string, maxCharsPerLine: number = 115): string[] {
   return lines;
 }
 
-export default function GraficoLineaAcumulado({
+export default function LineChartComponent({
+  title = "Capacidad varada acumulada, 2020 – 2025 (% de kW energizados)",
+  caption = "Figura 3 — Capacidad varada acumulada como porcentaje de kilovatios energizados, muestreada anualmente 2020–2025. Fuente: Índice de Capacidad Varada de PhysaFlow, 2025.",
   data = defaultData,
-  labels = {},
   onShowToast,
-}: GraficoLineaAcumuladoProps) {
+}: LineChartComponentProps) {
+  const chartData = data && data.length > 0 ? data : defaultData;
+
   const handleDownload = () => {
-    const container = document.getElementById("fig-area-chart-container");
+    const container = document.getElementById("fig-line-chart-container");
     if (container) {
       const svgEl = container.querySelector("svg");
       if (svgEl) {
-        // Clone the SVG element
         const clonedSvg = svgEl.cloneNode(true) as SVGElement;
         
-        // 1. Get current width and height attributes
         const origWidthStr = clonedSvg.getAttribute("width") || "800";
-        const origHeightStr = clonedSvg.getAttribute("height") || "280";
+        const origHeightStr = clonedSvg.getAttribute("height") || "320";
         const origWidth = parseInt(origWidthStr, 10);
         const origHeight = parseInt(origHeightStr, 10);
 
-        // 2. Define paddings for top and bottom metadata info
         const topPadding = 60;
-        const bottomPadding = 60; // Increased to fit wrapped caption
+        const bottomPadding = 60;
         const newHeight = origHeight + topPadding + bottomPadding;
 
-        // 3. Set the new height and viewbox attributes on the root SVG
         clonedSvg.setAttribute("height", newHeight.toString());
         clonedSvg.setAttribute("viewBox", `0 0 ${origWidth} ${newHeight}`);
         clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
-        // 4. Wrap the existing children in a group shifted down by the top padding
         const gWrapper = document.createElementNS("http://www.w3.org/2000/svg", "g");
         gWrapper.setAttribute("transform", `translate(0, ${topPadding})`);
         
@@ -90,7 +89,6 @@ export default function GraficoLineaAcumulado({
         }
         clonedSvg.appendChild(gWrapper);
 
-        // 5. Add styling elements
         const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
         style.textContent = `
           text { font-family: sans-serif; font-size: 11px; fill: #8a8775; }
@@ -101,29 +99,27 @@ export default function GraficoLineaAcumulado({
         `;
         clonedSvg.insertBefore(style, clonedSvg.firstChild);
 
-        // 6. Create and append the title text elements
         const textEyebrow = document.createElementNS("http://www.w3.org/2000/svg", "text");
         textEyebrow.setAttribute("x", "10");
         textEyebrow.setAttribute("y", "20");
         textEyebrow.setAttribute("class", "svg-eyebrow");
-        textEyebrow.textContent = textLabels.fig3;
+        textEyebrow.textContent = "GRÁFICO DE LÍNEA";
 
         const textTitle = document.createElementNS("http://www.w3.org/2000/svg", "text");
         textTitle.setAttribute("x", "10");
         textTitle.setAttribute("y", "40");
         textTitle.setAttribute("class", "svg-title");
-        textTitle.textContent = textLabels.fig3Title;
+        textTitle.textContent = title;
 
         clonedSvg.appendChild(textEyebrow);
         clonedSvg.appendChild(textTitle);
 
-        // 7. Create and append the caption text element at the bottom with line wrap
         const textCaption = document.createElementNS("http://www.w3.org/2000/svg", "text");
         textCaption.setAttribute("x", "10");
-        textCaption.setAttribute("y", (origHeight + topPadding + 22).toString());
+        textCaption.setAttribute("y", (origHeight + topPadding + 30).toString());
         textCaption.setAttribute("class", "svg-caption");
 
-        const captionLines = wrapSvgText(textLabels.fig3Caption, 115);
+        const captionLines = wrapSvgText(caption, 115);
         captionLines.forEach((line, index) => {
           const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
           tspan.setAttribute("x", "10");
@@ -142,14 +138,14 @@ export default function GraficoLineaAcumulado({
           
           const downloadLink = document.createElement("a");
           downloadLink.href = svgUrl;
-          downloadLink.download = "physaflow-stranded-capacity-trend.svg";
+          downloadLink.download = "chart-line-export.svg";
           document.body.appendChild(downloadLink);
           downloadLink.click();
           document.body.removeChild(downloadLink);
           URL.revokeObjectURL(svgUrl);
 
           if (onShowToast) {
-            onShowToast("Figura 3 SVG exportada con título y pie de página multilínea.");
+            onShowToast("Gráfico SVG exportado exitosamente.");
           }
         } catch (err) {
           console.error("Failed to generate SVG download", err);
@@ -158,27 +154,16 @@ export default function GraficoLineaAcumulado({
     }
   };
 
-  const textLabels = {
-    fig3: labels.fig3 || "Figura 3",
-    fig3Title: labels.fig3Title || "Capacidad varada acumulada, 2020 – 2025 (% de kW energizados)",
-    fig3Caption: labels.fig3Caption || "Figura 3 — Capacidad varada acumulada como porcentaje de kilovatios energizados, muestreada anualmente 2020–2025. Fuente: Índice de Capacidad Varada de PhysaFlow, 2025.",
-    fig3Year: labels.fig3Year || "Año",
-    fig3Waste: labels.fig3Waste || "Capacidad Varada:",
-  };
-
-  const chartData = (data && data.length > 0) ? data : defaultData;
-
   return (
-    <figure id="fig-area-chart-figure" className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">
+    <figure className="mb-10 bg-[var(--paper-2)] border border-[var(--rule-soft)] p-6 lg:p-8 rounded-sm">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <div className="eyebrow mb-1">{textLabels.fig3}</div>
+          <div className="eyebrow mb-1">Gráfico de Línea</div>
           <div className="font-display text-[16px] text-[var(--forest-800)]">
-            {textLabels.fig3Title}
+            {title}
           </div>
         </div>
         <button
-          id="btn-download-fig3"
           onClick={handleDownload}
           className="text-[11px] font-medium text-[var(--forest-700)] hover:text-[var(--forest-800)] flex items-center gap-1.5 border border-[var(--rule)] px-2.5 py-1.5 rounded-sm transition bg-transparent hover:bg-[var(--paper)]"
         >
@@ -193,18 +178,12 @@ export default function GraficoLineaAcumulado({
         </button>
       </div>
 
-      <div id="fig-area-chart-container" className="w-full h-[280px] text-[11px]">
+      <div id="fig-line-chart-container" className="w-full h-[320px] text-[11px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
-            <defs>
-              <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#143a26" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#143a26" stopOpacity={0} />
-              </linearGradient>
-            </defs>
+          <LineChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e7e1cf" vertical={false} />
             <XAxis
-              dataKey="year"
+              dataKey={(item) => item.year || item.name || ""}
               stroke="#8a8775"
               tickLine={false}
               axisLine={{ stroke: "#e7e1cf" }}
@@ -213,16 +192,17 @@ export default function GraficoLineaAcumulado({
               stroke="#8a8775"
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `${value}%`}
+              tickFormatter={(val) => `${val}%`}
             />
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
+                  const item = payload[0].payload as LineChartItem;
                   return (
                     <div className="bg-[var(--paper)] border border-[var(--rule)] p-3 rounded-sm shadow-md text-[12px] leading-relaxed">
-                      <div className="font-semibold text-[var(--forest-800)]">{textLabels.fig3Year} {payload[0].payload.year}</div>
+                      <div className="font-semibold text-[var(--forest-800)]">{item.year || item.name}</div>
                       <div className="mt-1 text-[var(--ink)]">
-                        {textLabels.fig3Waste} <strong className="text-[var(--forest-700)]">{payload[0].payload.value}%</strong>
+                        Valor: <strong className="text-[var(--forest-700)]">{item.value}%</strong>
                       </div>
                     </div>
                   );
@@ -230,23 +210,23 @@ export default function GraficoLineaAcumulado({
                 return null;
               }}
             />
-            <Area
+            <Line
               type="monotone"
               dataKey="value"
-              stroke="#143a26"
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#colorValue)"
-              dot={{ stroke: "#143a26", strokeWidth: 1.5, fill: "#c9a961", r: 4 }}
-              activeDot={{ stroke: "#c9a961", strokeWidth: 2, fill: "#143a26", r: 6 }}
+              stroke="#c9a961"
+              strokeWidth={3}
+              dot={{ fill: "#0d2818", r: 5, strokeWidth: 2, stroke: "#c9a961" }}
+              activeDot={{ r: 7, fill: "#c9a961", stroke: "#0d2818", strokeWidth: 2 }}
             />
-          </AreaChart>
+          </LineChart>
         </ResponsiveContainer>
       </div>
 
-      <figcaption className="text-xs text-[var(--ink-muted)] mt-4 pt-2 border-t border-[var(--rule-soft)]">
-        {textLabels.fig3Caption}
-      </figcaption>
+      {caption && (
+        <figcaption className="text-xs text-[var(--ink-muted)] mt-4 pt-2 border-t border-[var(--rule-soft)]">
+          {caption}
+        </figcaption>
+      )}
     </figure>
   );
 }

@@ -5,10 +5,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import DiagramaCapas, { Layer, LabelTranslations } from "./DiagramaCapas";
-import GraficoBarrasDesperdicio from "./GraficoBarrasDesperdicio";
-import GraficoLineaAcumulado from "./GraficoLineaAcumulado";
 import CitationBlock from "./CitationBlock";
 import StepCard from "./StepCard";
+import Chart from "./Chart";
 
 interface DynamicReportContentProps {
   content: string;
@@ -27,9 +26,7 @@ interface DynamicReportContentProps {
     lossWorkload: string;
     layers: Layer[];
     labels: LabelTranslations;
-    methodologySteps?: Array<{ num: string; title: string; borderColor: string; text: string }>;
-    taxonomyData: Array<{ name: string; label: string; value: number; layer: string; color: string }>;
-    cumulativeData: Array<{ year: string; value: number }>;
+    methodologySteps?: Array<{ num: string; title: string; borderColor?: string; text: string }>;
   };
 }
 
@@ -58,7 +55,7 @@ function hasBlockComponent(children: unknown): boolean {
       const typeStr = typeof typeObj === "string" ? typeObj : typeObj?.name || "";
       const lower = typeStr.toLowerCase();
       if (
-        lower.includes("grafico") ||
+        lower.includes("chart") ||
         lower.includes("diagrama") ||
         lower.includes("step") ||
         lower.includes("citation") ||
@@ -93,8 +90,6 @@ export default function DynamicReportContent({
     layers,
     labels,
     methodologySteps = [],
-    taxonomyData,
-    cumulativeData,
   } = frontmatter;
 
   const yearMatch = published?.match(/\d{4}/);
@@ -120,36 +115,10 @@ export default function DynamicReportContent({
           key={i}
           num={step.num}
           title={step.title}
-          borderColor={step.borderColor as "forest-700" | "gold-500" | "forest-500" | "forest-800"}
         >
           {step.text}
         </StepCard>
       ))}
-    </div>
-  );
-
-  const renderGraficoBarras = () => (
-    <div className="my-10">
-      <GraficoBarrasDesperdicio
-        data={taxonomyData}
-        labels={labels}
-      />
-    </div>
-  );
-
-  const renderGraficoLinea = () => (
-    <div className="my-10">
-      <GraficoLineaAcumulado
-        data={cumulativeData}
-        labels={labels}
-      />
-    </div>
-  );
-
-  const renderGraficosDesperdicio = () => (
-    <div className="space-y-12 my-10">
-      {renderGraficoBarras()}
-      {renderGraficoLinea()}
     </div>
   );
 
@@ -166,12 +135,18 @@ export default function DynamicReportContent({
     </div>
   );
 
-  const processedContent = content
+  // Si el contenido trae la cabecera YAML frontmatter (empieza con ---), la removemos para renderizar solo el cuerpo MDX
+  let bodyOnly = content;
+  if (bodyOnly.trim().startsWith("---")) {
+    const parts = bodyOnly.split("---");
+    if (parts.length >= 3) {
+      bodyOnly = parts.slice(2).join("---");
+    }
+  }
+
+  const processedContent = bodyOnly
     .replace(/<DiagramaCapas\s*\/?>/gi, "<DiagramaCapas></DiagramaCapas>")
     .replace(/<StepCards\s*\/?>/gi, "<StepCards></StepCards>")
-    .replace(/<GraficoBarrasDesperdicio\s*\/?>/gi, "<GraficoBarrasDesperdicio></GraficoBarrasDesperdicio>")
-    .replace(/<GraficoLineaAcumulado\s*\/?>/gi, "<GraficoLineaAcumulado></GraficoLineaAcumulado>")
-    .replace(/<GraficosDesperdicio\s*\/?>/gi, "<GraficosDesperdicio></GraficosDesperdicio>")
     .replace(/<CitationBlock\s*\/?>/gi, "<CitationBlock></CitationBlock>");
 
   return (
@@ -185,22 +160,19 @@ export default function DynamicReportContent({
             DiagramaCapas: renderDiagramaCapas,
             stepcards: renderStepCards,
             StepCards: renderStepCards,
-            graficobarrasdesperdicio: renderGraficoBarras,
-            GraficoBarrasDesperdicio: renderGraficoBarras,
-            graficolineaacumulado: renderGraficoLinea,
-            GraficoLineaAcumulado: renderGraficoLinea,
-            graficosdesperdicio: renderGraficosDesperdicio,
-            GraficosDesperdicio: renderGraficosDesperdicio,
+            stepcard: StepCard,
+            StepCard: StepCard,
             citationblock: renderCitationBlock,
             CitationBlock: renderCitationBlock,
+            chart: Chart,
+            Chart: Chart,
 
           p: ({ children }: { children?: React.ReactNode }) => {
             const rawText = extractText(children).toLowerCase().trim();
 
             if (
               rawText.includes("diagramacapas") ||
-              rawText.includes("diagrama interactivo de capas") ||
-              rawText.includes("capas y las tarjetas")
+              rawText.includes("diagrama interactivo de capas")
             ) {
               return renderDiagramaCapas();
             }
@@ -212,27 +184,9 @@ export default function DynamicReportContent({
               return renderStepCards();
             }
 
-            if (rawText.includes("graficobarrasdesperdicio")) {
-              return renderGraficoBarras();
-            }
-
-            if (rawText.includes("graficolineaacumulado")) {
-              return renderGraficoLinea();
-            }
-
-            if (
-              rawText.includes("graficosdesperdicio") ||
-              rawText.includes("gráficos interactivos") ||
-              rawText.includes("graficos interactivos") ||
-              rawText.includes("línea acumulada")
-            ) {
-              return renderGraficosDesperdicio();
-            }
-
             if (
               rawText.includes("citationblock") ||
-              rawText.includes("bloque interactivo de citas") ||
-              rawText.includes("citas apa")
+              rawText.includes("bloque interactivo de citas")
             ) {
               return renderCitationBlock();
             }

@@ -10,7 +10,7 @@ interface StepCardProps {
 export default function StepCard({
   num,
   title,
-  borderColor = "border-[var(--forest-500)]",
+  borderColor = "border-[var(--gold-500)]/40",
   children,
 }: StepCardProps) {
   return (

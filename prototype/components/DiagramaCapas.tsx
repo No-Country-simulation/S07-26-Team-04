@@ -61,11 +61,15 @@ const TaxCard: React.FC<TaxCardProps> = ({
 
 export interface Card {
   code: string;
-  mediana: string;
+  median?: string;
+  mediana?: string;
   title: string;
-  seVe: string;
-  cuesta: string;
-  ocurre: string;
+  observed?: string;
+  seVe?: string;
+  cost?: string;
+  cuesta?: string;
+  reason?: string;
+  ocurre?: string;
 }
 
 export interface Layer {
@@ -229,11 +233,11 @@ export default function DiagramaCapas({
                 key={card.code}
                 badge={layer.level}
                 code={card.code}
-                mediana={card.mediana}
+                mediana={card.median || card.mediana || ""}
                 title={card.title}
-                queSeVe={card.seVe}
-                cuantoCuesta={card.cuesta}
-                porQueOcurre={card.ocurre}
+                queSeVe={card.observed || card.seVe || ""}
+                cuantoCuesta={card.cost || card.cuesta || ""}
+                porQueOcurre={card.reason || card.ocurre || ""}
                 badgeClass={layer.badgeClass || ""}
                 labels={safeLabels}
               />
