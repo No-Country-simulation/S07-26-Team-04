@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import ReportLayout from "@/components/ReportLayout";
 import DynamicReportContent from "@/components/DynamicReportContent";
 import { prisma } from "@/lib/prisma";
+import { slugify } from "@/lib/utils";
 import { Layer, LabelTranslations } from "@/components/DiagramaCapas";
 
 interface ReportPageProps {
@@ -35,10 +36,7 @@ export default async function ReportDetailPage({ params }: ReportPageProps) {
   dbReport.content.split("\n").forEach((linea: string) => {
     if (linea.startsWith("## ")) {
       const label = linea.replace("## ", "").trim();
-      const sectionId = label
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, "")
-        .replace(/\s+/g, "-");
+      const sectionId = slugify(label);
       
       tocItems.push({ id: sectionId, label });
 

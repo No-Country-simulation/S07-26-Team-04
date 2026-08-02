@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import DiagramaCapas, { Layer, LabelTranslations } from "./DiagramaCapas";
+import { slugify } from "@/lib/utils";
 import CitationBlock from "./CitationBlock";
 import StepCard from "./StepCard";
 import Chart from "./Chart";
@@ -212,10 +213,7 @@ export default function DynamicReportContent({
           },
           h2: ({ children }: { children?: React.ReactNode }) => {
             const rawText = extractText(children);
-            const slug = rawText
-              .toLowerCase()
-              .replace(/[^\w\s-]/g, "")
-              .replace(/\s+/g, "-");
+            const slug = slugify(rawText);
 
             const match = rawText.match(/^(\d{2})\s*[\u2014-]\s*(.*)$/);
             const num = match ? match[1] : null;

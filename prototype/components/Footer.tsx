@@ -1,10 +1,12 @@
 import React from "react";
+import type { TocItem } from "./TocSidebar";
 
 interface FooterProps {
   license?: string;
   csvUrl?: string;
   bibtexUrl?: string;
   onDownloadAllSvgs?: () => void;
+  tocItems?: TocItem[];
 }
 
 export default function Footer({
@@ -12,7 +14,18 @@ export default function Footer({
   csvUrl = "/api/reporte/csv",
   bibtexUrl = "/api/reporte/bibtex",
   onDownloadAllSvgs,
+  tocItems,
 }: FooterProps) {
+  // Secciones H2 del reporte activo, derivadas del contenido en la base de
+  // datos (mismo origen que el TOC). Se excluyen las subcapas inyectadas
+  // (03.1, 03.2, 03.3...).
+  const sectionLinks = (tocItems ?? []).filter(
+    (item) => !/^\d{2}\.\d/.test(item.label.trim())
+  );
+
+  const displayLabel = (label: string) =>
+    label.replace(/^\d{2}\s*(?:[\u2014-]\s*)?/, "");
+
   return (
     <footer className="bg-[var(--forest-900)] text-[var(--paper)] mt-20 no-print">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-16">
@@ -41,7 +54,7 @@ export default function Footer({
               Construyendo el vocabulario compartido para la capa física de la inteligencia artificial.
             </p>
             <div className="mt-6 text-[12px] text-[var(--forest-300)]">
-              © 2025 PhysaFlow, Inc. Este informe está licenciado bajo{" "}
+              © 2026 PhysaFlow, Inc. Este informe está licenciado bajo{" "}
               <a href="#" className="ulink text-[var(--gold-400)]">
                 {license}
               </a>
@@ -49,41 +62,20 @@ export default function Footer({
             </div>
           </div>
 
-          <div className="md:col-span-3">
-            <div className="eyebrow-gold mb-4">Informe</div>
-            <ul className="space-y-2.5 text-[13px] text-[var(--forest-300)]">
-              <li>
-                <a href="#01--resumen" className="hover:text-[var(--paper)] transition">
-                  Resumen
-                </a>
-              </li>
-              <li>
-                <a href="#02--introduccin" className="hover:text-[var(--paper)] transition">
-                  Introducción
-                </a>
-              </li>
-              <li>
-                <a href="#03--descripcin-general-de-la-taxonoma" className="hover:text-[var(--paper)] transition">
-                  Taxonomía
-                </a>
-              </li>
-              <li>
-                <a href="#04--metodologa" className="hover:text-[var(--paper)] transition">
-                  Metodología
-                </a>
-              </li>
-              <li>
-                <a href="#05--figuras-y-descargas" className="hover:text-[var(--paper)] transition">
-                  Figuras
-                </a>
-              </li>
-              <li>
-                <a href="#06--cmo-citar" className="hover:text-[var(--paper)] transition">
-                  Cómo citar
-                </a>
-              </li>
-            </ul>
-          </div>
+          {sectionLinks.length > 0 && (
+            <div className="md:col-span-3">
+              <div className="eyebrow-gold mb-4">Informe</div>
+              <ul className="space-y-2.5 text-[13px] text-[var(--forest-300)]">
+                {sectionLinks.map((item) => (
+                  <li key={item.id}>
+                    <a href={`#${item.id}`} className="hover:text-[var(--paper)] transition">
+                      {displayLabel(item.label)}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="md:col-span-2">
             <div className="eyebrow-gold mb-4">Recursos</div>

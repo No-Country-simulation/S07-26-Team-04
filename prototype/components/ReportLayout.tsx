@@ -99,6 +99,7 @@ export default function ReportLayout({
         csvUrl={csvUrl}
         bibtexUrl={bibtexUrl}
         onDownloadAllSvgs={handleDownloadAllSvgs}
+        tocItems={tocItems}
       />
 
       {/* ============ TOAST NOTIFICATION ============ */}

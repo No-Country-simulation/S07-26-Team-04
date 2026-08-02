@@ -2,8 +2,13 @@ import React from "react";
 import ReportLayout from "@/components/ReportLayout";
 import DynamicReportContent from "@/components/DynamicReportContent";
 import { prisma } from "@/lib/prisma";
+import { slugify } from "@/lib/utils";
 import { Layer, LabelTranslations } from "@/components/DiagramaCapas";
 import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
+
+// Renderizar por request: la portada debe reflejar siempre el último reporte
+// publicado desde el panel de administración, sin necesidad de re-deploy.
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const lang = "ES";
@@ -64,10 +69,7 @@ export default async function Home() {
   dbReport.content.split("\n").forEach((linea: string) => {
     if (linea.startsWith("## ")) {
       const label = linea.replace("## ", "").trim();
-      const id = label
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, "")
-        .replace(/\s+/g, "-");
+      const id = slugify(label);
       
       tocItems.push({ id, label });
 

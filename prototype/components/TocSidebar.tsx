@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 export interface TocItem {
   id: string;
@@ -12,20 +12,8 @@ interface TocSidebarProps {
   keyFinding?: string;
 }
 
-const defaultLinks: TocItem[] = [
-  { id: "01--resumen", label: "01 — Resumen" },
-  { id: "02--introduccin", label: "02 — Introducción" },
-  { id: "03--descripcin-general-de-la-taxonoma", label: "03 — Descripción general" },
-  { id: "facility", label: "03.1 — Capa de instalaciones" },
-  { id: "it", label: "03.2 — Capa de TI" },
-  { id: "workload", label: "03.3 — Capa de carga" },
-  { id: "04--metodologa", label: "04 — Metodología" },
-  { id: "05--figuras-y-descargas", label: "05 — Figuras y descargas" },
-  { id: "06--cmo-citar", label: "06 — Cómo citar" },
-];
-
 export default function TocSidebar({ items, keyFinding }: TocSidebarProps) {
-  const links = items && items.length > 0 ? items : defaultLinks;
+  const links = useMemo(() => items ?? [], [items]);
   const [activeSection, setActiveSection] = useState<string>(links[0]?.id || "");
 
   const findingText =
