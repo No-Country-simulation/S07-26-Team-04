@@ -4,7 +4,7 @@ import { Pool } from "pg";
 import matter from "gray-matter";
 import fs from "fs";
 import path from "path";
-import { ReporteFrontmatterSchema } from "../lib/reporte-schema";
+import { ReportFrontmatterSchema } from "../lib/report-schema";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -15,6 +15,17 @@ if (!connectionString) {
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
+
+function generateSlug(title: string, publishedDate: string): string {
+  const base = `${title} ${publishedDate}`
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+  return base || "report";
+}
 
 async function main() {
   console.log("🌱 Iniciando la ingesta de datos iniciales en PostgreSQL...");
@@ -36,65 +47,71 @@ async function main() {
     console.log("ℹ️ Nota sobre superusuario:", errorObj.message || err);
   }
 
-  // 2. Ingestar el reporte inicial
-  const filePath = path.resolve(__dirname, "../../ejemplo-reporte.mdx");
+  // 2. Ingestar el reporte inicial usando la plantilla estándar
+  const filePath = path.resolve(__dirname, "../public/templates/plantilla-reporte-physaflow.mdx");
   
   if (!fs.existsSync(filePath)) {
-    console.error(`❌ No se encontró el archivo de reporte en: ${filePath}`);
+    console.error(`❌ No se encontró la plantilla de reporte en: ${filePath}`);
     process.exit(1);
   }
 
   const fileContent = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(fileContent);
 
-  const validatedData = ReporteFrontmatterSchema.parse(data);
+  const validatedData = ReportFrontmatterSchema.parse(data);
+  const slug = generateSlug(validatedData.title, validatedData.publishedDate);
 
-  const reporte = await prisma.reporte.upsert({
-    where: { id: "global-report" },
-    update: {
-      titulo: validatedData.title,
-      subtitulo: validatedData.subtitle || null,
-      autor: validatedData.author,
-      published: validatedData.published,
-      doi: validatedData.doi,
-      readingTime: validatedData.readingTime,
-      license: validatedData.license,
-      medianaGlobal: validatedData.medianaGlobal,
-      lossFacilities: validatedData.lossFacilities,
-      lossIT: validatedData.lossIT,
-      lossWorkload: validatedData.lossWorkload,
-      keyFinding: validatedData.keyFinding || "El 31,4% de la capacidad energizada pagada en instalaciones hiperescala no produce ningún cómputo útil en una hora determinada.",
-      labels: (validatedData.labels ?? {}) as Prisma.InputJsonValue,
-      layers: validatedData.layers as unknown as Prisma.InputJsonValue,
-      methodologySteps: (validatedData.methodologySteps ?? []) as unknown as Prisma.InputJsonValue,
-      taxonomyData: validatedData.taxonomyData as unknown as Prisma.InputJsonValue,
-      cumulativeData: validatedData.cumulativeData as unknown as Prisma.InputJsonValue,
-      contenido: content,
-    },
-    create: {
-      id: "global-report",
-      titulo: validatedData.title,
-      subtitulo: validatedData.subtitle || null,
-      autor: validatedData.author,
-      published: validatedData.published,
-      doi: validatedData.doi,
-      readingTime: validatedData.readingTime,
-      license: validatedData.license,
-      medianaGlobal: validatedData.medianaGlobal,
-      lossFacilities: validatedData.lossFacilities,
-      lossIT: validatedData.lossIT,
-      lossWorkload: validatedData.lossWorkload,
-      keyFinding: validatedData.keyFinding || "El 31,4% de la capacidad energizada pagada en instalaciones hiperescala no produce ningún cómputo útil en una hora determinada.",
-      labels: (validatedData.labels ?? {}) as Prisma.InputJsonValue,
-      layers: validatedData.layers as unknown as Prisma.InputJsonValue,
-      methodologySteps: (validatedData.methodologySteps ?? []) as unknown as Prisma.InputJsonValue,
-      taxonomyData: validatedData.taxonomyData as unknown as Prisma.InputJsonValue,
-      cumulativeData: validatedData.cumulativeData as unknown as Prisma.InputJsonValue,
-      contenido: content,
-    },
-  });
+  // Buscar si ya existe un reporte inicial para evitar duplicados
+  const firstReport = await prisma.report.findFirst();
 
-  console.log(`✅ Ingesta completada con éxito! Reporte ID: ${reporte.id} ("${reporte.titulo}")`);
+  if (firstReport) {
+    await prisma.report.update({
+      where: { id: firstReport.id },
+      data: {
+        slug,
+        isPublished: true,
+        title: validatedData.title,
+        subtitle: validatedData.subtitle || null,
+        author: validatedData.author,
+        publishedDate: validatedData.publishedDate,
+        doi: validatedData.doi,
+        readingTime: validatedData.readingTime,
+        license: validatedData.license,
+        globalMedian: validatedData.globalMedian,
+        lossFacilities: validatedData.lossFacilities,
+        lossIT: validatedData.lossIT,
+        lossWorkload: validatedData.lossWorkload,
+        keyFinding: validatedData.keyFinding || "El 31,4% de la capacidad energizada pagada en instalaciones hiperescala no produce ningún cómputo útil en una hora determinada.",
+        labels: (validatedData.labels ?? {}) as Prisma.InputJsonValue,
+        layers: validatedData.layers as unknown as Prisma.InputJsonValue,
+        content: content,
+      },
+    });
+    console.log(`✅ Reporte inicial actualizado con exito! ID: ${firstReport.id} ("${validatedData.title}")`);
+  } else {
+    const createdReport = await prisma.report.create({
+      data: {
+        slug,
+        isPublished: true,
+        title: validatedData.title,
+        subtitle: validatedData.subtitle || null,
+        author: validatedData.author,
+        publishedDate: validatedData.publishedDate,
+        doi: validatedData.doi,
+        readingTime: validatedData.readingTime,
+        license: validatedData.license,
+        globalMedian: validatedData.globalMedian,
+        lossFacilities: validatedData.lossFacilities,
+        lossIT: validatedData.lossIT,
+        lossWorkload: validatedData.lossWorkload,
+        keyFinding: validatedData.keyFinding || "El 31,4% de la capacidad energizada pagada en instalaciones hiperescala no produce ningún cómputo útil en una hora determinada.",
+        labels: (validatedData.labels ?? {}) as Prisma.InputJsonValue,
+        layers: validatedData.layers as unknown as Prisma.InputJsonValue,
+        content: content,
+      },
+    });
+    console.log(`✅ Reporte inicial creado con exito! ID: ${createdReport.id} ("${createdReport.title}")`);
+  }
 }
 
 main()

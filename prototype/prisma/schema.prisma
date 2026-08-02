@@ -9,20 +9,22 @@ datasource db {
 // --------------------------------------------------------
 // Modelo de Reporte (Tabla Única con JSONs Nativos)
 // --------------------------------------------------------
-model Reporte {
-  id             String   @id @default("global-report")
+model Report {
+  id             String   @id @default(cuid())
+  slug           String   @default("")
+  isPublished    Boolean  @default(true)
   
   // Metadatos Básicos (Extraídos del Frontmatter YAML)
-  titulo         String
-  subtitulo      String?
-  autor          String
-  published      String   // Ej: "Octubre 2025"
+  title          String
+  subtitle       String?
+  author         String
+  publishedDate  String   // Ej: "Octubre 2025"
   doi            String
   readingTime    String   // Ej: "~22 minutos"
   license        String   // Ej: "CC BY-SA 4.0"
   
   // Métricas de Impacto Global
-  medianaGlobal  String   // Ej: "31,4%"
+  globalMedian   String   // Ej: "31,4%"
   lossFacilities String   // Ej: "14,8%"
   lossIT         String   // Ej: "9,7%"
   lossWorkload   String   // Ej: "6,9%"
@@ -31,12 +33,9 @@ model Reporte {
   // Estructuras Complejas y UI Labels (Almacenadas como JSON nativo)
   labels         Json?    // Textos y captions configurables de UI
   layers         Json     // Array de capas y sus modos de fallo (tarjetas)
-  methodologySteps Json?  // Pasos de metodología (StepCards)
-  taxonomyData   Json     // Puntos de datos para el gráfico de barras
-  cumulativeData Json     // Puntos de datos para el gráfico acumulado
   
   // Cuerpo del Reporte
-  contenido      String   // String completo en Markdown para renderizado directo
+  content        String   // String completo en Markdown para renderizado directo
   
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
