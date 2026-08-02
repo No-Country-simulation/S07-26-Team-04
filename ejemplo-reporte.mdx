@@ -1,8 +1,8 @@
 ---
 title: "El Índice de Capacidad Varada"
 subtitle: "Una taxonomía nominal de infraestructura pagada, energizada y no productiva en las tres capas físicas del centro de datos moderno: instalaciones, TI y carga de trabajo."
-author: "Dr. Adrián Marín"
-publishedDate: "Octubre 2025"
+author: "Dr. Hernan Cortez"
+publishedDate: "Octubre 2026"
 doi: "physaflow/sci-2025-001"
 readingTime: "~22 minutos"
 license: "CC BY-SA 4.0"
@@ -14,77 +14,8 @@ lossIT: "9,7%"
 lossWorkload: "6,9%"
 keyFinding: "El 31,4% de la capacidad energizada pagada en instalaciones hiperescala no produce ningún cómputo útil en una hora determinada."
 
-# Etiquetas de UI (Para que el frontend las ubique donde corresponde)
-labels:
-  visible: "Qué se ve"
-  cost: "Cuánto cuesta"
-  reason: "Por qué ocurre"
-  caption: "Figura 1 — El modelo de tres capas de la capacidad varada. Los fallos se propagan hacia arriba; los síntomas se observan en la capa superior."
-  lossFacLabel: "Pérdida en instalaciones"
-  lossITLabel: "Pérdida en TI"
-  lossWLLabel: "Pérdida en carga de trabajo"
-  lossFacSub: "de kW energizados"
-  lossITSub: "de cómputo instalado"
-  lossWLSub: "de capacidad programada"
-  fig2Title: "Capacidad varada por modo de fallo con nombre (% de kW energizados)"
-  fig2Caption: "Figura 2 — Capacidad varada mediana por modo de fallo con nombre. Muestra n=41 sitios. Fuente: Índice de Capacidad Varada de PhysaFlow, 2025."
-  fig3Title: "Capacidad varada acumulada, 2020 – 2025 (% de kW energizados)"
-  fig3Caption: "Figura 3 — Capacidad varada acumulada como porcentaje de kilovatios energizados, muestreada anualmente 2020–2025. Fuente: Índice de Capacidad Varada de PhysaFlow, 2025."
-
-# Datos para el componente DiagramaCapas y StepCards
+# Datos para el componente DiagramaCapas
 layers:
-  - id: "workload"
-    level: "L3"
-    title: "Capa de carga de trabajo"
-    subtitle: "Programación · Orquestación"
-    badgeClass: "layer-workload"
-    intro: "La capa de carga de trabajo es todo lo que hay entre el programador y la aplicación. Sus operadores de software miden el éxito en profundidad de la cola y cumplimiento de SLA — ninguno de los cuales captura si la capacidad reservada está haciendo un trabajo útil. Tres modos de fallo con nombre viven aquí."
-    cards:
-      - code: "W-01"
-        mediana: "3,1%"
-        title: "Asignaciones huérfanas"
-        seVe: "VMs, pods o slots de contenedores reservados contra una cuota pero produciendo cero peticiones, cero tráfico, cero salida de registros durante semanas."
-        cuesta: "Cuota agotada para nuevos inquilinos mientras los existentes mantienen asignaciones no utilizadas. Expansión de capacidad impulsada por cuota, no por demanda."
-        ocurre: "Ningún propietario quiere ser quien libere capacidad que podría necesitar mañana. Las asignaciones huérfanas son una opción, no un error — hasta que se acumulan."
-      - code: "W-02"
-        mediana: "2,2%"
-        title: "Inanición por afinidad"
-        seVe: "La carga de trabajo no puede programarse a pesar de la capacidad libre — las reglas de afinidad (tipo de GPU, NUMA, localidad, nivel de licencia) restringen demasiado el gráfico de colocación."
-        cuesta: "La espera en cola aumenta; los usuarios perciben una escasez de capacidad. La adquisición aprueba nuevos nodos que no habrían sido necesarios con restricciones relajadas."
-        ocurre: "Las reglas de afinidad son escritas por ingenieros en el momento del despliegue y nunca se revisitan. La restricción que era correcta en la v1 sobrevive hasta la v4, donde ya no es necesaria."
-      - code: "W-03"
-        mediana: "1,6%"
-        title: "Latencia de marea"
-        seVe: "Capacidad aprovisionada para un pico diario o semanal que dura 30–90 minutos. Las otras 22 horas, el silicio está caliente, inactivo y facturado al pico."
-        cuesta: "Capital desplegado contra una curva de marea; no puede liberarse de vuelta a la capa de instalaciones entre mareas. La forma más cara de capacidad varada por kilovatio."
-        ocurre: "La adquisición y la programación de cargas de trabajo funcionan con relojes diferentes. La instalación no puede reducir la potencia entre mareas; el programador no puede predecir la próxima marea."
-
-  - id: "it"
-    level: "L2"
-    title: "Capa de TI"
-    subtitle: "Racks · Nodos · Topología"
-    badgeClass: "layer-it"
-    intro: "La capa de TI es todo lo que hay entre el PDU del rack y el programador de cargas de trabajo. Sus operadores miden el éxito en tiempo de actividad de los nodos y disponibilidad de la red — ninguno de los cuales captura si el silicio está haciendo un trabajo útil. Tres modos de fallo con nombre viven aquí."
-    cards:
-      - code: "I-01"
-        mediana: "3,8%"
-        title: "Racks comatosos"
-        seVe: "Racks completamente poblados que consumen energía de base (PSUs en reposo, BMCs, ventiladores) sin ninguna carga de trabajo despachada durante 30+ días consecutivos."
-        cuesta: "Amortización del gasto de capital en silicio muerto; ~12% de los kW de placa consumidos continuamente sin salida."
-        ocurre: "La descomisión requiere tickets de gestión de cambios que nadie posee. Racks permanecen 'en servicio' porque nadie está incentivado a sacarlos."
-      - code: "I-02"
-        mediana: "2,9%"
-        title: "Nodos durmientes"
-        seVe: "Nodos marcados como 'disponibles' por el orquestador pero excluidos de la programación — fallan en las comprobaciones de salud, están mal etiquetados o en un segmento de red aislado."
-        cuesta: "El clúster parece estar al 80% de utilización mientras el 20% de los nodos están oscuros. La expansión de capacidad se aprueba contra un denominador falso."
-        ocurre: "El orquestador reporta nodos 'registrados', no nodos 'programables'. La diferencia es invisible para los planificadores de capacidad que leen el panel de control, no el estado del clúster."
-      - code: "I-03"
-        mediana: "3,0%"
-        title: "Bloqueo de topología"
-        seVe: "Existe cómputo libre en dos pods, pero una carga de trabajo que podría caber en cualquiera de ellos debe esperar — porque la topología de red entre ellos no puede transportar el flujo."
-        cuesta: "La utilización efectiva es menor que la utilización física. La cola de programación crece mientras la capacidad permanece inactiva detrás de una red troncal sobresuscrita."
-        ocurre: "Topología Clos diseñada para el ancho de banda este-oeste de una generación anterior. Los flujos de entrenamiento de IA expusieron la suposición de que no todos los racks hablan con todos los racks al mismo tiempo."
-
   - id: "facility"
     level: "L1"
     title: "Capa de instalaciones"
@@ -93,105 +24,75 @@ layers:
     intro: "La capa de instalaciones es todo lo que hay entre el medidor de la empresa de servicios públicos y el PDU del rack. Sus operadores miden el éxito en tiempo de actividad, PUE y cumplimiento térmico — ninguno de los cual captura si los kilovatios están haciendo un trabajo útil. Tres modos de fallo con nombre viven aquí."
     cards:
       - code: "F-01"
-        mediana: "4,2%"
+        median: "4,2%"
         title: "Deriva del pasillo frío"
-        seVe: "Racks que reportan temperaturas de entrada conformes mientras el aire de retorno de los CRAH sube 2–4 °C por encima del punto de consigna en un lado de la sala."
-        cuesta: "CRAH sobredimensionados para compensar; ~6–9% de los kW de enfriadores gastados en enfriar aire que nunca llega a una entrada de servidor."
-        ocurre: "Paneles de contención instalados según el diseño construido; adiciones posteriores de racks rompen el plano de presión. La deriva es invisible para el BMS hasta que se activa un punto caliente."
+        observed: "Racks que reportan temperaturas de entrada conformes mientras el aire de retorno de los CRAH sube 2–4 °C por encima del punto de consigna en un lado de la sala."
+        cost: "CRAH sobredimensionados para compensar; ~6–9% de los kW de enfriadores gastados en enfriar aire que nunca llega a una entrada de servidor."
+        reason: "Paneles de contención instalados según el diseño construido; adiciones posteriores de racks rompen el plano de presión. La deriva es invisible para el BMS hasta que se activa un punto caliente."
       - code: "F-02"
-        mediana: "6,1%"
+        median: "6,1%"
         title: "Sobresuscripción térmica"
-        seVe: "Racks descalificados por el operador de TI para mantenerse bajo un techo térmico que la instalación fue contratada para entregar pero no puede sostener."
-        cuesta: "kW contratados disponibles pero inalcanzables. El operador reporta 'no hay energía disponible' mientras el medidor de la empresa muestra margen."
-        ocurre: "Instalación vendida con kW IT de placa; refrigeración diseñada para una densidad media de racks que ya no refleja la carga de trabajo desplegada."
+        observed: "Racks descalificados por el operador de TI para mantenerse bajo un techo térmico que la instalación fue contratada para entregar pero no puede sostener."
+        cost: "kW contratados disponibles pero inalcanzables. El operador reporta 'no hay energía disponible' mientras el medidor de la empresa muestra margen."
+        reason: "Instalación vendida con kW IT de placa; refrigeración diseñada para una densidad media de racks que ya no refleja la carga de trabajo desplegada."
       - code: "F-03"
-        mediana: "4,5%"
+        median: "4,5%"
         title: "Aprovisionamiento en sombra"
-        seVe: "Capacidad de interruptor energizada reservada para un despliegue futuro de racks que no ha ocurrido 12+ meses después de la puesta en servicio."
-        cuesta: "Cargos por demanda por capacidad que no genera ingresos; coste de oportunidad de los PDUs, UPS y refrigeración mantenidos en reserva."
-        ocurre: "Los contratos de adquisición recompensan la capacidad reservada; no existe un mecanismo para liberar interruptores energizados pero no utilizados de vuelta al grupo de la instalación."
+        observed: "Capacidad de interruptor energizada reservada para un despliegue futuro de racks que no ha ocurrido 12+ meses después de la puesta en servicio."
+        cost: "Cargos por demanda por capacidad que no genera ingresos; coste de oportunidad de los PDUs, UPS y refrigeración mantenidos en reserva."
+        reason: "Los contratos de adquisición recompensan la capacidad reservada; no existe un mecanismo para liberar interruptores energizados pero no utilizados de vuelta al grupo de la instalación."
+  - id: "it"
+    level: "L2"
+    title: "Capa de TI"
+    subtitle: "Racks · Nodos · Topología"
+    badgeClass: "layer-it"
+    intro: "La capa de TI es todo lo que hay entre el PDU del rack y el programador de cargas de trabajo. Sus operadores miden el éxito en tiempo de actividad de los nodos y disponibilidad de la red — ninguno de los cuales captura si el silicio está haciendo un trabajo útil. Tres modos de fallo con nombre viven aquí."
+    cards:
+      - code: "I-01"
+        median: "3,8%"
+        title: "Racks comatosos"
+        observed: "Racks completamente poblados que consumen energía de base (PSUs en reposo, BMCs, ventiladores) sin ninguna carga de trabajo despachada durante 30+ días consecutivos."
+        cost: "Amortización del gasto de capital en silicio muerto; ~12% de los kW de placa consumidos continuamente sin salida."
+        reason: "La descomisión requiere tickets de gestión de cambios que nadie posee. Racks permanecen 'en servicio' porque nadie está incentivado a sacarlos."
+      - code: "I-02"
+        median: "2,9%"
+        title: "Nodos durmientes"
+        observed: "Nodos marcados como 'disponibles' por el orquestador pero excluidos de la programación — fallan en las comprobaciones de salud, están mal etiquetados o en un segmento de red aislado."
+        cost: "El clúster parece estar al 80% de utilización mientras el 20% de los nodos están oscuros. La expansión de capacidad se aprueba contra un denominador falso."
+        reason: "El orquestador reporta nodos 'registrados', no nodos 'programables'. La diferencia es invisible para los planificadores de capacidad que leen el panel de control, no el estado del clúster."
+      - code: "I-03"
+        median: "3,0%"
+        title: "Bloqueo de topología"
+        observed: "Existe cómputo libre en dos pods, pero una carga de trabajo que podría caber en cualquiera de ellos debe esperar — porque la topología de red entre ellos no puede transportar el flujo."
+        cost: "La utilización efectiva es menor que la utilización física. La cola de programación crece mientras la capacidad permanece inactiva detrás de una red troncal sobresuscrita."
+        reason: "Topología Clos diseñada para el ancho de banda este-oeste de una generación anterior. Los flujos de entrenamiento de IA expusieron la suposición de que no todos los racks hablan con todos los racks al mismo tiempo."        
+  
+  - id: "workload"
+    level: "L3"
+    title: "Capa de carga de trabajo"
+    subtitle: "Programación · Orquestación"
+    badgeClass: "layer-workload"
+    intro: "La capa de carga de trabajo es todo lo que hay entre el programador y la aplicación. Sus operadores de software miden el éxito en profundidad de la cola y cumplimiento de SLA — ninguno de los cuales captura si la capacidad reservada está haciendo un trabajo útil. Tres modos de fallo con nombre viven aquí."
+    cards:
+      - code: "W-01"
+        median: "3,1%"
+        title: "Asignaciones huérfanas"
+        observed: "VMs, pods o slots de contenedores reservados contra una cuota pero produciendo cero peticiones, cero tráfico, cero salida de registros durante semanas."
+        cost: "Cuota agotada para nuevos inquilinos mientras los existentes mantienen asignaciones no utilizadas. Expansión de capacidad impulsada por cuota, no por demanda."
+        reason: "Ningún propietario quiere ser quien libere capacidad que podría necesitar mañana. Las asignaciones huérfanas son una opción, no un error — hasta que se acumulan."
+      - code: "W-02"
+        median: "2,2%"
+        title: "Inanición por afinidad"
+        observed: "La carga de trabajo no puede programarse a pesar de la capacidad libre — las reglas de afinidad (tipo de GPU, NUMA, localidad, nivel de licencia) restringen demasiado el gráfico de colocación."
+        cost: "La espera en cola aumenta; los usuarios perciben una escasez de capacidad. La adquisición aprueba nuevos nodos que no habrían sido necesarios con restricciones relajadas."
+        reason: "Las reglas de afinidad son escritas por ingenieros en el momento del despliegue y nunca se revisitan. La restricción que era correcta en la v1 sobrevive hasta la v4, donde ya no es necesaria."
+      - code: "W-03"
+        median: "1,6%"
+        title: "Latencia de marea"
+        observed: "Capacidad aprovisionada para un pico diario o semanal que dura 30–90 minutos. Las otras 22 horas, el silicio está caliente, inactivo y facturado al pico."
+        cost: "Capital desplegado contra una curva de marea; no puede liberarse de vuelta a la capa de instalaciones entre mareas. La forma más cara de capacidad varada por kilovatio."
+        reason: "La adquisición y la programación de cargas de trabajo funcionan con relojes diferentes. La instalación no puede reducir la potencia entre mareas; el programador no puede predecir la próxima marea."
 
-# Datos para los componentes de Metodología (StepCards)
-methodologySteps:
-  - num: "01"
-    title: "Ingesta de telemetría"
-    borderColor: "forest-700"
-    text: "kW por PDU, temperatura de entrada por rack y energía BMC por nodo con resolución de 5 minutos en 41 sitios durante 18 meses. Se muestrearon 4,2 GW de carga IT energizada."
-  - num: "02"
-    title: "Exportación del programador"
-    borderColor: "gold-500"
-    text: "Instantáneas del estado del orquestador (Kubernetes, Slurm, propietario) con resolución de 1 minuto. Captura nodos registrados vs. programables, profundidad de cola y conjunto de reglas de afinidad."
-  - num: "03"
-    title: "Entrevistas a operadores"
-    borderColor: "forest-500"
-    text: "63 entrevistas estructuradas entre propietarios de instalaciones, TI y cargas de trabajo. Cada modo de fallo nombrado en la taxonomía fue validado contra el lenguaje de trabajo utilizado por los operadores."
-  - num: "04"
-    title: "Nombramiento y revisión por pares"
-    borderColor: "forest-800"
-    text: "Cada modo de fallo nombrado fue revisado por al menos tres operadores de diferentes organizaciones. Los nombres se retuvieron solo cuando al menos dos tercios estuvieron de acuerdo en que el término coincidía con su vocabulario de trabajo."
-
-# Datos para Recharts (Gráfico de Barras)
-taxonomyData:
-  - name: "Deriva pasillo"
-    label: "Deriva del pasillo frío"
-    value: 4.2
-    layer: "L1 - Instalaciones"
-    color: "#143a26"
-  - name: "Sobresusc. térmica"
-    label: "Sobresuscripción térmica"
-    value: 6.1
-    layer: "L1 - Instalaciones"
-    color: "#143a26"
-  - name: "Aprov. sombra"
-    label: "Aprovisionamiento en sombra"
-    value: 4.5
-    layer: "L1 - Instalaciones"
-    color: "#143a26"
-  - name: "Racks comatosos"
-    label: "Racks comatosos"
-    value: 3.8
-    layer: "L2 - TI"
-    color: "#c9a961"
-  - name: "Nodos durmientes"
-    label: "Nodos durmientes"
-    value: 2.9
-    layer: "L2 - TI"
-    color: "#c9a961"
-  - name: "Bloqueo topo."
-    label: "Bloqueo de topología"
-    value: 3.0
-    layer: "L2 - TI"
-    color: "#c9a961"
-  - name: "Asig. huérfanas"
-    label: "Asignaciones huérfanas"
-    value: 3.1
-    layer: "L3 - Carga de trabajo"
-    color: "#2d5f47"
-  - name: "Inanición afin."
-    label: "Inanición por afinidad"
-    value: 2.2
-    layer: "L3 - Carga de trabajo"
-    color: "#2d5f47"
-  - name: "Latencia marea"
-    label: "Latencia de marea"
-    value: 1.6
-    layer: "L3 - Carga de trabajo"
-    color: "#2d5f47"
-
-# Datos para Recharts (Gráfico de Línea Acumulada)
-cumulativeData:
-  - year: "2020"
-    value: 3.0
-  - year: "2021"
-    value: 5.0
-  - year: "2022"
-    value: 9.0
-  - year: "2023"
-    value: 16.0
-  - year: "2024"
-    value: 26.0
-  - year: "2025"
-    value: 31.4
 ---
 
 ## 01 — Resumen
@@ -202,7 +103,6 @@ Un centro de datos es una pila de tres contratos negociados: energía con la emp
 
 Este informe presenta el **Índice de Capacidad Varada (SCI)**, una taxonomía de nueve modos de fallo con nombre distribuidos en tres capas físicas. La taxonomía pretende ser un vocabulario común para los operadores de instalaciones, arquitectos de TI y programadores de cargas de trabajo — las tres comunidades cuyos incentivos actualmente no están alineados.
 
----
 
 ## 02 — Introducción
 
@@ -220,7 +120,6 @@ La tesis de este informe es que la capacidad varada no es un problema con una ú
 
 Lo que sigue es un vocabulario propuesto. Es abierto, público y pretende ser debatido.
 
----
 
 ## 03 — Descripción general de la taxonomía
 
@@ -230,7 +129,6 @@ La taxonomía se organiza por la capa física donde se origina el fallo. Cada ca
 
 <DiagramaCapas />
 
----
 
 ## 04 — Metodología
 
@@ -238,11 +136,26 @@ La taxonomía se organiza por la capa física donde se origina el fallo. Cada ca
 
 El Índice de Capacidad Varada sintetiza tres fuentes de evidencia: telemetría de instalaciones medida, datos de exportación del programador y entrevistas estructuradas a operadores. Cada modo de fallo en la taxonomía debe ser observable en al menos dos de las tres fuentes para ser retenido.
 
-<StepCards />
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-10">
+  <StepCard num="01" title="Ingesta de telemetría">
+    kW por PDU, temperatura de entrada por rack y energía BMC por nodo con resolución de 5 minutos en 41 sitios durante 18 meses. Se muestrearon 4,2 GW de carga IT energizada.
+  </StepCard>
+
+  <StepCard num="02" title="Exportación del programador">
+    Instantáneas del estado del orquestador (Kubernetes, Slurm, propietario) con resolución de 1 minuto. Captura nodos registrados vs. programables, profundidad de cola y conjunto de reglas de afinidad.
+  </StepCard>
+
+  <StepCard num="03" title="Entrevistas a operadores">
+    63 entrevistas estructuradas entre propietarios de instalaciones, TI y cargas de trabajo. Cada modo de fallo nombrado en la taxonomía fue validado contra el lenguaje de trabajo utilizado por los operadores.
+  </StepCard>
+
+  <StepCard num="04" title="Nombramiento y revisión por pares">
+    Cada modo de fallo nombrado fue revisado por al menos tres operadores de diferentes organizaciones. Los nombres se retuvieron solo cuando al menos dos tercios estuvieron de acuerdo en que el término coincidía con su vocabulario de trabajo.
+  </StepCard>
+</div>
 
 **Limitaciones.** La muestra se inclina hacia operadores hiperescala y de colocación grandes; los sitios periféricos y empresariales están subrepresentados. La cifra principal del 31,4% es una mediana de la muestra, no una estimación poblacional — los intervalos de confianza se reportan por modo de fallo en el conjunto de datos descargable.
 
----
 
 ## 05 — Figuras y descargas
 
@@ -250,11 +163,37 @@ El Índice de Capacidad Varada sintetiza tres fuentes de evidencia: telemetría 
 
 Todas las figuras se publican bajo CC BY-SA 4.0 con atribución a *Fuente: Índice de Capacidad Varada de PhysaFlow*. Versiones interactivas y datos de alta resolución están disponibles a continuación.
 
-<GraficoBarrasDesperdicio />
+<Chart 
+  type="bar" 
+  title="Capacidad varada por modo de fallo con nombre (% de kW energizados)"
+  caption="Figura 2 — Capacidad varada mediana por modo de fallo con nombre. Muestra n=41 sitios. Fuente: Índice de Capacidad Varada de PhysaFlow, 2025."
+  data='[
+    { "name": "Deriva pasillo", "label": "Deriva del pasillo frío", "value": 4.2, "layer": "L1 - Instalaciones", "color": "#143a26" },
+    { "name": "Sobresusc. térmica", "label": "Sobresuscripción térmica", "value": 6.1, "layer": "L1 - Instalaciones", "color": "#143a26" },
+    { "name": "Aprov. sombra", "label": "Aprovisionamiento en sombra", "value": 4.5, "layer": "L1 - Instalaciones", "color": "#143a26" },
+    { "name": "Racks comatosos", "label": "Racks comatosos", "value": 3.8, "layer": "L2 - TI", "color": "#c9a961" },
+    { "name": "Nodos durmientes", "label": "Nodos durmientes", "value": 2.9, "layer": "L2 - TI", "color": "#c9a961" },
+    { "name": "Bloqueo topo.", "label": "Bloqueo de topología", "value": 3.0, "layer": "L2 - TI", "color": "#c9a961" },
+    { "name": "Asig. huérfanas", "label": "Asignaciones huérfanas", "value": 3.1, "layer": "L3 - Carga de trabajo", "color": "#2d5f47" },
+    { "name": "Inanición afin.", "label": "Inanición por afinidad", "value": 2.2, "layer": "L3 - Carga de trabajo", "color": "#2d5f47" },
+    { "name": "Latencia marea", "label": "Latencia de marea", "value": 1.6, "layer": "L3 - Carga de trabajo", "color": "#2d5f47" }
+  ]'
+/>
 
-<GraficoLineaAcumulado />
-
----
+<Chart 
+  type="line" 
+  title="Capacidad varada acumulada, 2020 – 2026 (% de kW energizados)"
+  caption="Figura 3 — Capacidad varada acumulada como porcentaje de kilovatios energizados, muestreada anualmente 2020–2025. Fuente: Índice de Capacidad Varada de PhysaFlow, 2025."
+  data='[
+    { "year": "2020", "value": 3.0 },
+    { "year": "2021", "value": 5.0 },
+    { "year": "2022", "value": 9.0 },
+    { "year": "2023", "value": 16.0 },
+    { "year": "2024", "value": 26.0 },
+    { "year": "2025", "value": 31.4 },
+    { "year": "2026", "value": 38.0 }
+  ]'
+/>
 
 ## 06 — Cómo citar
 
