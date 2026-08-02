@@ -3,6 +3,7 @@ import matter from "gray-matter";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { ReportFrontmatterSchema } from "@/lib/report-schema";
+import { generateAiKnowledge } from "@/lib/generate-ai-knowledge";
 
 function generateSlug(title: string, publishedDate: string): string {
   const base = `${title} ${publishedDate}`
@@ -34,6 +35,24 @@ export async function POST(req: NextRequest) {
     const validatedData = ReportFrontmatterSchema.parse(data);
     const slug = generateSlug(validatedData.title, validatedData.publishedDate);
 
+    // Generar la ficha de conocimiento para la IA si el reporte está publicado
+    const aiKnowledge = isPublished
+      ? await generateAiKnowledge({
+          title: validatedData.title,
+          subtitle: validatedData.subtitle,
+          author: validatedData.author,
+          publishedDate: validatedData.publishedDate,
+          doi: validatedData.doi,
+          globalMedian: validatedData.globalMedian,
+          lossFacilities: validatedData.lossFacilities,
+          lossIT: validatedData.lossIT,
+          lossWorkload: validatedData.lossWorkload,
+          keyFinding: validatedData.keyFinding,
+          layers: validatedData.layers,
+          content: fileContent,
+        })
+      : null;
+
     let report;
 
     if (targetId) {
@@ -55,8 +74,8 @@ export async function POST(req: NextRequest) {
           lossIT: validatedData.lossIT,
           lossWorkload: validatedData.lossWorkload,
           keyFinding: validatedData.keyFinding,
-          labels: (validatedData.labels ?? {}) as Prisma.InputJsonValue,
           layers: (validatedData.layers ?? []) as Prisma.InputJsonValue,
+          ...(aiKnowledge ? { aiKnowledge: aiKnowledge as unknown as Prisma.InputJsonValue } : {}),
           content: fileContent,
         },
       });
@@ -78,8 +97,8 @@ export async function POST(req: NextRequest) {
           lossIT: validatedData.lossIT,
           lossWorkload: validatedData.lossWorkload,
           keyFinding: validatedData.keyFinding,
-          labels: (validatedData.labels ?? {}) as Prisma.InputJsonValue,
           layers: (validatedData.layers ?? []) as Prisma.InputJsonValue,
+          ...(aiKnowledge ? { aiKnowledge: aiKnowledge as unknown as Prisma.InputJsonValue } : {}),
           content: fileContent,
         },
       });

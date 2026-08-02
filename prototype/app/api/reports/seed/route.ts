@@ -5,6 +5,7 @@ import matter from "gray-matter";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { ReportFrontmatterSchema } from "@/lib/report-schema";
+import { generateAiKnowledge } from "@/lib/generate-ai-knowledge";
 
 function generateSlug(title: string, publishedDate: string): string {
   const base = `${title} ${publishedDate}`
@@ -39,6 +40,21 @@ export async function POST() {
     const validated = ReportFrontmatterSchema.parse(data);
     const slug = generateSlug(validated.title, validated.publishedDate);
 
+    const aiKnowledge = await generateAiKnowledge({
+      title: validated.title,
+      subtitle: validated.subtitle,
+      author: validated.author,
+      publishedDate: validated.publishedDate,
+      doi: validated.doi,
+      globalMedian: validated.globalMedian,
+      lossFacilities: validated.lossFacilities,
+      lossIT: validated.lossIT,
+      lossWorkload: validated.lossWorkload,
+      keyFinding: validated.keyFinding,
+      layers: validated.layers,
+      content: fileContent,
+    });
+
     const report = await prisma.report.create({
       data: {
         slug,
@@ -55,8 +71,8 @@ export async function POST() {
         lossIT: validated.lossIT,
         lossWorkload: validated.lossWorkload,
         keyFinding: validated.keyFinding,
-        labels: (validated.labels ?? {}) as Prisma.InputJsonValue,
         layers: (validated.layers ?? []) as Prisma.InputJsonValue,
+        aiKnowledge: aiKnowledge as unknown as Prisma.InputJsonValue,
         content: fileContent,
       },
     });

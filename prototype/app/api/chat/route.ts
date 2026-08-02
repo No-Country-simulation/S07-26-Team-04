@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
-import fs from "fs";
-import path from "path";
+import { prisma } from "@/lib/prisma";
 
 // Initialize Google Gen AI client with the API Key
 const ai = new GoogleGenAI({
@@ -10,14 +9,7 @@ const ai = new GoogleGenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, lang = "ES" } = await req.json();
-
-    // Vercel deployment helper: Explicitly reference mdx files statically to force
-    // Vercel Node File Trace to package them inside the serverless function container.
-    if (process.env.VERCEL_DUMMY_TRACE === "force") {
-      fs.readFileSync(path.join(process.cwd(), "content", "reporte-ES.mdx"), "utf-8");
-      fs.readFileSync(path.join(process.cwd(), "content", "reporte-EN.mdx"), "utf-8");
-    }
+    const { messages, reportId } = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
@@ -26,48 +18,76 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. Read the corresponding MDX report file content for context
-    const normalizedLang = lang.toUpperCase() === "EN" ? "EN" : "ES";
-    const contentPath = path.join(
-      process.cwd(),
-      "content",
-      `reporte-${normalizedLang}.mdx`
-    );
+    // 1. Obtener el reporte objetivo desde la base de datos (Prisma)
+    let dbReport = null;
 
-    let mdxContent = "";
-    if (fs.existsSync(contentPath)) {
-      mdxContent = fs.readFileSync(contentPath, "utf-8");
-    } else {
-      console.warn(`Report context file not found at: ${contentPath}`);
+    if (reportId) {
+      dbReport = await prisma.report.findUnique({
+        where: { id: reportId },
+      });
     }
 
-    // 2. Build the system prompt instruction
-    const systemPrompt = normalizedLang === "EN"
-      ? `You are an academic research assistant for the PhysaFlow paper.
-Your goal is to answer questions about the report accurately and professionally.
-You must base your answers on the following report content:
----
-${mdxContent}
----
-Ensure your answers are concise, clear, and match the academic tone of the paper.
-Respond in English. Format your answers in Markdown (bold text, lists, code blocks where appropriate).`
-      : `Eres un asistente de investigación académica para el artículo científico PhysaFlow.
-Tu objetivo es responder preguntas sobre el reporte de manera precisa y profesional.
-Debes basar tus respuestas en el siguiente contenido del reporte:
----
-${mdxContent}
----
-Asegúrate de que tus respuestas sean concisas, claras y mantengan el tono académico.
-Responde en Español. Da formato a tus respuestas usando Markdown (negritas, listas, bloques de código cuando sea apropiado).`;
+    // Fallback: Si no viene reportId o no se encuentra el reporte, obtener el primer reporte disponible en BD
+    if (!dbReport) {
+      dbReport = await prisma.report.findFirst();
+    }
 
-    // 3. Compile the chat conversation history
-    // Get the latest query
+    if (!dbReport) {
+      return NextResponse.json(
+        { error: "No report context found in database" },
+        { status: 404 }
+      );
+    }
+
+    // 2. Extraer o consumir la ficha de conocimiento para IA (aiKnowledge)
+    let aiKnowledgeContext = "";
+
+    if (dbReport.aiKnowledge) {
+      aiKnowledgeContext = typeof dbReport.aiKnowledge === "string"
+        ? dbReport.aiKnowledge
+        : JSON.stringify(dbReport.aiKnowledge, null, 2);
+    } else {
+      // Fallback si el reporte aún no tiene aiKnowledge procesado
+      const layersData = typeof dbReport.layers === "string" 
+        ? dbReport.layers 
+        : JSON.stringify(dbReport.layers, null, 2);
+
+      aiKnowledgeContext = JSON.stringify({
+        metadata: {
+          title: dbReport.title,
+          subtitle: dbReport.subtitle || "",
+          author: dbReport.author,
+          publishedDate: dbReport.publishedDate,
+          doi: dbReport.doi,
+        },
+        globalImpact: {
+          globalMedian: dbReport.globalMedian,
+          lossFacilities: dbReport.lossFacilities,
+          lossIT: dbReport.lossIT,
+          lossWorkload: dbReport.lossWorkload,
+          keyFinding: dbReport.keyFinding || "",
+        },
+        layersSummary: layersData,
+      }, null, 2);
+    }
+
+    // 3. System Instruction enfocado en concisión y velocidad usando aiKnowledge
+    const systemPrompt = `Eres el asistente oficial del reporte científico PhysaFlow.
+Tu objetivo es responder de forma DIRECTA, BREVE y CONCISA únicamente a lo que el usuario pregunte.
+Usa estrictamente la Ficha de Conocimiento del Reporte (AI Knowledge Base) proporcionada a continuación:
+---
+${aiKnowledgeContext}
+---
+Reglas de formato y respuesta:
+- Usa **negritas** (**texto en negrita**) para destacar los nombres de los conceptos clave, modos de fallo (ej. **Sobresuscripción térmica**, **Racks comatosos**), métricas y porcentajes (ej. **31,4%**, **14,8%**), y capas (ej. **Facilities**, **TI**, **Workload**).
+- Si el usuario te saluda o pregunta quién eres, preséntate brevemente en una sola frase indicando que eres el asistente de **PhysaFlow**, sin desplegar todo el informe salvo que lo soliciten.
+- Responde en el mismo idioma en que te hablen.
+- Mantén un tono académico, claro y estructurado con listas o viñetas cuando sea adecuado.`;
+
+    // 4. Extraer el historial y la última pregunta del usuario
     const lastUserMessage = messages[messages.length - 1].content;
-    
-    // Get the past messages for conversation history
     const history = messages.slice(0, messages.length - 1);
 
-    // 3. Build the structured messages history for the contents parameter
     const contents = [
       ...history.map((m) => ({
         role: m.role === "user" ? "user" : "model",
@@ -79,13 +99,13 @@ Responde en Español. Da formato a tus respuestas usando Markdown (negritas, lis
       },
     ];
 
-    // 4. Call the Gemini API using generateContentStream with config.systemInstruction
-    // This allows Gemini to cache the large system prompt (MDX context) automatically.
+    // 5. Llamada ultrarrápida a Gemini usando el modelo gemini-3.5-flash-lite
     const responseStream = await ai.models.generateContentStream({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.5-flash-lite",
       contents: contents,
       config: {
         systemInstruction: systemPrompt,
+        maxOutputTokens: 600,
       },
     });
 
