@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAdminSession } from "@/lib/session";
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "3", 10);
+    const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "3", 10) || 3, 1), 100);
     const status = searchParams.get("status"); // "published" | "draft" | null (todos)
 
     const skip = (page - 1) * limit;

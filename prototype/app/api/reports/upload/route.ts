@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { ReportFrontmatterSchema } from "@/lib/report-schema";
 import { generateAiKnowledge } from "@/lib/generate-ai-knowledge";
+import { getAdminSession } from "@/lib/session";
 
 function generateSlug(title: string, publishedDate: string): string {
   const base = `${title} ${publishedDate}`
@@ -18,6 +19,10 @@ function generateSlug(title: string, publishedDate: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const targetId = (formData.get("targetId") as string) || null;

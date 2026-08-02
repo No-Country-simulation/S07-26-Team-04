@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { generateAiKnowledge } from "@/lib/generate-ai-knowledge";
+import { getAdminSession } from "@/lib/session";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -9,6 +10,10 @@ interface RouteParams {
 
 export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     const { id } = await params;
 
     const report = await prisma.report.findUnique({
@@ -31,6 +36,10 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     const { id } = await params;
     const body = await req.json();
 
@@ -87,6 +96,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     const { id } = await params;
 
     await prisma.report.delete({
