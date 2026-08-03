@@ -26,10 +26,12 @@ export default function Chart({
     if (!rawData) return undefined;
     if (typeof rawData === "string") {
       try {
-        return JSON.parse(rawData);
-      } catch (e) {
-        console.error("Error parseando data JSON en Chart component", e);
-        return undefined;
+        // Limpiar comas sobrantes al final de arrays/objetos si existen (trailing commas)
+        const sanitized = rawData.replace(/,\s*([\]}])/g, "$1");
+        return JSON.parse(sanitized);
+      } catch {
+        // Si el JSON aún está siendo tipeado o incompleto por el usuario, retornar arreglo vacío sin error en consola
+        return [];
       }
     }
     return rawData;
