@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       whereClause.isPublished = false;
     }
 
-    const [reports, total] = await Promise.all([
+    const [reports, filteredTotal, published, drafts] = await Promise.all([
       prisma.report.findMany({
         where: whereClause,
         orderBy: { updatedAt: "desc" },
@@ -45,15 +45,22 @@ export async function GET(req: NextRequest) {
         },
       }),
       prisma.report.count({ where: whereClause }),
+      prisma.report.count({ where: { isPublished: true } }),
+      prisma.report.count({ where: { isPublished: false } }),
     ]);
 
     return NextResponse.json({
       reports,
       pagination: {
-        total,
+        total: filteredTotal,
         page,
         limit,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(filteredTotal / limit),
+      },
+      summary: {
+        total: published + drafts,
+        published,
+        drafts,
       },
     });
   } catch (error: unknown) {
