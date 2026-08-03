@@ -41,15 +41,38 @@ interface ReportItem {
   updatedAt: string;
 }
 
+const PAGE_SIZE = 3;
+
+type AdminTab = "dashboard" | "reportes" | "borradores" | "upload" | "templates" | "editor";
+
+// Estado de publicación que aplica según la pestaña activa (server-side)
+function statusForTab(tab: AdminTab): "published" | "draft" | null {
+  if (tab === "reportes") return "published";
+  if (tab === "borradores") return "draft";
+  if (tab === "dashboard") return "published"; // para el "Reporte Activo"
+  return null;
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "reportes" | "borradores" | "upload" | "templates" | "editor">("dashboard");
+  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [reportes, setReportes] = useState<ReportItem[]>([]);
   const [loadingReportes, setLoadingReportes] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState<{ total: number; page: number; limit: number; totalPages: number }>({
+    total: 0,
+    page: 1,
+    limit: PAGE_SIZE,
+    totalPages: 1,
+  });
+  const [summary, setSummary] = useState<{ total: number; published: number; drafts: number }>({
+    total: 0,
+    published: 0,
+    drafts: 0,
+  });
 
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -71,14 +94,20 @@ export default function AdminPage() {
     }
   }, [session, isPending, router]);
 
-  // Cargar lista de reportes desde Neon PostgreSQL
-  const fetchReportes = useCallback(async () => {
-    setLoadingReportes(true);
+  // Cargar la página actual de reportes desde Neon PostgreSQL (paginación servidor)
+  const fetchReportes = useCallback(async (page: number, status: "published" | "draft" | null) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(PAGE_SIZE),
+    });
+    if (status) params.set("status", status);
     try {
-      const res = await fetch("/api/reports");
+      const res = await fetch(`/api/reports?${params.toString()}`);
       const data = await res.json();
       if (res.ok) {
         setReportes(data.reports || []);
+        setPagination(data.pagination || {});
+        setSummary(data.summary || {});
       }
     } catch (err) {
       console.error("Error al obtener reportes:", err);
@@ -89,27 +118,21 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!session) return;
-    let isMounted = true;
     const loadReportes = async () => {
-      try {
-        const res = await fetch("/api/reports");
-        const data = await res.json();
-        if (res.ok && isMounted) {
-          setReportes(data.reports || []);
-        }
-      } catch (err) {
-        console.error("Error al obtener reportes:", err);
-      } finally {
-        if (isMounted) {
-          setLoadingReportes(false);
-        }
-      }
+      await fetchReportes(currentPage, statusForTab(activeTab));
     };
     void loadReportes();
-    return () => {
-      isMounted = false;
-    };
-  }, [session]);
+  }, [session, currentPage, activeTab, fetchReportes]);
+
+  // Recarga la página/estado actual tras mutaciones (upload, toggle, delete)
+  const refreshReportes = useCallback((page?: number) => {
+    setLoadingReportes(true);
+    const targetPage = page ?? currentPage;
+    if (page !== undefined && page !== currentPage) {
+      setCurrentPage(page);
+    }
+    void fetchReportes(targetPage, statusForTab(activeTab));
+  }, [currentPage, activeTab, fetchReportes]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -181,7 +204,7 @@ export default function AdminPage() {
         });
         setFile(null);
         setSelectedReportId(null);
-        void fetchReportes();
+        refreshReportes();
       } else {
         setStatus({
           success: false,
@@ -207,7 +230,7 @@ export default function AdminPage() {
         body: JSON.stringify({ isPublished: !currentStatus }),
       });
       if (res.ok) {
-        fetchReportes();
+        refreshReportes();
       }
     } catch (err) {
       console.error("Error al cambiar estado de publicación:", err);
@@ -231,7 +254,9 @@ export default function AdminPage() {
           success: true,
           message: `El reporte "${titulo}" fue eliminado correctamente.`,
         });
-        fetchReportes();
+        // Si borramos el último de la página, retrocedemos una (página servidor)
+        const lastPossiblePage = Math.max(1, Math.ceil((pagination.total - 1) / PAGE_SIZE));
+        refreshReportes(Math.min(currentPage, lastPossiblePage));
       } else {
         setStatus({
           success: false,
@@ -252,13 +277,8 @@ export default function AdminPage() {
     router.push("/login");
   };
 
-  // Buscador inteligente y discriminador de Pestañas (Publicados vs Borradores)
+  // Buscador: filtra solo sobre la página actual (el server ya paginó por pestaña)
   const filteredReportes = reportes.filter((r) => {
-    // 1. Filtrar según la pestaña activa en la barra lateral
-    if (activeTab === "reportes" && !r.isPublished) return false;
-    if (activeTab === "borradores" && r.isPublished) return false;
-
-    // 2. Filtrar por término de búsqueda
     const query = searchQuery.toLowerCase().trim();
     if (!query) return true;
     return (
@@ -269,12 +289,8 @@ export default function AdminPage() {
     );
   });
 
-  const ITEMS_PER_PAGE = 3;
-  const totalPages = Math.ceil(filteredReportes.length / ITEMS_PER_PAGE) || 1;
-  const paginatedReportes = filteredReportes.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const totalPages = pagination.totalPages || 1;
+  const displayReportes = filteredReportes;
 
   if (isPending || (!session && typeof window !== "undefined")) {
     return (
@@ -363,7 +379,11 @@ export default function AdminPage() {
               </div>
 
               <button
-                onClick={() => setActiveTab("dashboard")}
+                onClick={() => {
+                  setLoadingReportes(true);
+                  setCurrentPage(1);
+                  setActiveTab("dashboard");
+                }}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition cursor-pointer ${
                   activeTab === "dashboard"
                     ? "bg-[var(--forest-700)] text-[var(--paper)] shadow-sm font-semibold"
@@ -376,6 +396,7 @@ export default function AdminPage() {
 
               <button
                 onClick={() => {
+                  setLoadingReportes(true);
                   setCurrentPage(1);
                   setActiveTab("reportes");
                 }}
@@ -394,12 +415,13 @@ export default function AdminPage() {
                     activeTab === "reportes" ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-800"
                   }`}
                 >
-                  {reportes.filter((r) => r.isPublished).length}
+                  {summary.published}
                 </span>
               </button>
 
               <button
                 onClick={() => {
+                  setLoadingReportes(true);
                   setCurrentPage(1);
                   setActiveTab("borradores");
                 }}
@@ -418,7 +440,7 @@ export default function AdminPage() {
                     activeTab === "borradores" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-800"
                   }`}
                 >
-                  {reportes.filter((r) => !r.isPublished).length}
+                  {summary.drafts}
                 </span>
               </button>
 
@@ -495,7 +517,7 @@ export default function AdminPage() {
                   </div>
                   <div className="flex items-baseline justify-between">
                     <span className="font-display font-bold text-3xl text-[var(--forest-800)]">
-                      {reportes.filter((r) => r.isPublished).length}
+                      {summary.published}
                     </span>
                     <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
                       En Línea
@@ -513,7 +535,7 @@ export default function AdminPage() {
                   </div>
                   <div className="flex items-baseline justify-between">
                     <span className="font-display font-bold text-3xl text-[var(--forest-800)]">
-                      {reportes.filter((r) => !r.isPublished).length}
+                      {summary.drafts}
                     </span>
                     <span className="text-[11px] text-amber-700 font-semibold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
                       En Edición
@@ -540,7 +562,11 @@ export default function AdminPage() {
                     </div>
 
                     <button
-                      onClick={() => setActiveTab("reportes")}
+                      onClick={() => {
+                        setLoadingReportes(true);
+                        setCurrentPage(1);
+                        setActiveTab("reportes");
+                      }}
                       className="text-[12px] font-semibold text-[var(--forest-700)] hover:underline flex items-center gap-1"
                     >
                       <span>Ver Todos</span>
@@ -607,7 +633,8 @@ export default function AdminPage() {
                     </button>
 
                     <a
-                      href="/api/reporte/template"
+                      href="/templates/plantilla-reporte-physaflow.mdx"
+                      download="plantilla-reporte-physaflow.mdx"
                       className="w-full flex items-center justify-between p-3 bg-[var(--paper)] hover:bg-white border border-[var(--rule-soft)] rounded-md text-[13px] font-semibold text-[var(--forest-800)] transition shadow-sm cursor-pointer group"
                     >
                       <div className="flex items-center gap-2.5">
@@ -643,7 +670,7 @@ export default function AdminPage() {
                     {activeTab === "reportes" ? "Biblioteca Pública" : "Borradores Privados"}
                   </div>
                   <h1 className="font-display text-[28px] font-bold text-[var(--forest-800)]">
-                    {activeTab === "reportes" ? "Reportes Publicados" : "Borradores Sin Publicar"} ({filteredReportes.length})
+                    {activeTab === "reportes" ? "Reportes Publicados" : "Borradores Sin Publicar"} ({pagination.total})
                   </h1>
                   <p className="text-[13px] text-[var(--ink-muted)] mt-1">
                     {activeTab === "reportes"
@@ -673,7 +700,7 @@ export default function AdminPage() {
                   </button>
 
                   <button
-                    onClick={fetchReportes}
+                    onClick={() => refreshReportes()}
                     className="p-2 bg-[var(--paper-2)] hover:bg-white text-[var(--ink-muted)] border border-[var(--rule)] rounded-md transition cursor-pointer shadow-sm"
                     title="Refrescar Lista"
                   >
@@ -708,7 +735,7 @@ export default function AdminPage() {
                   <div className="py-16 text-center text-[13px] text-[var(--ink-muted)] animate-pulse">
                     Cargando colección de reportes desde Neon PostgreSQL...
                   </div>
-                ) : filteredReportes.length === 0 ? (
+                ) : displayReportes.length === 0 ? (
                   <div className="py-16 px-6 text-center space-y-4">
                     <div className="w-12 h-12 bg-[var(--forest-50)] text-[var(--forest-700)] rounded-full flex items-center justify-center mx-auto">
                       <Database className="w-6 h-6 text-emerald-600" />
@@ -723,7 +750,7 @@ export default function AdminPage() {
                     </div>
                   </div>
                 ) : (
-                  paginatedReportes.map((rep) => (
+                  displayReportes.map((rep) => (
                     <div
                       key={rep.id}
                       className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-[var(--paper)]/60 transition"
@@ -794,23 +821,29 @@ export default function AdminPage() {
                 )}
               </div>
 
-              {/* Controles de Paginación */}
+              {/* Controles de Paginación (servidor, 3 por página) */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between p-4 bg-[var(--paper-2)] border border-[var(--rule-soft)] rounded-md text-[12px]">
                   <span className="text-[var(--ink-muted)]">
-                    Mostrando página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({filteredReportes.length} reportes)
+                    Mostrando página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({pagination.total} reportes)
                   </span>
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                      onClick={() => {
+                        setLoadingReportes(true);
+                        setCurrentPage((p) => Math.max(p - 1, 1));
+                      }}
                       disabled={currentPage === 1}
                       className="px-3 py-1 bg-[var(--paper)] hover:bg-white border border-[var(--rule)] rounded-md font-semibold text-[var(--forest-800)] disabled:opacity-40 transition cursor-pointer"
                     >
                       ← Anterior
                     </button>
                     <button
-                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                      onClick={() => {
+                        setLoadingReportes(true);
+                        setCurrentPage((p) => Math.min(p + 1, totalPages));
+                      }}
                       disabled={currentPage === totalPages}
                       className="px-3 py-1 bg-[var(--paper)] hover:bg-white border border-[var(--rule)] rounded-md font-semibold text-[var(--forest-800)] disabled:opacity-40 transition cursor-pointer"
                     >
@@ -1085,7 +1118,7 @@ export default function AdminPage() {
               <MdxEditor
                 initialReportId={selectedReportId}
                 onSaved={() => {
-                  fetchReportes();
+                  refreshReportes();
                 }}
               />
             </div>
