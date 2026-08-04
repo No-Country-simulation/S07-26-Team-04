@@ -2,129 +2,1402 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-geist-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
+/* =========================================================
+   PHYSaflow — DESIGN TOKENS
+   ========================================================= */
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* -------------------------------------------------------
+     Brand / Surfaces
+  ------------------------------------------------------- */
+
+  --forest-green: #0b3d2e;
+  --deep-forest: #062a20;
+  --dark-forest: #082f25;
+
+  --surface: #14140f;
+  --surface-dim: #14140f;
+  --surface-bright: #3a3933;
+
+  --surface-container-lowest: #0e0e0a;
+  --surface-container-low: #1c1c17;
+  --surface-container: #20201a;
+  --surface-container-high: #2a2a25;
+  --surface-container-highest: #35352f;
+
+  /* -------------------------------------------------------
+     Brand Gold
+  ------------------------------------------------------- */
+
+  --gold: #c9a227;
+  --gold-light: #ecc246;
+  --gold-dark: #b18c09;
+
+  /* -------------------------------------------------------
+     Typography
+  ------------------------------------------------------- */
+
+  --warm-white: #f4f1e8;
+  --on-surface: #e5e2da;
+  --on-surface-variant: #c0c8c3;
+
+  --muted-green-grey: #a8b5ae;
+  --outline: #8a938d;
+  --outline-variant: #414944;
+
+  /* -------------------------------------------------------
+     Semantic colors
+  ------------------------------------------------------- */
+
+  --primary: #a0d1bc;
+  --primary-container: #0b3d2e;
+  --on-primary: #043829;
+  --on-primary-container: #79a894;
+
+  --secondary: #ecc246;
+  --secondary-container: #b18c09;
+  --on-secondary: #3d2e00;
+  --on-secondary-container: #352800;
+
+  --tertiary: #aacebf;
+  --tertiary-container: #1a3b30;
+
+  --error: #ffb4ab;
+  --error-container: #93000a;
+
+  /* -------------------------------------------------------
+     Layout
+  ------------------------------------------------------- */
+
+  --container-max-width: 1200px;
+
+  --gutter: 32px;
+
+  --margin-x: 64px;
+
+  --stack-sm: 12px;
+  --stack-md: 24px;
+  --stack-lg: 48px;
+  --stack-xl: 80px;
+
+  /* -------------------------------------------------------
+     Borders
+  ------------------------------------------------------- */
+
+  --border-subtle: rgba(168, 181, 174, 0.2);
+
+  --border-gold: rgba(201, 162, 39, 0.45);
+
+  --border-gold-subtle: rgba(201, 162, 39, 0.25);
+
+  /* -------------------------------------------------------
+     Shape
+  ------------------------------------------------------- */
+
+  --radius: 0px;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* =========================================================
+   RESET
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+
+  background-color: var(--forest-green);
+
+  color: var(--warm-white);
+
+  font-family:
+    var(--font-source-serif), "Source Serif 4", Georgia, "Times New Roman",
+    serif;
+
+  -webkit-font-smoothing: antialiased;
+
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  border-radius: 0;
+}
+
+/* =========================================================
+   GLOBAL REPORT LAYOUT
+   ========================================================= */
+
+.report-site {
+  min-height: 100vh;
+
+  width: 100%;
+
+  background: var(--forest-green);
+}
+
+.report-main {
+  min-height: 100vh;
+
+  background: var(--forest-green);
+}
+
+.report-content {
+  width: 100%;
+
+  max-width: var(--container-max-width);
+
+  margin: 0 auto;
+
+  padding-left: var(--margin-x);
+
+  padding-right: var(--margin-x);
+}
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+
+/*
+  Display
+  Playfair Display
+*/
+
+.text-display-lg {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 64px;
+
+  font-weight: 700;
+
+  line-height: 72px;
+
+  letter-spacing: -0.02em;
+}
+
+/*
+  Display mobile
+*/
+
+.text-display-lg-mobile {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 40px;
+
+  font-weight: 700;
+
+  line-height: 48px;
+
+  letter-spacing: -0.01em;
+}
+
+/*
+  Headline
+*/
+
+.text-headline-md {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 32px;
+
+  font-weight: 600;
+
+  line-height: 40px;
+}
+
+/*
+  Body large
+*/
+
+.text-body-lg {
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 20px;
+
+  font-weight: 400;
+
+  line-height: 32px;
+}
+
+/*
+  Body medium
+*/
+
+.text-body-md {
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 16px;
+
+  font-weight: 400;
+
+  line-height: 26px;
+}
+
+/*
+  Technical labels
+*/
+
+.text-label-caps {
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  line-height: 16px;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+}
+
+/*
+  Metadata
+*/
+
+.text-metadata {
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 13px;
+
+  font-weight: 400;
+
+  line-height: 18px;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.site-header {
+  position: fixed;
+
+  top: 0;
+
+  left: 0;
+
+  right: 0;
+
+  z-index: 50;
+
+  height: 64px;
+
+  display: flex;
+
+  align-items: center;
+
+  padding: 0 var(--margin-x);
+
+  background: var(--deep-forest);
+
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/*
+  PhysaFlow logo
+*/
+
+.brand {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  color: var(--gold);
+
+  font-weight: 700;
+
+  letter-spacing: -0.03em;
+}
+
+.brand-header {
+  font-size: 18px;
+
+  line-height: 1;
+}
+
+/*
+  Header navigation
+*/
+
+.top-nav {
+  display: flex;
+
+  align-items: center;
+
+  gap: 24px;
+
+  margin-left: auto;
+
+  margin-right: 32px;
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 11px;
+
+  color: var(--on-surface-variant);
+}
+
+.top-nav a {
+  transition: color 160ms ease;
+}
+
+.top-nav a:hover {
+  color: var(--gold);
+}
+
+/* =========================================================
+   HERO SECTION
+   ========================================================= */
+
+.report-hero {
+  width: 100%;
+
+  min-height: 700px;
+
+  padding-top: 150px;
+
+  padding-bottom: 80px;
+
+  padding-left: var(--margin-x);
+
+  padding-right: var(--margin-x);
+
+  position: relative;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  background: var(--forest-green);
+}
+
+/*
+  Technical eyebrow
+*/
+
+.eyebrow {
+  width: fit-content;
+
+  margin: 0 0 16px;
+
+  color: var(--gold);
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  line-height: 16px;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+}
+
+/*
+  Main report title
+*/
+
+.report-hero h1 {
+  max-width: 850px;
+
+  margin: 0;
+
+  color: var(--warm-white);
+
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: clamp(48px, 6vw, 64px);
+
+  font-weight: 700;
+
+  line-height: 1.125;
+
+  letter-spacing: -0.02em;
+}
+
+/*
+  Gold emphasis
+*/
+
+.report-hero h1 span {
+  color: var(--gold);
+}
+
+/*
+  Hero body
+*/
+
+.hero-copy {
+  max-width: 650px;
+
+  margin: 24px 0 32px;
+
+  color: var(--on-surface-variant);
+
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 20px;
+
+  font-weight: 400;
+
+  line-height: 32px;
+}
+
+/* =========================================================
+   HERO BUTTONS
+   ========================================================= */
+
+.hero-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 48px;
+}
+
+.gold-button,
+.outline-button {
+  min-height: 40px;
+
+  padding: 0 20px;
+
+  border-radius: 0;
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  line-height: 16px;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+/*
+  Primary button
+*/
+
+.gold-button {
+  border: 1px solid var(--gold);
+
+  background: var(--gold);
+
+  color: var(--forest-green);
+}
+
+.gold-button:hover {
+  background: var(--gold-light);
+
+  border-color: var(--gold-light);
+}
+
+/*
+  Secondary button
+*/
+
+.outline-button {
+  border: 1px solid var(--gold);
+
+  background: transparent;
+
+  color: var(--gold);
+}
+
+.outline-button:hover {
+  background: rgba(201, 162, 39, 0.08);
+}
+
+/* =========================================================
+   HERO METADATA
+   ========================================================= */
+
+.hero-meta {
+  width: 100%;
+
+  max-width: 800px;
+
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 24px;
+
+  padding-top: 24px;
+
+  border-top: 1px solid var(--border-gold-subtle);
+}
+
+.hero-meta div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.hero-meta span {
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  line-height: 16px;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  color: var(--muted-green-grey);
+}
+
+.hero-meta strong {
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 13px;
+
+  font-weight: 400;
+
+  line-height: 18px;
+
+  color: var(--on-surface-variant);
+}
+
+/* =========================================================
+   REPORT CONTENT SECTION
+   ========================================================= */
+
+.report-content-section {
+  width: 100%;
+
+  background: var(--forest-green);
+}
+
+/*
+  Main two-column layout
+*/
+
+.report-content-layout {
+  width: 100%;
+
+  max-width: var(--container-max-width);
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns: 220px minmax(0, 1fr);
+
+  gap: 48px;
+
+  padding: 0 var(--margin-x);
+}
+
+/* =========================================================
+   REPORT SIDEBAR
+   ========================================================= */
+
+.report-content-sidebar {
+  min-width: 0;
+
+  align-self: stretch;
+
+  position: sticky;
+
+  top: 88px;
+
+  height: fit-content;
+
+  max-height: calc(100vh - 112px);
+}
+
+/*
+  Shadcn Sidebar customization
+*/
+
+.report-sidebar {
+  width: 100% !important;
+
+  min-width: 0 !important;
+
+  height: auto !important;
+
+  min-height: 100%;
+
+  background: var(--dark-forest) !important;
+
+  border: 0 !important;
+
+  border-right: 1px solid var(--border-subtle) !important;
+
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+}
+
+/*
+  Sidebar text
+*/
+
+.sidebar-label {
+  position: relative;
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  line-height: 16px;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  color: var(--on-surface-variant);
+}
+
+.sidebar-label::before {
+  content: "";
+
+  position: absolute;
+
+  left: -12px;
+
+  top: 0;
+
+  width: 2px;
+
+  height: 100%;
+
+  color: var(--gold-light);
+
+  background: var(--gold-light);
+
+  opacity: 0;
+
+  transform: scaleY(0);
+
+  transform-origin: top;
+
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.sidebar-label:hover::before {
+  opacity: 1;
+
+  transform: scaleY(1);
+}
+
+.sidebar-label[data-active="true"] {
+  color: var(--gold-light);
+}
+
+.sidebar-label[data-active="true"]::before {
+  opacity: 1;
+
+  transform: scaleY(1);
+}
+
+/*
+  Sidebar links
+*/
+
+.sidebar-link {
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  color: var(--on-surface-variant);
+
+  border-radius: 0;
+
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.sidebar-link:hover {
+  color: var(--gold);
+
+  background: rgba(201, 162, 39, 0.06);
+}
+
+.sidebar-link[data-active="true"] {
+  color: var(--gold);
+
+  background: rgba(201, 162, 39, 0.08);
+}
+
+/* =========================================================
+   REPORT MAIN CONTENT
+   ========================================================= */
+
+.report-content-main {
+  min-width: 0;
+
+  width: 100%;
+
+  background: var(--forest-green);
+}
+
+/* =========================================================
+   TECHNICAL DIVIDERS
+   ========================================================= */
+
+.technical-divider {
+  position: relative;
+
+  height: 1px;
+
+  margin: var(--stack-xl) 0;
+
+  background: var(--border-gold);
+}
+
+.technical-divider::before,
+.technical-divider::after {
+  content: "";
+
+  position: absolute;
+
+  top: 50%;
+
+  width: 4px;
+
+  height: 4px;
+
+  background: var(--gold);
+
+  transform: translateY(-50%);
+}
+
+.technical-divider::before {
+  left: 0;
+}
+
+.technical-divider::after {
+  right: 0;
+}
+
+/* =========================================================
+   REPORT SECTIONS
+   ========================================================= */
+
+.report-section {
+  width: 100%;
+
+  padding-top: var(--stack-xl);
+
+  padding-bottom: var(--stack-xl);
+
+  scroll-margin-top: 80px;
+}
+
+.report-section-header {
+  display: grid;
+
+  grid-template-columns: 100px 1fr;
+
+  gap: 32px;
+
+  align-items: start;
+
+  margin-bottom: 48px;
+}
+
+/*
+  Large section number
+*/
+
+.section-number {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 72px;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  color: var(--gold);
+}
+
+/*
+  Section heading
+*/
+
+.section-title {
+  margin: 0;
+
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 32px;
+
+  font-weight: 600;
+
+  line-height: 40px;
+
+  color: var(--warm-white);
+}
+
+/*
+  Section description
+*/
+
+.section-description {
+  max-width: 720px;
+
+  margin: 12px 0 0;
+
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 16px;
+
+  font-weight: 400;
+
+  line-height: 26px;
+
+  color: var(--on-surface-variant);
+}
+
+/* =========================================================
+   CARDS / PANELS
+   ========================================================= */
+
+.report-card {
+  background: var(--dark-forest);
+
+  border: 1px solid var(--border-subtle);
+
+  border-radius: 0;
+
+  box-shadow: none;
+}
+
+.report-card:hover {
+  border-color: var(--border-gold-subtle);
+}
+
+/* =========================================================
+   CALLOUT QUOTES
+   ========================================================= */
+
+.callout-quote {
+  padding: 24px 32px;
+
+  border-left: 4px solid var(--gold);
+
+  background: var(--dark-forest);
+
+  color: var(--on-surface);
+
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 20px;
+
+  font-style: italic;
+
+  line-height: 32px;
+}
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+.report-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+}
+
+.report-table th {
+  padding: 12px 16px;
+
+  text-align: left;
+
+  border-bottom: 1px solid var(--border-subtle);
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  line-height: 16px;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  color: var(--muted-green-grey);
+}
+
+.report-table td {
+  padding: 16px;
+
+  border-bottom: 1px solid var(--border-subtle);
+
+  font-size: 13px;
+
+  line-height: 18px;
+
+  color: var(--on-surface-variant);
+}
+
+/*
+  No vertical borders
+*/
+
+.report-table th,
+.report-table td {
+  border-left: none;
+
+  border-right: none;
+}
+
+/* =========================================================
+   CHIPS / TAGS
+   ========================================================= */
+
+.report-chip {
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 28px;
+
+  padding: 0 10px;
+
+  border: 1px solid var(--border-gold);
+
+  border-radius: 0;
+
+  background: transparent;
+
+  color: var(--gold);
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+input,
+textarea,
+select {
+  border-radius: 0 !important;
+
+  background: var(--dark-forest);
+
+  border: 1px solid var(--outline-variant);
+
+  color: var(--warm-white);
+
+  box-shadow: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+
+  border-color: var(--gold);
+}
+
+/* =========================================================
+   FOOTER SECTION
+   ========================================================= */
+
+.report-footer-section {
+  width: 100%;
+
+  background: var(--deep-forest);
+
+  border-top: 1px solid var(--border-gold-subtle);
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.site-footer {
+  width: 100%;
+
+  min-height: 120px;
+
+  margin: 0;
+
+  padding: 32px var(--margin-x);
+
+  background: var(--deep-forest);
+}
+
+.footer-inner {
+  width: 100%;
+
+  max-width: var(--container-max-width);
+
+  margin: 0 auto;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 32px;
+}
+
+.footer-brand {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.footer-brand a {
+  color: var(--gold);
+
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 23px;
+
+  font-weight: 700;
+}
+
+.footer-brand span {
+  color: var(--muted-green-grey);
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 13px;
+
+  line-height: 18px;
+}
+
+.footer-nav {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 24px;
+
+  margin-top: 0;
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 13px;
+
+  color: var(--muted-green-grey);
+}
+
+.footer-nav a {
+  transition: color 160ms ease;
+}
+
+.footer-nav a:hover {
+  color: var(--gold);
+}
+
+/* =========================================================
+   NO SHADOW DESIGN SYSTEM
+   ========================================================= */
+
+.report-site *,
+.report-site *::before,
+.report-site *::after {
+  box-shadow: none;
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 1024px) {
+  :root {
+    --margin-x: 32px;
   }
-  body {
-    @apply bg-background text-foreground;
+
+  .report-content {
+    padding-left: var(--margin-x);
+
+    padding-right: var(--margin-x);
   }
-  html {
-    @apply font-sans;
+
+  .site-header {
+    padding-left: var(--margin-x);
+
+    padding-right: var(--margin-x);
+  }
+
+  .report-hero {
+    padding-left: var(--margin-x);
+
+    padding-right: var(--margin-x);
+  }
+
+  .report-hero h1 {
+    font-size: 52px;
+
+    line-height: 60px;
+  }
+
+  .report-content-layout {
+    grid-template-columns: 200px minmax(0, 1fr);
+
+    gap: 32px;
+
+    padding-left: var(--margin-x);
+
+    padding-right: var(--margin-x);
+  }
+
+  .footer-inner {
+    padding: 0;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+  :root {
+    --margin-x: 24px;
+  }
+
+  /* ---------------------------------------------
+     Header
+  --------------------------------------------- */
+
+  .site-header {
+    height: 56px;
+
+    padding: 0 var(--margin-x);
+  }
+
+  .brand-header {
+    font-size: 16px;
+  }
+
+  .top-nav {
+    display: none;
+  }
+
+  /* ---------------------------------------------
+     Hero
+  --------------------------------------------- */
+
+  .report-hero {
+    min-height: 650px;
+
+    padding-top: 110px;
+
+    padding-bottom: 64px;
+
+    padding-left: var(--margin-x);
+
+    padding-right: var(--margin-x);
+  }
+
+  .report-hero h1 {
+    font-size: 40px;
+
+    line-height: 48px;
+
+    letter-spacing: -0.01em;
+  }
+
+  .hero-copy {
+    font-size: 16px;
+
+    line-height: 26px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 8px;
+  }
+
+  .gold-button,
+  .outline-button {
+    width: 100%;
+  }
+
+  .hero-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 24px;
+  }
+
+  /* ---------------------------------------------
+     Content section
+  --------------------------------------------- */
+
+  .report-content-layout {
+    grid-template-columns: 1fr;
+
+    gap: 24px;
+
+    padding-left: var(--margin-x);
+
+    padding-right: var(--margin-x);
+  }
+
+  /*
+    Sidebar on mobile
+  */
+
+  .report-content-sidebar {
+    position: static;
+
+    max-height: none;
+
+    overflow: visible;
+  }
+
+  .report-sidebar {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    height: auto !important;
+
+    min-height: auto !important;
+
+    background: var(--dark-forest) !important;
+
+    border: 0 !important;
+
+    border-right: 1px solid var(--border-subtle) !important;
+
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+  }
+
+  /* ---------------------------------------------
+     Sections
+  --------------------------------------------- */
+
+  .report-section {
+    padding-top: 64px;
+
+    padding-bottom: 64px;
+
+    scroll-margin-top: 88px;
+  }
+
+  .report-section-header {
+    grid-template-columns: 1fr;
+
+    gap: 16px;
+  }
+
+  .section-number {
+    font-size: 56px;
+  }
+
+  .section-title {
+    font-size: 28px;
+
+    line-height: 36px;
+  }
+
+  /* ---------------------------------------------
+     Footer
+  --------------------------------------------- */
+
+  .site-footer {
+    padding: 32px var(--margin-x);
+  }
+
+  .footer-inner {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 24px;
+  }
+
+  .footer-nav {
+    gap: 12px 20px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .hero-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .report-hero h1 {
+    font-size: 36px;
+
+    line-height: 43px;
+  }
+
+  .hero-copy {
+    font-size: 16px;
+
+    line-height: 25px;
+  }
+
+  .report-content-layout {
+    padding-left: 16px;
+
+    padding-right: 16px;
   }
 }
