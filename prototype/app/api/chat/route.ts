@@ -27,9 +27,14 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Fallback: Si no viene reportId o no se encuentra el reporte, obtener el primer reporte disponible en BD
+    // Fallback: Si no viene reportId o no se encuentra el reporte, usar el
+    // reporte publicado más recientemente actualizado — la misma fuente que
+    // muestra el home, para que el chat responda sobre lo que el usuario ve.
     if (!dbReport) {
-      dbReport = await prisma.report.findFirst();
+      dbReport = await prisma.report.findFirst({
+        where: { isPublished: true },
+        orderBy: { updatedAt: "desc" },
+      });
     }
 
     if (!dbReport) {

@@ -103,7 +103,7 @@ export default async function Home() {
   };
 
   return (
-    <ReportLayout lang={lang} frontmatter={frontmatter} tocItems={tocItems}>
+    <ReportLayout lang={lang} reportId={dbReport.id} frontmatter={frontmatter} tocItems={tocItems}>
       <DynamicReportContent
         content={dbReport.content}
         lang={lang}

@@ -1,0 +1,851 @@
+openapi: 3.0.3
+info:
+  title: PhysaFlow — Prototype API
+  description: >
+    API REST del prototipo **PhysaFlow**: plataforma de publicación interactiva del
+    reporte científico *Stranded Capacity Index*. Los endpoints administrativos
+    (`/api/reports*`) están protegidos con sesión de **Better Auth** (cookie
+    `better-auth.session_token`) y responden `401` sin sesión válida. Las rutas
+    públicas (chat, CSV, BibTeX, health) son consumidas por visitantes del sitio.
+
+    Autenticación: primero usa `POST /api/auth/sign-in/email` desde Swagger UI
+    (pestaña Authorize) para obtener la cookie de sesión, y luego podrás ejecutar
+    los endpoints protegidos.
+  version: 0.1.0
+  license:
+    name: CC BY-SA 4.0
+servers:
+  - url: http://localhost:3000
+    description: Desarrollo local
+  - url: https://prototype-s07-26-team-04.vercel.app
+    description: Producción (Vercel)
+tags:
+  - name: Sistema
+    description: Utilidades generales y health check
+  - name: Autenticación
+    description: Endpoints de Better Auth (login/logout/sesión)
+  - name: Reportes (Admin)
+    description: CRUD, ingesta y seed de reportes (requieren sesión)
+  - name: Reporte Público
+    description: Descargas del reporte activo (públicas)
+  - name: Asistente IA
+    description: Chat con Gemini sobre el reporte (público)
+paths:
+  /api/health:
+    get:
+      tags: [Sistema]
+      summary: Health check
+      description: Estado del servicio y uptime. No requiere autenticación.
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Servicio operativo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+        "500":
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/auth/sign-in/email:
+    post:
+      tags: [Autenticación]
+      summary: Iniciar sesión con email y contraseña
+      description: >
+        Autentica al superusuario y establece la cookie de sesión
+        (`better-auth.session_token`). Usa esta cookie en Authorize para
+        ejecutar los endpoints protegidos de `/api/reports*`.
+      operationId: signInEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignInRequest"
+            example:
+              email: admin@physaflow.org
+              password: TuContraseñaSegura123
+      responses:
+        "200":
+          description: Sesión iniciada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignInResponse"
+        "401":
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/auth/get-session:
+    get:
+      tags: [Autenticación]
+      summary: Obtener la sesión activa
+      description: Devuelve la sesión actual según la cookie, o `null` si no hay sesión.
+      operationId: getSession
+      responses:
+        "200":
+          description: Sesión activa (o null)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ActiveSession"
+                  - type: "null"
+  /api/auth/sign-out:
+    post:
+      tags: [Autenticación]
+      summary: Cerrar sesión
+      operationId: signOut
+      responses:
+        "200":
+          description: Sesión cerrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+  /api/reports:
+    get:
+      tags: [Reportes (Admin)]
+      summary: Listar reportes (paginado)
+      description: >
+        Lista paginada de reportes con resumen de conteos. Devuelve `401` sin
+        sesión válida. Por defecto 3 registros por página (catálogo pequeño).
+      operationId: listReports
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Página a consultar (1-based).
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Registros por página (1–100).
+          schema:
+            type: integer
+            default: 3
+            minimum: 1
+            maximum: 100
+        - name: status
+          in: query
+          description: Filtrar por estado de publicación.
+          schema:
+            type: string
+            enum: [published, draft]
+      responses:
+        "200":
+          description: Lista de reportes + paginación + summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reports:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ReportSummary"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                  summary:
+                    $ref: "#/components/schemas/SummaryStats"
+        "401":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/reports/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID (cuid) del reporte.
+        schema:
+          type: string
+    get:
+      tags: [Reportes (Admin)]
+      summary: Obtener detalle de un reporte
+      description: Devuelve el reporte completo (incluye `layers`, `aiKnowledge` y `content`).
+      operationId: getReport
+      security:
+        - sessionAuth: []
+      responses:
+        "200":
+          description: Reporte completo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report:
+                    $ref: "#/components/schemas/ReportFull"
+        "401":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Reporte no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      tags: [Reportes (Admin)]
+      summary: Actualizar un reporte
+      description: >
+        Actualiza `isPublished`, `title` y/o `content`. Al publicar (o editar un
+        reporte publicado) se **regenera la ficha `aiKnowledge`** usada por el
+        asistente de IA.
+      operationId: updateReport
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isPublished:
+                  type: boolean
+                  description: Publicar (true) o despublicar (false) el reporte.
+                  example: true
+                title:
+                  type: string
+                  description: Nuevo título.
+                  example: "El Índice de Capacidad Varada"
+                content:
+                  type: string
+                  description: Cuerpo completo en Markdown/MDX (con o sin frontmatter YAML).
+            example:
+              isPublished: true
+              content: "---\ntitle: \"El Índice de Capacidad Varada\"\n...\n---\n\n## 01 — Resumen\n..."
+      responses:
+        "200":
+          description: Reporte actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  report:
+                    $ref: "#/components/schemas/ReportFull"
+        "401":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Reporte no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags: [Reportes (Admin)]
+      summary: Eliminar un reporte
+      operationId: deleteReport
+      security:
+        - sessionAuth: []
+      responses:
+        "200":
+          description: Reporte eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Reporte eliminado correctamente
+        "401":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/reports/upload:
+    post:
+      tags: [Reportes (Admin)]
+      summary: Ingestar archivo MDX/MD
+      description: >
+        Sube un archivo `.mdx`/`.md` con frontmatter YAML válido. Crea un reporte
+        nuevo o sobrescribe uno existente (`targetId`). Al publicar se genera la
+        ficha `aiKnowledge` de forma asíncrona en el request.
+      operationId: uploadReport
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Archivo .mdx/.md con frontmatter YAML validado por Zod.
+                targetId:
+                  type: string
+                  description: ID del reporte a sobrescribir (opcional; si falta, se crea uno nuevo).
+                isPublished:
+                  type: string
+                  description: '"true" publica, "false" guarda como borrador. Default: "true".'
+                  enum: ["true", "false"]
+                  default: "true"
+      responses:
+        "200":
+          description: Reporte creado o actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadResult"
+        "400":
+          description: Archivo faltante o frontmatter YAML inválido (ZodError)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/reports/seed:
+    post:
+      tags: [Reportes (Admin)]
+      summary: Re-ingestar la plantilla oficial
+      description: >
+        Lee `public/templates/plantilla-reporte-physaflow.mdx` y crea un reporte
+        publicado nuevo con su `aiKnowledge`. (Crea uno nuevo en cada invocación;
+        no deduplica contra los existentes.)
+      operationId: seedReport
+      security:
+        - sessionAuth: []
+      responses:
+        "200":
+          description: Base sembrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  report:
+                    $ref: "#/components/schemas/ReportFull"
+        "401":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Plantilla no encontrada en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/chat:
+    post:
+      tags: [Asistente IA]
+      summary: Chat con el asistente de IA (streaming)
+      description: >
+        Público. Envía el historial de mensajes y opcionalmente el `reportId`; el
+        servidor responde en **streaming** (chunks de texto plano) usando la ficha
+        `aiKnowledge` del reporte como contexto. Si no llega `reportId` (o el
+        reporte no existe), usa el **reporte publicado más reciente** — el mismo
+        que muestra el home.
+      operationId: chatAssistant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            example:
+              messages:
+                - role: user
+                  content: ¿Cuál es la mediana global de capacidad varada?
+              reportId: clx8abc123def456ghi789jkl
+              lang: ES
+      responses:
+        "200":
+          description: Stream de texto (SSE-like, chunks de `text/plain`)
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              example: "El **31,4%** de la capacidad..."
+        "400":
+          description: messages ausente o vacío
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: No hay reporte en la base de datos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error llamando a Gemini
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/reporte/csv:
+    get:
+      tags: [Reporte Público]
+      summary: Descargar taxonomía en CSV
+      description: >
+        Público. Extrae los datos del primer `<Chart type="bar">` del reporte
+        publicado más reciente y los sirve como CSV descargable.
+      operationId: downloadCsv
+      parameters:
+        - name: lang
+          in: query
+          description: Idioma de los encabezados del CSV.
+          schema:
+            type: string
+            enum: [es, en]
+      responses:
+        "200":
+          description: Archivo CSV
+          content:
+            text/csv:
+              schema:
+                type: string
+              example: 'Modo de fallo,Capa,Mediana (% de kW energizados)'
+        "404":
+          description: Sin reporte publicado o sin gráfico de barras
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/reporte/bibtex:
+    get:
+      tags: [Reporte Público]
+      summary: Descargar cita BibTeX
+      description: >
+        Público. Genera la cita BibTeX del reporte publicado más reciente,
+        escapando caracteres especiales de LaTeX.
+      operationId: downloadBibtex
+      responses:
+        "200":
+          description: Archivo .bib
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "@techreport{physaflow2026,\n  author      = {Dr. Hernan Cortez},\n  title       = {El Índice de Capacidad Varada},\n  year        = {2026},\n  institution = {PhysaFlow},\n  type        = {Stranded Capacity Index},\n  doi         = {physaflow/sci-2025-001},\n  note        = {Licencia CC BY-SA 4.0}\n}\n"
+        "404":
+          description: Sin reporte publicado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: better-auth.session_token
+      description: Cookie de sesión de Better Auth. Obténla con POST /api/auth/sign-in/email.
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: No autorizado
+        details:
+          type: array
+          description: Solo en errores de validación Zod del frontmatter.
+          items:
+            type: object
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: OK
+        timestamp:
+          type: string
+          format: date-time
+        uptime:
+          type: number
+          description: Segundos desde el arranque del proceso.
+        env:
+          type: string
+          example: development
+    ReportSummary:
+      type: object
+      description: Campos de lista (sin layers/content/aiKnowledge).
+      properties:
+        id:
+          type: string
+          example: clx8abc123def456ghi789jkl
+        slug:
+          type: string
+          example: el-indice-de-capacidad-varada-octubre-2026
+        isPublished:
+          type: boolean
+        title:
+          type: string
+        subtitle:
+          type: string
+          nullable: true
+        author:
+          type: string
+        publishedDate:
+          type: string
+          example: Octubre 2026
+        readingTime:
+          type: string
+          example: ~22 minutos
+        license:
+          type: string
+          example: CC BY-SA 4.0
+        doi:
+          type: string
+          example: physaflow/sci-2025-001
+        globalMedian:
+          type: string
+          example: 31,4%
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ReportFull:
+      type: object
+      description: Reporte completo (detalle admin).
+      allOf:
+        - $ref: "#/components/schemas/ReportSummary"
+        - type: object
+          properties:
+            lossFacilities:
+              type: string
+              example: 14,8%
+            lossIT:
+              type: string
+              example: 9,7%
+            lossWorkload:
+              type: string
+              example: 6,9%
+            keyFinding:
+              type: string
+              nullable: true
+            layers:
+              $ref: "#/components/schemas/Layers"
+            aiKnowledge:
+              $ref: "#/components/schemas/AiKnowledge"
+              nullable: true
+            content:
+              type: string
+              description: Cuerpo Markdown/MDX completo.
+    FailureCard:
+      type: object
+      properties:
+        code:
+          type: string
+          example: F-01
+        median:
+          type: string
+          example: 4,2%
+        title:
+          type: string
+          example: Deriva del pasillo frío
+        observed:
+          type: string
+          description: Qué se ve
+        cost:
+          type: string
+          description: Cuánto cuesta
+        reason:
+          type: string
+          description: Por qué ocurre
+    Layer:
+      type: object
+      properties:
+        id:
+          type: string
+          example: facility
+        level:
+          type: string
+          example: L1
+        title:
+          type: string
+          example: Capa de instalaciones
+        subtitle:
+          type: string
+        badgeClass:
+          type: string
+          example: layer-facility
+        intro:
+          type: string
+        cards:
+          type: array
+          items:
+            $ref: "#/components/schemas/FailureCard"
+    Layers:
+      type: array
+      description: Las 3 capas físicas (facilities, IT, workload) y sus modos de fallo.
+      items:
+        $ref: "#/components/schemas/Layer"
+    AiKnowledge:
+      type: object
+      description: Ficha de conocimiento estructurada para el asistente de IA.
+      properties:
+        metadata:
+          type: object
+          properties:
+            title:
+              type: string
+            subtitle:
+              type: string
+            author:
+              type: string
+            publishedDate:
+              type: string
+            doi:
+              type: string
+        globalImpact:
+          type: object
+          properties:
+            globalMedian:
+              type: string
+            lossFacilities:
+              type: string
+            lossIT:
+              type: string
+            lossWorkload:
+              type: string
+            keyFinding:
+              type: string
+        layersSummary:
+          $ref: "#/components/schemas/Layers"
+        visualCharts:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [bar, line, pie]
+              title:
+                type: string
+              caption:
+                type: string
+              data:
+                description: Datos del gráfico (free-form).
+              aiInterpretation:
+                type: string
+        executiveSummary:
+          type: string
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+    SummaryStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        published:
+          type: integer
+        drafts:
+          type: integer
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, model]
+        content:
+          type: string
+    ChatRequest:
+      type: object
+      properties:
+        messages:
+          type: array
+          description: Historial completo de la conversación (mínimo 1).
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+        reportId:
+          type: string
+          description: ID del reporte sobre el que se pregunta. Si falta, se usa el publicado más reciente.
+        lang:
+          type: string
+          description: Idioma (ES/EN) — se envía desde el cliente.
+          example: ES
+    UploadResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        id:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        isPublished:
+          type: boolean
+    SignInRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@physaflow.org
+        password:
+          type: string
+          format: password
+          example: TuContraseñaSegura123
+    SignInResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/AuthUser"
+        session:
+          $ref: "#/components/schemas/AuthSession"
+    ActiveSession:
+      type: object
+      properties:
+        session:
+          $ref: "#/components/schemas/AuthSession"
+        user:
+          $ref: "#/components/schemas/AuthUser"
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        image:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    AuthSession:
+      type: object
+      properties:
+        id:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        token:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        ipAddress:
+          type: string
+          nullable: true
+        userAgent:
+          type: string
+          nullable: true
+        userId:
+          type: string
