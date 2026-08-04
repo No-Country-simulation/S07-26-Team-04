@@ -1,0 +1,78 @@
+name: NextJS CI
+
+on:
+  push:
+    branches: ["dev", "frontend"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/ci-frontend.yml"
+
+  pull_request:
+    branches: ["dev", "frontend"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/ci-frontend.yml"
+
+jobs:
+  build:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+	
+	defaults:
+	  run:
+	    working-directory: ./frontend
+
+    steps:
+      # ---------------------------------------------
+      # Descargar repositorio
+      # ---------------------------------------------
+
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+
+      # ---------------------------------------------
+      # Configurar pnpm
+      # ---------------------------------------------
+
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+
+      # ---------------------------------------------
+      # Configurar Node.js
+      # ---------------------------------------------
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: "./frontend/pnpm-lock.yaml"
+
+
+      # ---------------------------------------------
+      # Instalar dependencias
+      # ---------------------------------------------
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+
+      # ---------------------------------------------
+      # Lint
+      # ---------------------------------------------
+
+      - name: Validar Lint
+        run: pnpm run lint
+
+
+      # ---------------------------------------------
+      # Build Next.js
+      # ---------------------------------------------
+
+      - name: Construir proyecto
+        run: pnpm run build
