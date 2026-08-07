@@ -25,6 +25,7 @@ model Report {
   metricsJson         String? @db.Text // Global metrics, PUE context, etc.
   chartsJson          String? @db.Text // Figure 2, Figure 3 data as JSON
   failureModesJson    String? @db.Text // All 9 failure modes with medians as JSON
+  sectionsJson        String? @db.Text // Parsed text sections [{ id, level, title, content }] for retrieval
 
   // Vector embeddings for semantic search (optional, for pgvector later)
   // embedding   Unsupported("vector(1536)")?
