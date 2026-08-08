@@ -6,6 +6,7 @@ import { ReportContent } from "@/components/report/report-content";
 
 import { ExecutiveSummary } from "@/components/report/executive-summary";
 import { TaxonomySection } from "@/components/report/taxonomy-section";
+import { Methodology } from "@/components/report/methodology";
 
 import { Footer } from "@/components/report/footer";
 
@@ -26,6 +27,8 @@ export default function HomePage() {
         <ExecutiveSummary />
 
         <TaxonomySection />
+
+        <Methodology />
       </ReportContent>
 
       {/* =================================================

@@ -1156,6 +1156,182 @@ select:focus {
 }
 
 /* =========================================================
+   CAPACITY PROGRESSION
+   ========================================================= */
+
+.capacity-progression {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+
+  align-items: stretch;
+
+  margin-top: 48px;
+}
+
+/* ---------------------------------------------------------
+ State wrapper
+--------------------------------------------------------- */
+
+.capacity-state-wrapper {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+}
+
+/* ---------------------------------------------------------
+ State card
+--------------------------------------------------------- */
+
+.capacity-state {
+  width: 100%;
+
+  min-height: 190px;
+
+  padding: 10px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: flex-start;
+
+  background: var(--dark-forest);
+
+  border: 1px solid var(--border-subtle);
+
+  position: relative;
+
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.capacity-state:hover {
+  border-color: var(--border-gold);
+
+  background: rgba(8, 47, 37, 0.85);
+}
+
+/* ---------------------------------------------------------
+ Number
+--------------------------------------------------------- */
+
+.capacity-state-number {
+  display: block;
+
+  margin-bottom: 14px;
+
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 30px;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  color: var(--gold);
+}
+
+/* ---------------------------------------------------------
+ Code
+--------------------------------------------------------- */
+
+.capacity-state-code {
+  display: inline-flex;
+
+  width: fit-content;
+
+  margin-bottom: 8px;
+
+  color: var(--muted-green-grey);
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  line-height: 14px;
+
+  letter-spacing: 0.14em;
+
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------
+ Title
+--------------------------------------------------------- */
+
+.capacity-state-title {
+  margin: 0;
+
+  color: var(--warm-white);
+
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 20px;
+
+  font-weight: 600;
+
+  line-height: 26px;
+}
+
+/* ---------------------------------------------------------
+ Description
+--------------------------------------------------------- */
+
+.capacity-state-description {
+  margin: 10px 0 0;
+
+  color: var(--on-surface-variant);
+
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 13px;
+
+  line-height: 20px;
+}
+
+/* ---------------------------------------------------------
+ Connector
+--------------------------------------------------------- */
+
+.capacity-state-connector {
+  width: 28px;
+
+  min-width: 28px;
+
+  height: 1px;
+
+  position: relative;
+
+  background: var(--border-gold);
+}
+
+.capacity-state-connector span {
+  position: absolute;
+
+  right: -1px;
+
+  top: 50%;
+
+  width: 6px;
+
+  height: 6px;
+
+  border-top: 1px solid var(--gold);
+
+  border-right: 1px solid var(--gold);
+
+  transform: translateY(-50%) rotate(45deg);
+}
+
+/* =========================================================
    RESPONSIVE — TABLET
    ========================================================= */
 
@@ -1196,6 +1372,10 @@ select:focus {
     padding-left: var(--margin-x);
 
     padding-right: var(--margin-x);
+  }
+
+  .capacity-state {
+    padding: 5px;
   }
 
   .footer-inner {
@@ -1353,6 +1533,16 @@ select:focus {
     line-height: 36px;
   }
 
+  /* ---------------------------------------------------------
+ State wrapper
+--------------------------------------------------------- */
+
+  .capacity-state,
+  .capacity-state-code {
+    align-items: center;
+    justify-content: center;
+  }
+
   /* ---------------------------------------------
      Footer
   --------------------------------------------- */
@@ -1399,5 +1589,45 @@ select:focus {
     padding-left: 16px;
 
     padding-right: 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .capacity-progression {
+    grid-template-columns: 1fr;
+
+    gap: 0;
+  }
+
+  .capacity-state-wrapper {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .capacity-state {
+    min-height: auto;
+  }
+
+  .capacity-state-connector {
+    width: 1px;
+
+    min-width: 1px;
+
+    height: 24px;
+
+    margin: 0 auto;
+
+    background: var(--border-gold);
+  }
+
+  .capacity-state-connector span {
+    top: auto;
+
+    bottom: -1px;
+
+    right: 50%;
+
+    transform: translateX(50%) rotate(135deg);
   }
 }
