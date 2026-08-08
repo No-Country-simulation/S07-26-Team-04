@@ -1374,6 +1374,10 @@ select:focus {
     padding-right: var(--margin-x);
   }
 
+  .capacity-state {
+    padding: 5px;
+  }
+
   .footer-inner {
     padding: 0;
   }
@@ -1527,6 +1531,16 @@ select:focus {
     font-size: 28px;
 
     line-height: 36px;
+  }
+
+  /* ---------------------------------------------------------
+ State wrapper
+--------------------------------------------------------- */
+
+  .capacity-state,
+  .capacity-state-code {
+    align-items: center;
+    justify-content: center;
   }
 
   /* ---------------------------------------------
