@@ -25,28 +25,48 @@ import {
 
 const sections = [
   {
-    title: "RESUMEN EJECUTIVO",
+    title: "01 - RESUMEN EJECUTIVO",
     url: "#resumen",
     icon: Info,
   },
   {
-    title: "TAXONOMÍA",
-    url: "#taxonomia",
+    title: "02 - INTRODUCCIÓN",
+    url: "#introduction",
     icon: Shapes,
   },
   {
-    title: "METODOLOGÍA",
+    title: "03 - TAXONOMÍA",
+    url: "#taxonomy",
+    icon: Shapes,
+  },
+  {
+    title: "03.1 - Capa de Facilidades",
+    url: "#facilities",
+    icon: Shapes,
+  },
+  {
+    title: "03.2 - Capa de Infraestructura",
+    url: "#infrastructure",
+    icon: Shapes,
+  },
+  {
+    title: "03.3 - Capa de Workload",
+    url: "#workload",
+    icon: Shapes,
+  },
+  {
+    title: "04 - METODOLOGÍA",
     url: "#metodologia",
     icon: Microscope,
   },
   {
-    title: "FIGURAS",
-    url: "#figuras",
+    title: "05 - FIGURAS",
+    url: "#figures",
     icon: ChartNoAxesCombined,
   },
   {
-    title: "CITAR",
-    url: "#citar",
+    title: "06 - CITAR",
+    url: "#quote",
     icon: Quote,
   },
 ];
