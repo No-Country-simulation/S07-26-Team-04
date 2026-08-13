@@ -9,6 +9,7 @@ import { TaxonomySection } from "@/components/report/taxonomy-section";
 import { Methodology } from "@/components/report/methodology";
 
 import { Footer } from "@/components/report/footer";
+import { Introduction } from "@/components/report/introduction";
 
 export default function HomePage() {
   return (
@@ -25,6 +26,8 @@ export default function HomePage() {
 
       <ReportContent>
         <ExecutiveSummary />
+
+        <Introduction />
 
         <TaxonomySection />
 
