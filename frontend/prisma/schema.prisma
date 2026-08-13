@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Report {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  version         String   @default("1.0.0")
+  language        String   @default("es")
+  status          String   @default("draft") // draft | published | archived
+  description     String?
+  tags            String[] @default([])
+
+  // MDX content fields
+  mdxContent      String   @db.Text          // Full MDX source
+  tocJson         String?  @db.Text          // Table of contents as JSON string
+  frontmatter     String?  @db.Text          // YAML frontmatter as JSON string
+
+  // Structured data for AI queries (JSON from the mock charts)
+  metricsJson         String? @db.Text // Global metrics, PUE context, etc.
+  chartsJson          String? @db.Text // Figure 2, Figure 3 data as JSON
+  failureModesJson    String? @db.Text // All 9 failure modes with medians as JSON
+  sectionsJson        String? @db.Text // Parsed text sections [{ id, level, title, content }] for retrieval
+
+  // Vector embeddings for semantic search (optional, for pgvector later)
+  // embedding   Unsupported("vector(1536)")?
+
+  // Search optimization
+  searchText      String? @db.Text        // Full-text search tsvector content
+
+  // Metadata
+  publishedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([slug])
+  @@index([publishedAt])
+}

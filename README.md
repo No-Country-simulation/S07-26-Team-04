@@ -11,7 +11,7 @@
 | Gabriela Celeste Garcia Retamar | Backend Developer | — |
 | Alexis Albarenga | Backend Developer | [LinkedIn](https://www.linkedin.com/in/alexisalbarenga/) |
 | Orlando Cárdenas | Backend Developer | [LinkedIn](https://www.linkedin.com/in/orlandocardenasvillegas/) |
-| Andrés Adrian Estrada Uzeda | QA Engineer | — |
+| Andrés Adrian Estrada Uzeda | QA Engineer | [LinkedIn](https://www.linkedin.com/in/estrada-uzeda-andres-adrian-9b53013a5/) |
 
 ## Descripción del Proyecto
 
