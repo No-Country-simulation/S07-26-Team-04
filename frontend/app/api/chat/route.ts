@@ -114,7 +114,10 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   const report = await prisma.report.findFirst({
-    where: { status: 'published' },
+    where: 
+    
+    
+    { status: 'published' },
     orderBy: { publishedAt: 'desc' },
     select: {
       title: true,
