@@ -1,0 +1,146 @@
+---
+title: "Índice de Capacidad Varada (SCI)"
+slug: "indice-capacidad-varada-2"
+version: "1.0.0"
+language: "es"
+status: "published"
+description: "Medición de capacidad energizada y no productiva en centros de datos."
+publishedAt: "2026-08-13T17:13:34.801Z"
+---
+
+# Metadatos del Reporte
+
+**Autor:** Dr. Hernan Cortez  
+**Fecha:** Octubre 2026  
+**DOI:** physaflow/sci-2026-001  
+**Tiempo de lectura:** 8 min  
+**Licencia:** CC BY-SA 4.0  
+
+---
+
+# 01 — Resumen
+
+El **Índice de Capacidad Varada (SCI)** mide la capacidad de un centro de datos que está pagada y energizada, pero que no produce trabajo útil.
+
+El estudio identifica un **31,4% de capacidad no productiva** y clasifica sus causas en tres capas principales:
+
+- **Instalaciones (14,8%)**
+- **TI (9,7%)**
+- **Carga de trabajo (6,9%)**
+
+---
+
+# 02 — Introducción
+
+El PUE (Power Usage Effectiveness) permite conocer la eficiencia energética a nivel de infraestructura eléctrica y climatización, pero no indica si los servidores activos están ejecutando tareas de cómputo reales. 
+
+El **SCI** complementa esta perspectiva midiendo la capacidad que permanece subutilizada en todas las fases operativas.
+
+---
+
+# 03 — Hallazgos principales
+
+El estudio de campo analizó **41 sitios**, representando **4,2 GW de carga IT** evaluados durante un periodo continuo de **18 meses**, apoyado por **63 entrevistas en profundidad** con operadores sénior.
+
+---
+
+### Evolución de la capacidad varada
+
+Las principales causas fueron la sobresuscripción térmica (6,1%), el aprovisionamiento en sombra (4,5%) y la deriva del pasillo frío (4,2%) en instalaciones; los racks comatosos (3,8%), el bloqueo de topología (3,0%) y los nodos durmientes (2,9%) en TI; y las asignaciones huérfanas (3,1%), la inanición por afinidad (2,2%) y la latencia de marea (1,6%) en cargas de trabajo.
+
+```json
+{
+  "chartType": "bar",
+  "meta": {
+    "title": "Capacidad varada por modo de fallo",
+    "description": "Porcentaje de kW energizados asociados a cada modo de fallo."
+  },
+  "xKey": "name",
+  "series": [
+    {
+      "dataKey": "value",
+      "label": "Capacidad varada",
+      "valueSuffix": "%"
+    }
+  ],
+  "layout": "vertical",
+  "data": [
+    { "name": "Deriva del pasillo frío", "value": 4.2 },
+    { "name": "Sobresuscripción térmica", "value": 6.1 },
+    { "name": "Aprovisionamiento en sombra", "value": 4.5 },
+    { "name": "Racks comatosos", "value": 3.8 },
+    { "name": "Nodos durmientes", "value": 2.9 },
+    { "name": "Bloqueo de topología", "value": 3.0 },
+    { "name": "Asignaciones huérfanas", "value": 3.1 },
+    { "name": "Inanición por afinidad", "value": 2.2 },
+    { "name": "Latencia de marea", "value": 1.6 }
+  ]
+}
+```
+
+```json
+{
+  "chartType": "pie",
+  "meta": {
+    "title": "Capacidad varada por capa",
+    "description": "Distribución de los principales modos de fallo entre las tres capas del centro de datos."
+  },
+  "nameKey": "layer",
+  "valueKey": "value",
+  "data": [
+    { "layer": "Instalaciones", "value": 14.8 },
+    { "layer": "TI", "value": 9.7 },
+    { "layer": "Carga de trabajo", "value": 6.9 }
+  ]
+}
+```
+
+```json
+{
+  "chartType": "line",
+  "meta": {
+    "title": "Capacidad varada acumulada, 2020–2026",
+    "description": "Evolución anual del porcentaje de kW energizados considerados capacidad varada."
+  },
+  "xKey": "year",
+  "xAxisLabel": "Año",
+  "series": [
+    {
+      "dataKey": "value",
+      "label": "Capacidad varada",
+      "axisLabel": "Porcentaje",
+      "valueSuffix": "%"
+    }
+  ],
+  "data": [
+    { "year": "2020", "value": 3 },
+    { "year": "2021", "value": 5 },
+    { "year": "2022", "value": 9 },
+    { "year": "2023", "value": 16 },
+    { "year": "2024", "value": 26 },
+    { "year": "2025", "value": 31.4 },
+    { "year": "2026", "value": 38 }
+  ]
+}
+```
+
+---
+
+# 04 — Metodología
+
+El SCI combina telemetría en tiempo real de instalaciones, registros del programador de cargas de trabajo (cluster schedulers) y entrevistas directas. 
+
+> **Nota Metodológica:** Los fallos debían ser observables en al menos dos fuentes para formar parte de la taxonomía.
+
+---
+
+# 05 — Conclusión
+
+La capacidad varada no es un único problema, sino un conjunto de fallos distribuidos entre instalaciones, TI y carga de trabajo. El SCI propone un lenguaje común para identificar estos problemas y mejorar el aprovechamiento de la capacidad existente.
+
+---
+
+# 06 — Cómo citar
+
+**Fuente:** *PhysaFlow Stranded Capacity Index*  
+**Licencia:** CC BY-SA 4.0.
