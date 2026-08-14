@@ -17,23 +17,50 @@ function safeParse<T>(raw: string | null | undefined, fallback: T): T {
 }
 
 /**
- * Devuelve los datos estructurados del reporte para el frontend.
+ * Devuelve los datos estructurados de reportes para el frontend.
  *
- * GET /api/report            -> reporte publicado más reciente
- * GET /api/report?slug=<x>  -> reporte por slug
- * GET /api/report?id=<id>   -> reporte por id
+ * GET /api/report                          -> reporte publicado más reciente
+ * GET /api/report?slug=<x>                 -> reporte específico por slug
+ * GET /api/report?id=<id>                  -> reporte específico por id
+ * GET /api/report?status=all               -> lista todos los reportes
+ * GET /api/report?status=draft|published|archived -> lista reportes según estado
  */
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const slug = searchParams.get('slug');
   const id = searchParams.get('id');
+  const statusParam = searchParams.get('status');
 
+  // Si se solicita por slug o por id específico
+  if (slug || id) {
+    const report = await prisma.report.findFirst({
+      where: {
+        ...(slug ? { slug } : {}),
+        ...(id ? { id } : {}),
+        ...(statusParam && statusParam !== 'all' ? { status: statusParam } : {}),
+      },
+    });
+
+    if (!report) {
+      return NextResponse.json({ error: 'Reporte no encontrado' }, { status: 404 });
+    }
+
+    return NextResponse.json(formatReport(report));
+  }
+
+  // Si se pasa statusParam (ej. status=all, status=draft, status=published, status=archived)
+  if (statusParam) {
+    const reports = await prisma.report.findMany({
+      where: statusParam === 'all' ? {} : { status: statusParam },
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    return NextResponse.json(reports.map(formatReport));
+  }
+
+  // Comportamiento por defecto (compatibilidad con Home): devuelve el publicado más reciente
   const report = await prisma.report.findFirst({
-    where: {
-      status: 'published',
-      ...(slug ? { slug } : {}),
-      ...(id ? { id } : {}),
-    },
+    where: { status: 'published' },
     orderBy: { publishedAt: 'desc' },
   });
 
@@ -41,12 +68,35 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Reporte no encontrado' }, { status: 404 });
   }
 
+  return NextResponse.json(formatReport(report));
+}
+
+type ReportRecord = {
+  id: string;
+  title: string;
+  slug: string;
+  version: string;
+  language: string;
+  status: string;
+  description: string | null;
+  tags: string[];
+  publishedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  sectionsJson?: string | null;
+  metricsJson?: string | null;
+  chartsJson?: string | null;
+  failureModesJson?: string | null;
+};
+
+function formatReport(report: ReportRecord) {
+
   const sections = safeParse<ReportSection[]>(report.sectionsJson, []);
   const metrics = safeParse<Record<string, unknown>>(report.metricsJson, {});
   const charts = safeParse<Record<string, unknown>>(report.chartsJson, {});
   const failureModes = safeParse<unknown[]>(report.failureModesJson, []);
 
-  return NextResponse.json({
+  return {
     id: report.id,
     title: report.title,
     slug: report.slug,
@@ -56,12 +106,15 @@ export async function GET(req: NextRequest) {
     description: report.description,
     tags: report.tags,
     publishedAt: report.publishedAt,
+    createdAt: report.createdAt,
+    updatedAt: report.updatedAt,
     sections,
     metrics,
     charts,
     failureModes,
-  });
+  };
 }
+
 
 /**
  * Crea un nuevo reporte.

@@ -25,12 +25,7 @@ export async function getTaxonomy(): Promise<Taxonomy> {
     return response.data;
 };
 
-// No funciona porque da un looping infinito
-// export async function getAuthorContent() {
-//     const data = await getHero();
-//     const author =
-//         getMarkdownField(data.sections[0]?.content || "", "Autor") ||
-//         "Desconocido";
-
-//     return author;
-// };
+export async function getReportData() {
+    const response = await api.get("/report");
+    return response.data;
+}
