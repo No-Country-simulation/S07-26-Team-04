@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import {useState } from "react";
 
 import Link from "next/link";
 
 import {
   Info,
   Shapes,
+  Compass,
   Microscope,
   ChartNoAxesCombined,
+  FileText,
   Quote,
 } from "lucide-react";
 
@@ -25,14 +27,14 @@ import {
 
 const sections = [
   {
-    title: "01 - RESUMEN EJECUTIVO",
+    title: "01 - RESUMEN",
     url: "#resumen",
     icon: Info,
   },
   {
     title: "02 - INTRODUCCIÓN",
     url: "#introduction",
-    icon: Shapes,
+    icon: Compass,
   },
   {
     title: "03 - TAXONOMÍA",
@@ -40,23 +42,8 @@ const sections = [
     icon: Shapes,
   },
   {
-    title: "03.1 - Capa de Facilidades",
-    url: "#facilities",
-    icon: Shapes,
-  },
-  {
-    title: "03.2 - Capa de Infraestructura",
-    url: "#infrastructure",
-    icon: Shapes,
-  },
-  {
-    title: "03.3 - Capa de Workload",
-    url: "#workload",
-    icon: Shapes,
-  },
-  {
     title: "04 - METODOLOGÍA",
-    url: "#metodologia",
+    url: "#methodology",
     icon: Microscope,
   },
   {
@@ -65,7 +52,12 @@ const sections = [
     icon: ChartNoAxesCombined,
   },
   {
-    title: "06 - CITAR",
+    title: "06 - CONCLUSIÓN",
+    url: "#conclusion",
+    icon: FileText,
+  },
+  {
+    title: "07 - CITAR",
     url: "#quote",
     icon: Quote,
   },

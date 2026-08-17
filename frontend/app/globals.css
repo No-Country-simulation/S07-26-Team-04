@@ -1050,6 +1050,232 @@ select:focus {
 }
 
 /* =========================================================
+   CITATION
+   ========================================================= */
+
+.citation-card {
+  margin-top: 40px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border-subtle);
+
+  border-radius: 0;
+
+  background: var(--dark-forest);
+
+  box-shadow: none;
+}
+
+/* ---------------------------------------------------------
+   Header
+--------------------------------------------------------- */
+
+.citation-card-header {
+  padding: 24px 28px;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 24px;
+}
+
+.citation-eyebrow {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: var(--gold);
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  line-height: 14px;
+
+  letter-spacing: 0.16em;
+
+  text-transform: uppercase;
+}
+
+.citation-title {
+  margin: 0;
+
+  color: var(--warm-white);
+
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 24px;
+
+  font-weight: 600;
+
+  line-height: 32px;
+}
+
+/* ---------------------------------------------------------
+   Year badge
+--------------------------------------------------------- */
+
+.citation-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-width: 52px;
+
+  height: 28px;
+
+  padding: 0 10px;
+
+  border: 1px solid var(--border-gold);
+
+  color: var(--gold);
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.12em;
+}
+
+/* ---------------------------------------------------------
+   Separator
+--------------------------------------------------------- */
+
+.citation-separator {
+  background: var(--border-subtle);
+}
+
+/* ---------------------------------------------------------
+   Content
+--------------------------------------------------------- */
+
+.citation-card-content {
+  padding: 28px;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 32px;
+}
+
+.citation-text-wrapper {
+  max-width: 850px;
+}
+
+.citation-text {
+  margin: 0;
+
+  color: var(--on-surface-variant);
+
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 16px;
+
+  line-height: 28px;
+}
+
+/* ---------------------------------------------------------
+   Copy button
+--------------------------------------------------------- */
+
+.citation-actions {
+  flex-shrink: 0;
+}
+
+.citation-copy-button {
+  height: 36px;
+
+  border-radius: 0;
+
+  border: 1px solid var(--border-gold);
+
+  background: transparent;
+
+  color: var(--gold);
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.1em;
+}
+
+.citation-copy-button:hover {
+  background: var(--gold);
+
+  color: var(--dark-forest);
+}
+
+/* ---------------------------------------------------------
+   Metadata
+--------------------------------------------------------- */
+
+.citation-meta {
+  margin-top: 24px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 24px;
+}
+
+.citation-meta-item {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.citation-meta-item span {
+  color: var(--muted-green-grey);
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 8px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.14em;
+
+  text-transform: uppercase;
+}
+
+.citation-meta-item strong {
+  color: var(--warm-white);
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 11px;
+
+  font-weight: 500;
+}
+
+.citation-meta-divider {
+  width: 1px;
+
+  height: 32px;
+
+  background: var(--border-subtle);
+}
+
+/* =========================================================
    FOOTER SECTION
    ========================================================= */
 
@@ -1543,6 +1769,46 @@ select:focus {
   .capacity-state-code {
     align-items: center;
     justify-content: center;
+  }
+
+  /* ---------------------------------------------
+     Citation
+  --------------------------------------------- */
+
+  .citation-card-header {
+    padding: 20px;
+  }
+
+  .citation-card-content {
+    padding: 20px;
+
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .citation-title {
+    font-size: 21px;
+
+    line-height: 28px;
+  }
+
+  .citation-copy-button {
+    width: 100%;
+  }
+
+  .citation-meta {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 16px;
+  }
+
+  .citation-meta-divider {
+    width: 32px;
+
+    height: 1px;
   }
 
   /* ---------------------------------------------

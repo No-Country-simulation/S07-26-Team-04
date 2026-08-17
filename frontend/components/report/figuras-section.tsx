@@ -3,7 +3,7 @@ import { AccumulatedLineChart } from "./line-chart";
 
 export function FigurasSection() {
   return (
-    <section id="figuras" className="report-section">
+    <section id="figures" className="report-section">
       <div className="report-section-header">
         <span className="section-number">05</span>
 
@@ -19,6 +19,7 @@ export function FigurasSection() {
 
       <div className="chart-grid">
         <FailureBarChart />
+        <br />
         <AccumulatedLineChart />
       </div>
     </section>
