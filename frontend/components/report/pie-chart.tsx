@@ -1,18 +1,33 @@
 "use client";
 
-import { getBarChart } from "@/services/report.service";
-import { BarChart } from "@/types/bar-chart";
+import { getReportData } from "@/services/report.service";
 import { useEffect, useState } from "react";
 import {
-  BarChart as RechartsBarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Pie,
   Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
+
+type PieDataPoint = {
+  layer: string;
+  value: number;
+};
+
+type PueContextData = {
+  chartType?: string;
+  meta?: {
+    title?: string;
+    description?: string;
+  };
+  nameKey?: string;
+  valueKey?: string;
+  data?: PieDataPoint[];
+};
+
+const PIE_COLORS = ["#c9a227", "#ecc246", "#4E6F57", "#2d5f47", "#e0a96d"];
 
 function wrapSvgText(text: string, maxCharsPerLine: number = 110): string[] {
   const words = text.split(" ");
@@ -33,43 +48,66 @@ function wrapSvgText(text: string, maxCharsPerLine: number = 110): string[] {
   return lines;
 }
 
-export function FailureBarChart() {
-  const [barChart, setBarChart] = useState<BarChart | null>(null);
+export function LayerPieChart() {
+  const [pieData, setPieData] = useState<PueContextData | null>(null);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   useEffect(() => {
-    async function fetchBarchart() {
+    async function fetchPieChart() {
       try {
-        const data = await getBarChart();
-        setBarChart(data);
+        const report = await getReportData();
+        if (report?.metrics?.pueContext) {
+          setPieData(report.metrics.pueContext);
+        } else {
+          // Fallback mock data
+          setPieData({
+            meta: {
+              title: "Capacidad varada por capa",
+              description:
+                "Distribución de los principales modos de fallo entre las tres capas del centro de datos.",
+            },
+            nameKey: "layer",
+            valueKey: "value",
+            data: [
+              { layer: "Instalaciones", value: 14.8 },
+              { layer: "TI", value: 9.7 },
+              { layer: "Carga de trabajo", value: 6.9 },
+            ],
+          });
+        }
       } catch (error) {
-        console.error("Error fetching bar chart data:", error);
+        console.error("Error fetching pie chart data:", error);
       }
     }
 
-    fetchBarchart();
+    fetchPieChart();
   }, []);
 
-  if (!barChart) {
+  if (!pieData) {
     return (
       <div className="chart-card border border-[#c9a227]/30 bg-[var(--forest-green-content)] p-6 rounded-sm min-h-[250px] flex items-center justify-center">
-        <p className="text-sm text-[#a8b5ae]">
-          Cargando gráfico...
-        </p>
+        <p className="text-sm text-[#a8b5ae]">Cargando gráfico...</p>
       </div>
     );
   }
 
-  const { metrics } = barChart;
-  if (!metrics || !metrics.data || !Array.isArray(metrics.data) || metrics.data.length === 0) {
+  const data = pieData.data;
+
+  // Si no hay datos dinámicos devueltos por la API para el gráfico circular, ocultar limpiamente
+  if (!data || !Array.isArray(data) || data.length === 0) {
     return null;
   }
 
-  const { meta, xKey, series, data } = metrics;
-  const dataKey = series[0]?.dataKey ?? "value";
-  const valueSuffix = series[0]?.valueSuffix ?? "%";
+  const meta = pieData.meta || {
+    title: "Capacidad varada por capa",
+    description:
+      "Distribución de los principales modos de fallo entre las tres capas del centro de datos.",
+  };
+  const nameKey = pieData.nameKey || "layer";
+  const valueKey = pieData.valueKey || "value";
+
   const handleDownload = () => {
-    const container = document.getElementById("fig-bar-chart-container");
+    const container = document.getElementById("fig-pie-chart-container");
     if (container) {
       const svgs = Array.from(container.querySelectorAll("svg"));
       const svgEl =
@@ -91,17 +129,11 @@ export function FailureBarChart() {
         clonedSvg.setAttribute("viewBox", `0 0 ${origWidth} ${totalHeight}`);
         clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
-        // Separate <defs> from graphic children so <clipPath> is not shifted by transform
-        const defs = clonedSvg.querySelector("defs");
         const childrenToWrap: Node[] = [];
-
         Array.from(clonedSvg.childNodes).forEach((child) => {
-          if (child.nodeName.toLowerCase() !== "defs") {
-            childrenToWrap.push(child);
-          }
+          childrenToWrap.push(child);
         });
 
-        // Create graphic wrapper transformed by topPadding
         const gWrapper = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "g"
@@ -112,11 +144,7 @@ export function FailureBarChart() {
           gWrapper.appendChild(child);
         });
 
-        // Clear clonedSvg except <defs>
         clonedSvg.innerHTML = "";
-        if (defs) {
-          clonedSvg.appendChild(defs);
-        }
 
         // 1. Background Rect
         const bgRect = document.createElementNS(
@@ -126,7 +154,7 @@ export function FailureBarChart() {
         bgRect.setAttribute("width", "100%");
         bgRect.setAttribute("height", "100%");
         bgRect.setAttribute("fill", "#124132");
-        clonedSvg.insertBefore(bgRect, clonedSvg.firstChild);
+        clonedSvg.appendChild(bgRect);
 
         // 2. Embedded Styles
         const style = document.createElementNS(
@@ -136,7 +164,8 @@ export function FailureBarChart() {
         style.textContent = `
           text { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #e5e2da !important; }
           .recharts-text { fill: #e5e2da !important; }
-          .recharts-cartesian-grid-horizontal line, .recharts-cartesian-grid-vertical line { stroke: rgba(168, 181, 174, 0.25) !important; }
+          .recharts-pie-label-text { fill: #e5e2da !important; font-weight: bold; }
+          .recharts-legend-item-text { fill: #e5e2da !important; }
           .svg-eyebrow { font-size: 10px; font-weight: bold; fill: #ecc246 !important; letter-spacing: 0.12em; text-transform: uppercase; }
           .svg-title { font-family: Georgia, serif; font-size: 16px; font-weight: 600; fill: #ffffff !important; }
           .svg-caption { font-size: 10px; fill: #c0c8c3 !important; }
@@ -151,7 +180,7 @@ export function FailureBarChart() {
         textEyebrow.setAttribute("x", "20");
         textEyebrow.setAttribute("y", "24");
         textEyebrow.setAttribute("class", "svg-eyebrow");
-        textEyebrow.textContent = "GRÁFICO DE BARRAS";
+        textEyebrow.textContent = "GRÁFICO CIRCULAR";
         clonedSvg.appendChild(textEyebrow);
 
         const textTitle = document.createElementNS(
@@ -161,7 +190,7 @@ export function FailureBarChart() {
         textTitle.setAttribute("x", "20");
         textTitle.setAttribute("y", "46");
         textTitle.setAttribute("class", "svg-title");
-        textTitle.textContent = meta.title || "Gráfico de Barras";
+        textTitle.textContent = meta.title || "Capacidad varada por capa";
         clonedSvg.appendChild(textTitle);
 
         // 4. Append transformed graphic wrapper
@@ -179,7 +208,7 @@ export function FailureBarChart() {
         );
         textCaption.setAttribute("class", "svg-caption");
 
-        const captionStr = `Figura 2 — ${meta.title}. ${meta.description}`;
+        const captionStr = `Figura 1 — ${meta.title}. ${meta.description}`;
         const captionLines = wrapSvgText(captionStr, 110);
         captionLines.forEach((line, index) => {
           const tspan = document.createElementNS(
@@ -212,7 +241,7 @@ export function FailureBarChart() {
 
           const downloadLink = document.createElement("a");
           downloadLink.href = svgUrl;
-          downloadLink.download = "physaflow-bar-chart.svg";
+          downloadLink.download = "physaflow-pie-chart.svg";
           document.body.appendChild(downloadLink);
           downloadLink.click();
           document.body.removeChild(downloadLink);
@@ -233,13 +262,13 @@ export function FailureBarChart() {
       <div className="chart-card-header flex items-start justify-between mb-6">
         <div>
           <span className="chart-label text-xs font-mono text-[#ecc246] uppercase tracking-wider block font-semibold">
-            GRÁFICO DE BARRAS
+            GRÁFICO CIRCULAR
           </span>
           <h3 className="chart-title font-serif text-xl font-bold text-[#ffffff] mt-1">
-            {meta.title ?? "Título no disponible"}
+            {meta.title ?? "Capacidad varada por capa"}
           </h3>
           <p className="chart-description text-sm text-[#e5e2da]/80 mt-1 max-w-2xl">
-            {meta.description ?? "Descripción no disponible"}
+            {meta.description ?? "Distribución por capa física."}
           </p>
         </div>
 
@@ -269,54 +298,30 @@ export function FailureBarChart() {
       </div>
 
       {/* CHART BODY */}
-      <div id="fig-bar-chart-container" className="chart-body w-full">
-        <ResponsiveContainer width="100%" height={400}>
-          <RechartsBarChart
-            data={data}
-            margin={{
-              top: 16,
-              right: 16,
-              left: 0,
-              bottom: 80,
-            }}
-            barCategoryGap="18%"
-          >
-            <CartesianGrid
-              vertical={false}
-              strokeDasharray="4 4"
-              stroke="rgba(229, 226, 218, 0.2)"
-            />
-
-            <XAxis
-              dataKey={xKey}
-              tick={{
-                fontSize: 10,
-                fill: "#e5e2da",
-              }}
-              tickLine={false}
-              axisLine={{ stroke: "rgba(229, 226, 218, 0.25)" }}
-              interval={0}
-              angle={-35}
-              textAnchor="end"
-              height={80}
-              dx={-4}
-              dy={6}
-            />
-
-            <YAxis
-              tick={{
-                fontSize: 11,
-                fill: "#e5e2da",
-              }}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value: number) => `${value}${valueSuffix}`}
-              domain={[0, 8]}
-              ticks={[0, 2, 4, 6, 8]}
-            />
-
+      <div id="fig-pie-chart-container" className="chart-body w-full">
+        <ResponsiveContainer width="100%" height={360}>
+          <RechartsPieChart>
+            <Pie
+              data={data}
+              dataKey={valueKey}
+              nameKey={nameKey}
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              innerRadius={45}
+              paddingAngle={4}
+              label={({ name, percent }: { name?: string; percent?: number }) =>
+                `${name}: ${((percent ?? 0) * 100).toFixed(1)}%`
+              }
+            >
+              {data.map((_, idx) => (
+                <Cell
+                  key={`pie-cell-${idx}`}
+                  fill={PIE_COLORS[idx % PIE_COLORS.length]}
+                />
+              ))}
+            </Pie>
             <Tooltip
-              cursor={{ fill: "rgba(236, 194, 70, 0.15)" }}
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const item = payload[0].payload;
@@ -324,10 +329,10 @@ export function FailureBarChart() {
                   return (
                     <div className="bg-[#0b3d2e] border border-[#ecc246]/50 p-3 rounded shadow-2xl text-xs font-sans text-[#f4f1e8] leading-relaxed">
                       <div className="font-semibold text-[#ecc246]">
-                        {item[xKey] || item.name}
+                        {item[nameKey] || item.layer}
                       </div>
                       <div className="mt-1 text-[#e5e2da]">
-                        Valor: <strong className="text-white">{val}{valueSuffix}</strong>
+                        Impacto: <strong className="text-white">{val}%</strong>
                       </div>
                     </div>
                   );
@@ -335,22 +340,19 @@ export function FailureBarChart() {
                 return null;
               }}
             />
-
-            <Bar dataKey={dataKey} radius={[2, 2, 0, 0]} maxBarSize={48}>
-              {data.map((entry, idx) => (
-                <Cell
-                  key={`bar-${idx}`}
-                  fill="#c9a227"
-                  className="hover:opacity-85 transition-opacity"
-                />
-              ))}
-            </Bar>
-          </RechartsBarChart>
+            <Legend
+              wrapperStyle={{
+                fontSize: "12px",
+                color: "#e5e2da",
+                paddingTop: "12px",
+              }}
+            />
+          </RechartsPieChart>
         </ResponsiveContainer>
       </div>
 
       <div className="chart-caption text-xs text-[#e5e2da]/80 mt-4 pt-3 border-t border-[#c9a227]/20">
-        Figura 2 — {meta.title}. {meta.description}
+        Figura 1 — {meta.title}. {meta.description}
       </div>
     </div>
   );

@@ -74,18 +74,21 @@ export function AccumulatedLineChart() {
 
   if (!lineChart) {
     return (
-      <div className="chart-card">
-        <div className="chart-body flex items-center justify-center min-h-[300px]">
-          <p className="text-body-md text-[#a8b5ae]">
-            Cargando gráfico...
-          </p>
-        </div>
+      <div className="chart-card border border-[#c9a227]/30 bg-[var(--forest-green-content)] p-6 rounded-sm min-h-[250px] flex items-center justify-center">
+        <p className="text-sm text-[#a8b5ae]">
+          Cargando gráfico...
+        </p>
       </div>
     );
   }
 
   const { charts } = lineChart;
-  const { figure2 } = charts;
+  const figure2 = charts?.figure2;
+
+  if (!figure2 || !figure2.data || !Array.isArray(figure2.data) || figure2.data.length === 0) {
+    return null;
+  }
+
   const { meta, xKey, series, data } = figure2;
   const dataKey = series[0]?.dataKey ?? "value";
   const valueSuffix = series[0]?.valueSuffix ?? "%";
@@ -93,88 +96,112 @@ export function AccumulatedLineChart() {
   const handleDownload = () => {
     const container = document.getElementById("fig-line-chart-container");
     if (container) {
-      const svgEl = container.querySelector("svg");
+      const svgs = Array.from(container.querySelectorAll("svg"));
+      const svgEl =
+        svgs.find((s) => s.getBoundingClientRect().width > 100) || svgs[0];
+
       if (svgEl) {
-        const clonedSvg = svgEl.cloneNode(true) as SVGElement;
-        const origWidthStr = clonedSvg.getAttribute("width") || "800";
-        const origHeightStr = clonedSvg.getAttribute("height") || "360";
-        const origWidth = parseInt(origWidthStr, 10);
-        const origHeight = parseInt(origHeightStr, 10);
+        const bbox = svgEl.getBoundingClientRect();
+        const origWidth = Math.round(bbox.width) || 800;
+        const origHeight = Math.round(bbox.height) || 360;
 
         const topPadding = 60;
-        const bottomPadding = 70;
-        const newHeight = origHeight + topPadding + bottomPadding;
+        const bottomPadding = 65;
+        const totalHeight = origHeight + topPadding + bottomPadding;
 
-        clonedSvg.setAttribute("height", newHeight.toString());
-        clonedSvg.setAttribute("viewBox", `0 0 ${origWidth} ${newHeight}`);
+        // Clone the Recharts SVG
+        const clonedSvg = svgEl.cloneNode(true) as SVGElement;
+        clonedSvg.setAttribute("width", origWidth.toString());
+        clonedSvg.setAttribute("height", totalHeight.toString());
+        clonedSvg.setAttribute("viewBox", `0 0 ${origWidth} ${totalHeight}`);
         clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
+        // Separate <defs> from graphic children so <clipPath> is not shifted by transform
+        const defs = clonedSvg.querySelector("defs");
+        const childrenToWrap: Node[] = [];
+
+        Array.from(clonedSvg.childNodes).forEach((child) => {
+          if (child.nodeName.toLowerCase() !== "defs") {
+            childrenToWrap.push(child);
+          }
+        });
+
+        // Create graphic wrapper transformed by topPadding
         const gWrapper = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "g"
         );
         gWrapper.setAttribute("transform", `translate(0, ${topPadding})`);
 
-        while (clonedSvg.firstChild) {
-          gWrapper.appendChild(clonedSvg.firstChild);
-        }
-        clonedSvg.appendChild(gWrapper);
+        childrenToWrap.forEach((child) => {
+          gWrapper.appendChild(child);
+        });
 
+        // Clear clonedSvg except <defs>
+        clonedSvg.innerHTML = "";
+        if (defs) {
+          clonedSvg.appendChild(defs);
+        }
+
+        // 1. Background Rect
+        const bgRect = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "rect"
+        );
+        bgRect.setAttribute("width", "100%");
+        bgRect.setAttribute("height", "100%");
+        bgRect.setAttribute("fill", "#124132");
+        clonedSvg.insertBefore(bgRect, clonedSvg.firstChild);
+
+        // 2. Embedded Styles
         const style = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "style"
         );
         style.textContent = `
-          text { font-family: sans-serif; font-size: 11px; fill: #a8b5ae; }
-          .recharts-cartesian-grid-horizontal line { stroke: rgba(168, 181, 174, 0.2); stroke-dasharray: 4 4; }
-          .svg-eyebrow { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #c9a227; letter-spacing: 0.12em; text-transform: uppercase; }
-          .svg-title { font-family: serif; font-size: 16px; font-weight: 600; fill: #f4f1e8; }
-          .svg-caption { font-family: sans-serif; font-size: 10px; fill: #a8b5ae; }
+          text { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #e5e2da !important; }
+          .recharts-text { fill: #e5e2da !important; }
+          .recharts-cartesian-grid-horizontal line, .recharts-cartesian-grid-vertical line { stroke: rgba(168, 181, 174, 0.25) !important; }
+          .svg-eyebrow { font-size: 10px; font-weight: bold; fill: #ecc246 !important; letter-spacing: 0.12em; text-transform: uppercase; }
+          .svg-title { font-family: Georgia, serif; font-size: 16px; font-weight: 600; fill: #ffffff !important; }
+          .svg-caption { font-size: 10px; fill: #c0c8c3 !important; }
         `;
-        clonedSvg.insertBefore(style, clonedSvg.firstChild);
+        clonedSvg.appendChild(style);
 
-        // Add background rect to exported SVG using var(--forest-green-content)
-        const bgRect = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "rect"
-        );
-        const bgColor =
-          getComputedStyle(document.documentElement)
-            .getPropertyValue("--forest-green-content")
-            .trim() || "#124132";
-
-        bgRect.setAttribute("width", "100%");
-        bgRect.setAttribute("height", "100%");
-        bgRect.setAttribute("fill", bgColor);
-        clonedSvg.insertBefore(bgRect, clonedSvg.firstChild);
-
+        // 3. Header Titles
         const textEyebrow = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "text"
         );
-        textEyebrow.setAttribute("x", "16");
-        textEyebrow.setAttribute("y", "22");
+        textEyebrow.setAttribute("x", "20");
+        textEyebrow.setAttribute("y", "24");
         textEyebrow.setAttribute("class", "svg-eyebrow");
         textEyebrow.textContent = "GRÁFICO DE LÍNEA";
+        clonedSvg.appendChild(textEyebrow);
 
         const textTitle = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "text"
         );
-        textTitle.setAttribute("x", "16");
-        textTitle.setAttribute("y", "44");
+        textTitle.setAttribute("x", "20");
+        textTitle.setAttribute("y", "46");
         textTitle.setAttribute("class", "svg-title");
         textTitle.textContent = meta.title || "Gráfico de Línea";
-
-        clonedSvg.appendChild(textEyebrow);
         clonedSvg.appendChild(textTitle);
 
+        // 4. Append transformed graphic wrapper
+        clonedSvg.appendChild(gWrapper);
+
+        // 5. Footer Caption
         const textCaption = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "text"
         );
-        textCaption.setAttribute("x", "16");
-        textCaption.setAttribute("y", (origHeight + topPadding + 32).toString());
+        textCaption.setAttribute("x", "20");
+        textCaption.setAttribute(
+          "y",
+          (origHeight + topPadding + 28).toString()
+        );
         textCaption.setAttribute("class", "svg-caption");
 
         const captionStr = `Figura 3 — ${meta.title || "Capacidad varada acumulada"}. ${meta.description || ""}`;
@@ -184,17 +211,25 @@ export function AccumulatedLineChart() {
             "http://www.w3.org/2000/svg",
             "tspan"
           );
-          tspan.setAttribute("x", "16");
+          tspan.setAttribute("x", "20");
           tspan.setAttribute("dy", index === 0 ? "0" : "14");
           tspan.textContent = line;
           textCaption.appendChild(tspan);
         });
-
         clonedSvg.appendChild(textCaption);
 
         try {
           const serializer = new XMLSerializer();
-          const svgString = serializer.serializeToString(clonedSvg);
+          let svgString = serializer.serializeToString(clonedSvg);
+
+          // Replace residual CSS variables with explicit hex colors for standalone viewers
+          svgString = svgString
+            .replace(/var\(--forest-green-content[^\)]*\)/g, "#124132")
+            .replace(/var\(--forest-green[^\)]*\)/g, "#0b3d2e")
+            .replace(/var\(--gold[^\)]*\)/g, "#c9a227")
+            .replace(/var\(--warm-white[^\)]*\)/g, "#f4f1e8")
+            .replace(/var\(--on-surface-variant[^\)]*\)/g, "#a8b5ae");
+
           const svgBlob = new Blob([svgString], {
             type: "image/svg+xml;charset=utf-8",
           });

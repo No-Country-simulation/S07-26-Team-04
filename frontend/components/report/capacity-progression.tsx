@@ -33,25 +33,25 @@ const states = [
 
 export function CapacityProgression() {
   return (
-    <div className="w-full mt-8">
-      {/* SPACIOUS CARDS GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="w-full mt-6">
+      {/* FLEX-WRAP RESPONSIVE CARDS */}
+      <div className="flex flex-wrap gap-3.5">
         {states.map((state) => (
           <article
             key={state.code}
-            className="bg-[#0b3d2e]/90 border border-[#c9a227]/20 hover:border-[#c9a227] p-5 rounded-sm flex flex-col justify-between transition-all duration-300 hover:shadow-[0_0_15px_rgba(201,162,39,0.2)] group"
+            className="flex-1 min-w-[135px] bg-[#0b3d2e]/90 border border-[#c9a227]/20 hover:border-[#c9a227] p-4 rounded-sm flex flex-col justify-between transition-all duration-300 hover:shadow-[0_0_15px_rgba(201,162,39,0.2)] group"
           >
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-serif text-2xl font-bold text-[#c9a227]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-serif text-xl font-bold text-[#c9a227]">
                   {state.number}
                 </span>
-                <span className="text-[10px] font-mono text-[#ecc246] px-2 py-0.5 border border-[#c9a227]/30 bg-[#0d2818] rounded uppercase tracking-wider">
+                <span className="text-[10px] font-mono text-[#ecc246] px-1.5 py-0.5 border border-[#c9a227]/30 bg-[#0d2818] rounded uppercase tracking-wider">
                   {state.code}
                 </span>
               </div>
 
-              <h3 className="font-serif text-lg font-bold text-white mb-2 group-hover:text-[#ecc246] transition-colors">
+              <h3 className="font-serif text-base font-bold text-white mb-1.5 group-hover:text-[#ecc246] transition-colors break-words">
                 {state.title}
               </h3>
 
