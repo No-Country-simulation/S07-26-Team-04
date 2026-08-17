@@ -66,3 +66,8 @@ export async function getCitation(): Promise<Citation> {
     const response = await api.get<Citation>("/report");
     return response.data;
 };
+
+export async function getReportData() {
+    const response = await api.get("/report");
+    return response.data;
+}
