@@ -1,7 +1,7 @@
 import { Card } from "@/components/report/card";
 import { getMarkdownField } from "@/lib/content-parser";
 import { TaxonomyLayerProps } from "@/types/taxonomy";
-import SectionContent from "./SectionContent";
+import SectionContent from "./section-content";
 
 function extractMedian(title: string): string {
   const match = title.match(/mediana\s+([\d.,]+%?)/i);

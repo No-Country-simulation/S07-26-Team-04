@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Link from "next/link";
 
 import {
   Info,
   Shapes,
+  Compass,
   Microscope,
   ChartNoAxesCombined,
+  FileText,
   Quote,
 } from "lucide-react";
 
@@ -22,36 +24,23 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { MainFindings } from "@/types/main-findings";
+import { getMainFindings } from "@/services/report.service";
 
 const sections = [
   {
-    title: "01 - RESUMEN EJECUTIVO",
+    title: "01 - RESUMEN",
     url: "#resumen",
     icon: Info,
   },
   {
     title: "02 - INTRODUCCIÓN",
     url: "#introduction",
-    icon: Shapes,
+    icon: Compass,
   },
   {
     title: "03 - TAXONOMÍA",
     url: "#taxonomy",
-    icon: Shapes,
-  },
-  {
-    title: "03.1 - Capa de Facilidades",
-    url: "#facilities",
-    icon: Shapes,
-  },
-  {
-    title: "03.2 - Capa de Infraestructura",
-    url: "#infrastructure",
-    icon: Shapes,
-  },
-  {
-    title: "03.3 - Capa de Workload",
-    url: "#workload",
     icon: Shapes,
   },
   {
@@ -65,7 +54,12 @@ const sections = [
     icon: ChartNoAxesCombined,
   },
   {
-    title: "06 - CITAR",
+    title: "06 - CONCLUSIÓN",
+    url: "#conclusion",
+    icon: FileText,
+  },
+  {
+    title: "07 - CITAR",
     url: "#quote",
     icon: Quote,
   },
@@ -73,6 +67,28 @@ const sections = [
 
 export function ReportSidebar() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [mainFindings, setMainFindings] = useState<MainFindings | null>(null);
+
+  useEffect(() => {
+    async function fetchMainFindings() {
+      try {
+        const data = await getMainFindings();
+        setMainFindings(data);
+      } catch (error) {
+        console.error("Error fetching executive summary data:", error);
+      }
+    }
+
+    fetchMainFindings();
+  }, []);
+
+  const infomainFindings = mainFindings?.sections.find(
+    (section) => section.id === "03-hallazgos-principales",
+  );
+
+  if (!infomainFindings) {
+    return null;
+  }
 
   return (
     <Sidebar collapsible="none" className="report-sidebar border-r-0">

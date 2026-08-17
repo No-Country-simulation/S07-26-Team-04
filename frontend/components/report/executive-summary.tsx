@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { ExecutiveSummary } from "@/types/executive-summary";
 import { getExecutiveSummary } from "@/services/report.service";
-import SectionContent from "./SectionContent";
+import SectionContent from "./section-content";
 
 export function ExecutiveSummary() {
   const [summary, setSummary] = useState<ExecutiveSummary | null>(null);
@@ -22,7 +22,7 @@ export function ExecutiveSummary() {
   }, []);
 
   const infoSummary = summary?.sections.find(
-    (section) => section.id === "el-impuesto-oculto-del-computo-moderno",
+    (section) => section.id === "01-resumen",
   );
 
   if (!infoSummary) {
@@ -35,7 +35,9 @@ export function ExecutiveSummary() {
         <span className="section-number">01</span>
 
         <div>
-          <h2 className="section-title">{infoSummary?.title}</h2>
+          <h2 className="section-title">
+            {infoSummary?.title.replace(/^\d+\s+[—-]\s*/i, "")}
+          </h2>
 
           <SectionContent
             content={

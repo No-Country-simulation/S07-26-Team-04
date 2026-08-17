@@ -30,17 +30,7 @@ export function Hero() {
     "Desconocido";
 
   const publishedAt =
-    getMarkdownField(
-      heroes?.sections[0]?.content || "",
-      "Fecha de publicación",
-    ) || "Desconocido";
-
-  const readingTime =
-    getMarkdownField(heroes?.sections[0]?.content || "", "Tiempo de lectura") ||
-    "Desconocido";
-
-  const license =
-    getMarkdownField(heroes?.sections[0]?.content || "", "Licencia") ||
+    getMarkdownField(heroes?.sections[0]?.content || "", "Fecha") ||
     "Desconocido";
 
   return (
@@ -50,17 +40,12 @@ export function Hero() {
         <p className="eyebrow">INVESTIGACIÓN DE PhysaFlow</p>
 
         {/* Título */}
-        <h1>{heroes?.title}</h1>
+        <h1>{heroes?.title ?? "Título no disponible"}</h1>
 
         {/* Descripción */}
-        <p className="hero-copy">{heroes?.description}</p>
-
-        {/* Botones */}
-        <div className="hero-actions">
-          <button className="gold-button">LEER EL REPORTE</button>
-
-          <button className="outline-button">EXPLORAR LA TAXONOMÍA</button>
-        </div>
+        <p className="hero-copy">
+          {heroes?.description ?? "Descripción no disponible"}
+        </p>
 
         {/* Metadata */}
         <div className="hero-meta">
@@ -80,13 +65,8 @@ export function Hero() {
           </div>
 
           <div>
-            <p className="text-[#c6a13a]">Tiempo de lectura</p>
-            <strong>{readingTime}</strong>
-          </div>
-
-          <div>
-            <p className="text-[#c6a13a]">Licencia</p>
-            <strong>{license}</strong>
+            <p className="text-[#c6a13a]">Versión</p>
+            <strong>{heroes?.version ?? "Desconocido"}</strong>
           </div>
         </div>
       </section>

@@ -3,8 +3,7 @@
 import type { Taxonomy } from "@/types/taxonomy";
 import { useEffect, useState } from "react";
 import { getTaxonomy } from "@/services/report.service";
-import { TaxonomyLayer } from "./taxonomy-layer";
-import SectionContent from "./SectionContent";
+import SectionContent from "./section-content";
 
 export function TaxonomySection() {
   const [taxonomy, setTaxonomy] = useState<Taxonomy | null>(null);
@@ -23,49 +22,8 @@ export function TaxonomySection() {
   }, []);
 
   const infoTaxonomy = taxonomy?.sections.find(
-    (section) => section.id === "taxonomia-tres-capas-nueve-fallos-con-nombre",
+    (section) => section.id === "evolucion-de-la-capacidad-varada",
   );
-
-  const facilities = taxonomy?.sections.find(
-    (section) =>
-      section.id ===
-      "capa-1-facilities-instalaciones-energia-refrigeracion-espacio",
-  );
-
-  const facilitiesItems = taxonomy?.sections.filter(
-    (section) => section.level === 4 && section.id.startsWith("f-"),
-  );
-
-  if (!facilities) {
-    return null;
-  }
-
-  const infrastructure = taxonomy?.sections.find(
-    (section) =>
-      section.id === "capa-2-it-infraestructura-racks-nodos-topologia",
-  );
-
-  const infrastructureItems = taxonomy?.sections.filter(
-    (section) => section.level === 4 && section.id.startsWith("i-"),
-  );
-
-  if (!infrastructure) {
-    return null;
-  }
-
-  const workload = taxonomy?.sections.find(
-    (section) =>
-      section.id ===
-      "capa-3-workload-carga-de-trabajo-programacion-orquestacion",
-  );
-
-  const workloadItems = taxonomy?.sections.filter(
-    (section) => section.level === 4 && section.id.startsWith("w-"),
-  );
-
-  if (!workload) {
-    return null;
-  }
 
   return (
     <>
@@ -74,7 +32,9 @@ export function TaxonomySection() {
           <span className="section-number">03</span>
 
           <div>
-            <h2 className="section-title">{infoTaxonomy?.title}</h2>
+            <h2 className="section-title">
+              {infoTaxonomy?.title ?? "Título no disponible"}
+            </h2>
 
             <SectionContent
               content={
@@ -84,19 +44,6 @@ export function TaxonomySection() {
             />
           </div>
         </div>
-      </section>
-
-      <section id="facilities">
-        <TaxonomyLayer layer={facilities} items={facilitiesItems || []} />
-      </section>
-      <section id="infrastructure">
-        <TaxonomyLayer
-          layer={infrastructure}
-          items={infrastructureItems || []}
-        />
-      </section>
-      <section id="workload">
-        <TaxonomyLayer layer={workload} items={workloadItems || []} />
       </section>
     </>
   );

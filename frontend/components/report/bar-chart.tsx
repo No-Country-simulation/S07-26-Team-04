@@ -1,5 +1,8 @@
 "use client";
 
+import { getBarChart } from "@/services/report.service";
+import { BarChart } from "@/types/bar-chart";
+import { useEffect, useState } from "react";
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -10,40 +13,81 @@ import {
   Cell,
 } from "recharts";
 
-const LAYER_COLORS = {
-  "L1 - Instalaciones": "var(--dark-forest)",
-  "L2 - TI": "var(--gold)",
-  "L3 - Carga de trabajo": "var(--muted-green-grey)",
-};
-
-interface FailureModeData {
-  name: string;
-  value: number;
-  layer: string;
-}
-
-const failureModeData: FailureModeData[] = [
-  { name: "Deriva pasillo", value: 4.2, layer: "L1 - Instalaciones" },
-  { name: "Sobresuscr. térmica", value: 6.1, layer: "L1 - Instalaciones" },
-  { name: "Aprov. sombra", value: 4.5, layer: "L1 - Instalaciones" },
-  { name: "Racks comatosos", value: 3.8, layer: "L2 - TI" },
-  { name: "Nodos durmientes", value: 2.9, layer: "L2 - TI" },
-  { name: "Bloq. topología", value: 3.0, layer: "L2 - TI" },
-  { name: "Asig. huérfanas", value: 3.1, layer: "L3 - Carga de trabajo" },
-  { name: "Inanición afinidad", value: 2.2, layer: "L3 - Carga de trabajo" },
-  { name: "Latencia marea", value: 1.6, layer: "L3 - Carga de trabajo" },
-];
-
 export function FailureBarChart() {
+  const [barChart, setBarChart] = useState<BarChart | null>(null);
+
+  useEffect(() => {
+    async function fetchBarchart() {
+      try {
+        const data = await getBarChart();
+        setBarChart(data);
+      } catch (error) {
+        console.error("Error fetching bar chart data:", error);
+      }
+    }
+
+    fetchBarchart();
+  }, []);
+
+  /*
+   * Mientras la información está cargando
+   */
+  if (!barChart) {
+    return (
+      <div className="chart-card">
+        <div className="chart-body flex items-center justify-center">
+          <p className="text-body-md text-[var(--on-surface-variant)]">
+            Cargando gráfico...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  /*
+   * Obtenemos la información directamente
+   * desde metrics
+   */
+  const { metrics } = barChart;
+
+  const { meta, xKey, series, data } = metrics;
+
+  /*
+   * La API nos dice qué propiedad usar
+   * como valor de las barras.
+   *
+   * Actualmente:
+   * dataKey = "value"
+   */
+  const dataKey = series[0]?.dataKey ?? "value";
+
+  /*
+   * Sufijo configurado por la API.
+   *
+   * Actualmente:
+   * valueSuffix = "%"
+   */
+  const valueSuffix = series[0]?.valueSuffix ?? "";
+
   return (
     <div className="chart-card">
+      {/* ==================================================
+          HEADER
+      ================================================== */}
+
       <div className="chart-card-header">
         <div>
           <span className="chart-label">GRÁFICO DE BARRAS</span>
+
           <h3 className="chart-title">
-            Capacidad varada por modo de fallo con nombre (% de kW energizados)
+            {meta.title ?? "Título no disponible"}
           </h3>
+
+          <p className="chart-description">
+            {meta.description ?? "Descripción no disponible"}
+          </p>
         </div>
+
         <button className="chart-export-btn" type="button">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -67,8 +111,13 @@ export function FailureBarChart() {
       <div className="chart-body">
         <ResponsiveContainer width="100%" height={360}>
           <RechartsBarChart
-            data={failureModeData}
-            margin={{ top: 8, right: 0, left: -8, bottom: 24 }}
+            data={data}
+            margin={{
+              top: 8,
+              right: 0,
+              left: -8,
+              bottom: 24,
+            }}
             barCategoryGap="20%"
           >
             <CartesianGrid
@@ -77,9 +126,15 @@ export function FailureBarChart() {
               stroke="var(--outline-variant)"
               strokeOpacity={0.5}
             />
+
+            {/* X AXIS */}
+
             <XAxis
-              dataKey="name"
-              tick={{ fontSize: 10, fill: "var(--on-surface-variant)" }}
+              dataKey={xKey}
+              tick={{
+                fontSize: 10,
+                fill: "var(--on-surface-variant)",
+              }}
               tickLine={false}
               axisLine={false}
               interval={0}
@@ -87,24 +142,26 @@ export function FailureBarChart() {
               textAnchor="end"
               height={60}
             />
+
+            {/* Y AXIS */}
+
             <YAxis
-              tick={{ fontSize: 11, fill: "var(--on-surface-variant)" }}
+              tick={{
+                fontSize: 11,
+                fill: "var(--on-surface-variant)",
+              }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v: number) => `${v}%`}
+              tickFormatter={(value: number) => `${value}${valueSuffix}`}
               domain={[0, 8]}
               ticks={[0, 2, 4, 6, 8]}
             />
-            <Bar
-              dataKey="value"
-              radius={[0, 0, 0, 0]}
-              maxBarSize={48}
-            >
-              {failureModeData.map((entry) => (
-                <Cell
-                  key={entry.name}
-                  fill={LAYER_COLORS[entry.layer as keyof typeof LAYER_COLORS]}
-                />
+
+            {/* BARS */}
+
+            <Bar dataKey={dataKey} radius={[0, 0, 0, 0]} maxBarSize={48}>
+              {data.map((entry) => (
+                <Cell key={entry.name} fill="var(--gold)" />
               ))}
             </Bar>
           </RechartsBarChart>
@@ -112,9 +169,7 @@ export function FailureBarChart() {
       </div>
 
       <div className="chart-caption">
-        Figura 2 — Capacidad varada mediana por modo de fallo con nombre.
-        Muestra n=41 sitios. Fuente: Índice de Capacidad Varada de PhysaFlow,
-        2025.
+        Figura 2 — {meta.title}. {meta.description}
       </div>
     </div>
   );

@@ -1,5 +1,8 @@
 "use client";
 
+import { getLineChart } from "@/services/report.service";
+import { LineChart } from "@/types/line-chart";
+import { useEffect, useState } from "react";
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -24,29 +27,74 @@ const trendData: TrendData[] = [
   { year: "2026", value: 38.0 },
 ];
 
-function CustomDot(props: {
-  cx?: number;
-  cy?: number;
-  payload?: TrendData;
-}) {
+function CustomDot(props: { cx?: number; cy?: number; payload?: TrendData }) {
   const { cx, cy } = props;
   if (cx == null || cy == null) return null;
   return (
     <g>
-      <circle cx={cx} cy={cy} r={7} fill="var(--gold)" stroke="var(--dark-forest)" strokeWidth={2} />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={7}
+        fill="var(--gold)"
+        stroke="var(--dark-forest)"
+        strokeWidth={2}
+      />
     </g>
   );
 }
 
 export function AccumulatedLineChart() {
+  const [lineChart, setLineChart] = useState<LineChart | null>(null);
+
+  useEffect(() => {
+    async function fetchLinechart() {
+      try {
+        const data = await getLineChart();
+        console.log("Fetch line chart data: ", data);
+        setLineChart(data);
+      } catch (error) {
+        console.error("Error fetching line chart data:", error);
+      }
+    }
+
+    fetchLinechart();
+  }, []);
+
+  if (!lineChart) {
+    return (
+      <div className="chart-card">
+        <div className="chart-body flex items-center justify-center">
+          <p className="text-body-md text-[var(--on-surface-variant)]">
+            Cargando gráfico...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const { charts } = lineChart;
+
+  const { figure2 } = charts;
+
+  const { meta, xKey, series, xAxisLabel, data } = figure2;
+
+  const dataKey = series[0]?.dataKey ?? "value";
+
+  const valueSuffix = series[0]?.valueSuffix ?? "";
+
   return (
     <div className="chart-card">
       <div className="chart-card-header">
         <div>
           <span className="chart-label">GRÁFICO DE LÍNEA</span>
           <h3 className="chart-title">
-            Capacidad varada acumulada, 2020 – 2026 (% de kW energizados)
+            {meta.title ?? "Título no disponible"}
           </h3>
+
+          <p className="chart-description">
+            {meta.description ?? "Descripción no disponible"}
+          </p>
         </div>
         <button className="chart-export-btn" type="button">
           <svg
@@ -71,7 +119,7 @@ export function AccumulatedLineChart() {
       <div className="chart-body">
         <ResponsiveContainer width="100%" height={360}>
           <RechartsLineChart
-            data={trendData}
+            data={data}
             margin={{ top: 8, right: 0, left: -8, bottom: 0 }}
           >
             <CartesianGrid
@@ -81,7 +129,7 @@ export function AccumulatedLineChart() {
               strokeOpacity={0.5}
             />
             <XAxis
-              dataKey="year"
+              dataKey={xKey}
               tick={{ fontSize: 11, fill: "var(--on-surface-variant)" }}
               tickLine={false}
               axisLine={false}
@@ -90,13 +138,13 @@ export function AccumulatedLineChart() {
               tick={{ fontSize: 11, fill: "var(--on-surface-variant)" }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v: number) => `${v}%`}
+              tickFormatter={(v: number) => `${v}${valueSuffix}`}
               domain={[0, 40]}
               ticks={[0, 10, 20, 30, 40]}
             />
             <Line
               type="monotone"
-              dataKey="value"
+              dataKey={dataKey}
               stroke="var(--gold)"
               strokeWidth={2.5}
               dot={<CustomDot />}
@@ -108,8 +156,8 @@ export function AccumulatedLineChart() {
 
       <div className="chart-caption">
         Figura 3 — Capacidad varada acumulada como porcentaje de kilovatios
-        energizados, muestrada anualmente 2020–2025. Fuente: Índice de
-        Capacidad Varada de PhysaFlow, 2025.
+        energizados, muestrada anualmente 2020–2025. Fuente: Índice de Capacidad
+        Varada de PhysaFlow, 2025.
       </div>
     </div>
   );
