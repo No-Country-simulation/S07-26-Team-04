@@ -17,7 +17,7 @@ export function FigurasSection() {
         </div>
       </div>
 
-      <div className="chart-grid">
+      <div className="chart-grid mt-15">
         <FailureBarChart />
         <br />
         <AccumulatedLineChart />

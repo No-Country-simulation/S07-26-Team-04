@@ -12,8 +12,22 @@
   ------------------------------------------------------- */
 
   --forest-green: #0b3d2e;
+  --forest-green-content: #124132; /*modificar*/
   --deep-forest: #062a20;
-  --dark-forest: #082f25;
+  --dark-forest: #63c28700;
+
+  --forest-900: #0a1f15;
+  --forest-800: #0d2818;
+  --forest-700: #143a26;
+  --forest-600: #1a4d3a;
+  --forest-500: #2d5f47;
+  --forest-300: #7ba78c;
+
+  --paper: #f7f4ec;
+  --paper-2: #fbf9f3;
+  --ink: #1a1814;
+  --ink-muted: #5c5a4d;
+  --ink-soft: #8a8775;
 
   --surface: #14140f;
   --surface-dim: #14140f;
@@ -32,6 +46,11 @@
   --gold: #c9a227;
   --gold-light: #ecc246;
   --gold-dark: #b18c09;
+
+  --gold-700: #8a6f2e;
+  --gold-500: #c9a961;
+  --gold-400: #d9bc7a;
+  --gold-200: #ecdcb8;
 
   /* -------------------------------------------------------
      Typography
@@ -363,6 +382,26 @@ button {
   color: var(--gold);
 }
 
+.font-display {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+}
+
+.hero-forest {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(201,169,97,0.10), transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(45,95,71,0.18), transparent 50%),
+    linear-gradient(180deg, #0d2818 0%, #0a1f15 100%);
+}
+
+.hero-grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.78 0 0 0 0 0.66 0 0 0 0 0.38 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.15;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
 /* =========================================================
    HERO SECTION
    ========================================================= */
@@ -372,9 +411,9 @@ button {
 
   min-height: 700px;
 
-  padding-top: 150px;
+  padding-top: 120px;
 
-  padding-bottom: 80px;
+  padding-bottom: 7%;
 
   padding-left: var(--margin-x);
 
@@ -388,7 +427,8 @@ button {
 
   justify-content: center;
 
-  background: var(--forest-green);
+  /* background: var(--forest-green); */
+
 }
 
 /*
@@ -604,9 +644,9 @@ button {
 .report-content-section {
   width: 100%;
 
-  background: var(--forest-green);
+  background: var(--forest-green-content);
 
-  border-top: 1px solid var(--border-gold-subtle);
+  /* border-top: 1px solid var(--border-gold-subtle); */
 
   padding-top: 80px;
 }
@@ -618,15 +658,17 @@ button {
 .report-content-layout {
   width: 100%;
 
-  max-width: var(--container-max-width);
+  max-width: 1400px;
 
   margin: 0 auto;
 
   display: grid;
 
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
 
-  gap: 48px;
+  gap: 120px;
+
+  justify-content: space-between;
 
   padding: 0 var(--margin-x);
 }
@@ -776,7 +818,9 @@ button {
 
   width: 100%;
 
-  background: var(--forest-green);
+  padding-left: 16px;
+
+  background: var(--forest-green-content);
 }
 
 /* =========================================================
@@ -1217,8 +1261,8 @@ select:focus {
 
 .citation-copy-button:hover {
   background: var(--gold);
+ color: black;
 
-  color: var(--dark-forest);
 }
 
 /* ---------------------------------------------------------
