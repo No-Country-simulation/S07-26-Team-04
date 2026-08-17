@@ -17,15 +17,15 @@ interface TrendData {
   value: number;
 }
 
-const trendData: TrendData[] = [
-  { year: "2020", value: 3.0 },
-  { year: "2021", value: 5.0 },
-  { year: "2022", value: 9.0 },
-  { year: "2023", value: 16.0 },
-  { year: "2024", value: 26.0 },
-  { year: "2025", value: 31.4 },
-  { year: "2026", value: 38.0 },
-];
+// const trendData: TrendData[] = [
+//   { year: "2020", value: 3.0 },
+//   { year: "2021", value: 5.0 },
+//   { year: "2022", value: 9.0 },
+//   { year: "2023", value: 16.0 },
+//   { year: "2024", value: 26.0 },
+//   { year: "2025", value: 31.4 },
+//   { year: "2026", value: 38.0 },
+// ];
 
 function CustomDot(props: { cx?: number; cy?: number; payload?: TrendData }) {
   const { cx, cy } = props;
@@ -77,7 +77,7 @@ export function AccumulatedLineChart() {
 
   const { figure2 } = charts;
 
-  const { meta, xKey, series, xAxisLabel, data } = figure2;
+  const { meta, xKey, series, data } = figure2;
 
   const dataKey = series[0]?.dataKey ?? "value";
 
