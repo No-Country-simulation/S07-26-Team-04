@@ -78,7 +78,7 @@ export function ReportTable({ statusFilter, title, description }: ReportTablePro
         </div>
         <Link
           href="/dashboard/editor/nuevo"
-          className="inline-flex items-center justify-center text-xs font-bold uppercase tracking-wider px-4 py-2 bg-[#c9a227] text-[#062a20] rounded-md hover:bg-[#ecc246] transition-colors shadow-md"
+          className="gold-metallic-button"
         >
           + Crear Reporte
         </Link>
