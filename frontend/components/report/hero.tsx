@@ -22,16 +22,19 @@ export function Hero() {
   }, []);
 
   const author =
-    getMarkdownField(heroes?.sections[0]?.content || "", "Autor") ||
-    "Desconocido";
+    getMarkdownField(heroes?.sections[0]?.content || "", "Autor");
 
   const doi =
-    getMarkdownField(heroes?.sections[0]?.content || "", "DOI") ||
-    "Desconocido";
+    getMarkdownField(heroes?.sections[0]?.content || "", "DOI");
 
   const publishedAt =
-    getMarkdownField(heroes?.sections[0]?.content || "", "Fecha") ||
-    "Desconocido";
+    getMarkdownField(heroes?.sections[0]?.content || "", "Fecha");
+
+  const readTime =
+    getMarkdownField(heroes?.sections[0]?.content || "", "Tiempo de lectura") || "8 min";
+
+  const license =
+    getMarkdownField(heroes?.sections[0]?.content || "", "Licencia") || "CC BY-SA 4.0";
 
   return (
     <section className="report-hero relative overflow-hidden w-full">
@@ -93,7 +96,10 @@ export function Hero() {
       {/* Hero Text Content Container */}
       <div className="mx-auto max-w-[1400px] lg:px-40 relative z-10 w-full">
         {/* Eyebrow */}
-        <p className="eyebrow">INVESTIGACIÓN DE PhysaFlow</p>
+        <div className="flex items-center gap-2 mb-3">
+          {/* <span className="w-2 h-2 rounded-full bg-[#ecc246]" /> */}
+          <p className="eyebrow !mb-0 ">INVESTIGACIÓN DE PhysaFlow</p>
+        </div>
 
         {/* Título */}
         <h1>{heroes?.title ?? "Título no disponible"}</h1>
@@ -104,25 +110,35 @@ export function Hero() {
         </p>
 
         {/* Metadata */}
-        <div className="hero-meta">
-          <div>
-            <p className="text-[#c6a13a]">Autor</p>
-            <strong>{author}</strong>
+        <div className="hero-meta flex flex-wrap items-center gap-y-4 gap-x-6 lg:gap-x-8 pt-6 border-t border-[#c9a227]/30">
+          <div className="border-r border-[#c9a227]/25 pr-6 lg:pr-8">
+            <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">Autor</p>
+            <strong className="text-sm font-sans text-[#e5e2da] whitespace-nowrap">{author || "Autor no disponible"}</strong>
+          </div>
+
+          <div className="border-r border-[#c9a227]/25 pr-6 lg:pr-8">
+            <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">DOI</p>
+            <strong className="text-xs font-mono text-[#e5e2da] whitespace-nowrap">{doi || "DOI no disponible"}</strong>
+          </div>
+
+          <div className="border-r border-[#c9a227]/25 pr-6 lg:pr-8">
+            <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">Publicado</p>
+            <strong className="text-sm font-sans text-[#e5e2da] whitespace-nowrap">{publishedAt || "Fecha no disponible"}</strong>
+          </div>
+
+          <div className="border-r border-[#c9a227]/25 pr-6 lg:pr-8">
+            <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">Lectura</p>
+            <strong className="text-xs font-mono text-[#e5e2da] whitespace-nowrap">{readTime}</strong>
+          </div>
+
+          <div className="border-r border-[#c9a227]/25 pr-6 lg:pr-8">
+            <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">Licencia</p>
+            <strong className="text-xs font-mono text-[#e5e2da] whitespace-nowrap">{license}</strong>
           </div>
 
           <div>
-            <p className="text-[#c6a13a]">DOI</p>
-            <strong>{doi}</strong>
-          </div>
-
-          <div>
-            <p className="text-[#c6a13a]">Publicado</p>
-            <strong>{publishedAt}</strong>
-          </div>
-
-          <div>
-            <p className="text-[#c6a13a]">Versión</p>
-            <strong>{heroes?.version ?? "Desconocido"}</strong>
+            <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">Versión</p>
+            <strong className="text-xs font-mono text-[#ecc246] whitespace-nowrap">v{heroes?.version ?? "1.0.0"}</strong>
           </div>
         </div>
       </div>
