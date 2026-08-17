@@ -33,31 +33,35 @@ const states = [
 
 export function CapacityProgression() {
   return (
-    <div className="capacity-progression">
-      {states.map((state, index) => (
-        <div key={state.code} className="capacity-state-wrapper">
-          <article className="capacity-state">
-            {/* Número */}
-            <span className="capacity-state-number">{state.number}</span>
+    <div className="w-full mt-8">
+      {/* SPACIOUS CARDS GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {states.map((state) => (
+          <article
+            key={state.code}
+            className="bg-[#0b3d2e]/90 border border-[#c9a227]/20 hover:border-[#c9a227] p-5 rounded-sm flex flex-col justify-between transition-all duration-300 hover:shadow-[0_0_15px_rgba(201,162,39,0.2)] group"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-serif text-2xl font-bold text-[#c9a227]">
+                  {state.number}
+                </span>
+                <span className="text-[10px] font-mono text-[#ecc246] px-2 py-0.5 border border-[#c9a227]/30 bg-[#0d2818] rounded uppercase tracking-wider">
+                  {state.code}
+                </span>
+              </div>
 
-            {/* Código */}
-            <span className="capacity-state-code">{state.code}</span>
+              <h3 className="font-serif text-lg font-bold text-white mb-2 group-hover:text-[#ecc246] transition-colors">
+                {state.title}
+              </h3>
 
-            {/* Título */}
-            <h3 className="capacity-state-title">{state.title}</h3>
-
-            {/* Descripción */}
-            <p className="capacity-state-description">{state.description}</p>
-          </article>
-
-          {/* Conector */}
-          {index < states.length - 1 && (
-            <div className="capacity-state-connector" aria-hidden="true">
-              <span />
+              <p className="text-xs text-[#a8b5ae] leading-relaxed">
+                {state.description}
+              </p>
             </div>
-          )}
-        </div>
-      ))}
+          </article>
+        ))}
+      </div>
     </div>
   );
 }

@@ -54,7 +54,7 @@ export function Methodology() {
           PROGRESIÓN
       ================================================ */}
 
-      <div>
+      <div className="border border-[#c9a227]/30 p-6 lg:p-8  mt-10">
         <div className="text-label-caps text-[var(--gold)] mb-2 mt-4">
           PROGRESIÓN DE ESTADOS DE CAPACIDAD
         </div>
