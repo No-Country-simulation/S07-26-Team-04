@@ -24,8 +24,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { MainFindings } from "@/types/main-findings";
-import { getMainFindings } from "@/services/report.service";
 
 const sections = [
   {
@@ -45,7 +43,7 @@ const sections = [
   },
   {
     title: "04 - METODOLOGÍA",
-    url: "#metodologia",
+    url: "#methodology",
     icon: Microscope,
   },
   {
@@ -67,28 +65,6 @@ const sections = [
 
 export function ReportSidebar() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [mainFindings, setMainFindings] = useState<MainFindings | null>(null);
-
-  useEffect(() => {
-    async function fetchMainFindings() {
-      try {
-        const data = await getMainFindings();
-        setMainFindings(data);
-      } catch (error) {
-        console.error("Error fetching executive summary data:", error);
-      }
-    }
-
-    fetchMainFindings();
-  }, []);
-
-  const infomainFindings = mainFindings?.sections.find(
-    (section) => section.id === "03-hallazgos-principales",
-  );
-
-  if (!infomainFindings) {
-    return null;
-  }
 
   return (
     <Sidebar collapsible="none" className="report-sidebar border-r-0">

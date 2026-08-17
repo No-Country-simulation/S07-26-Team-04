@@ -31,7 +31,7 @@ export function Methodology() {
   }
 
   return (
-    <section id="metodologia" className="report-section">
+    <section id="methodology" className="report-section">
       {/* Encabezado */}
       <div className="report-section-header">
         <div className="section-number">04</div>
