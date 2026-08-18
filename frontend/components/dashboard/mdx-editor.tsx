@@ -425,7 +425,12 @@ export function MdxEditor({ initialReportId, onSaved }: MdxEditorProps) {
 
           {/* Badge del Estado Actual en Base de Datos */}
           <div className="ml-1">
-            {reportStatus === 'published' ? (
+            {!reportId ? (
+              <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider font-mono rounded bg-cyan-950/90 text-cyan-400 border border-cyan-500/50 uppercase shadow-sm flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                PLANTILLA
+              </span>
+            ) : reportStatus === 'published' ? (
               <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider font-mono rounded bg-emerald-950/90 text-emerald-400 border border-emerald-500/50 uppercase shadow-sm flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 PUBLICADO
