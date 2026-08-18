@@ -174,16 +174,11 @@ export function TaxonomySection({ reportId }: { reportId?: string } = {}) {
 
         return (
           <div key={sub.id} className="report-layer-block space-y-6 pt-6 border-t border-[var(--gold)]/20">
-            <div className="report-section-header">
-              <span className="section-number text-2xl font-serif text-[var(--gold)]">
-                L{index + 1}
-              </span>
-              <div>
-                <h3 className="section-title text-xl font-serif text-[var(--warm-white)]">
-                  {sub.title}
-                </h3>
-                {intro && <SectionContent content={intro} />}
-              </div>
+            <div>
+              <h3 className="text-xl font-serif text-[var(--warm-white)] font-bold mb-2">
+                {sub.title}
+              </h3>
+              {intro && <SectionContent content={intro} />}
             </div>
 
             {/* Grid de Tarjetas de Operador */}
