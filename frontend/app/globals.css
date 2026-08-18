@@ -663,9 +663,7 @@ button {
 
   margin: 0 auto;
 
-  padding-top: 24px;
-
-  border-top: 1px solid var(--border-gold-subtle);
+  padding-top: 32px;
 }
 
 /* =========================================================
@@ -1657,7 +1655,11 @@ select:focus {
 
   grid-template-columns: repeat(3, 1fr);
 
-  gap: 0;
+  gap: 1px;
+
+  background: rgba(201, 162, 39, 0.1);
+
+  border: 1px solid rgba(201, 162, 39, 0.1);
 }
 
 .hero-meta-item {
@@ -1667,33 +1669,23 @@ select:focus {
 
   align-items: flex-start;
 
-  gap: 4px;
+  gap: 6px;
 
-  padding: 16px 20px;
+  padding: 18px 22px;
 
-  border-right: 1px solid rgba(201, 162, 39, 0.15);
-
-  border-bottom: 1px solid rgba(201, 162, 39, 0.15);
-}
-
-.hero-meta-item:nth-child(3n) {
-  border-right: none;
-}
-
-.hero-meta-item:nth-child(n+4) {
-  border-bottom: none;
+  background: var(--forest-green);
 }
 
 .hero-meta-label {
   font-family: var(--font-inter), Inter, Arial, sans-serif;
 
-  font-size: 10px;
+  font-size: 9px;
 
-  font-weight: 600;
+  font-weight: 700;
 
-  line-height: 14px;
+  line-height: 12px;
 
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
 
   text-transform: uppercase;
 
@@ -2137,18 +2129,6 @@ select:focus {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .hero-meta-item:nth-child(3n) {
-    border-right: 1px solid rgba(201, 162, 39, 0.15);
-  }
-
-  .hero-meta-item:nth-child(2n) {
-    border-right: none;
-  }
-
-  .hero-meta-item:nth-child(n+5) {
-    border-bottom: none;
-  }
-
   /* ---------------------------------------------
      Content section
   --------------------------------------------- */
@@ -2301,16 +2281,6 @@ select:focus {
 @media (max-width: 480px) {
   .hero-meta-grid {
     grid-template-columns: 1fr;
-  }
-
-  .hero-meta-item {
-    border-right: none;
-
-    border-bottom: 1px solid rgba(201, 162, 39, 0.15);
-  }
-
-  .hero-meta-item:last-child {
-    border-bottom: none;
   }
 
   .report-hero h1 {
