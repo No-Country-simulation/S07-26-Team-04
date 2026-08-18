@@ -11,6 +11,9 @@ const adapter = new PrismaNeon({
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  // Limpiar todos los registros antiguos de la base de datos
+  await prisma.report.deleteMany({});
+
   const slug = 'stranded-capacity-index';
   const parsed = parseReport(REPORTE_MOCK);
   const report = await prisma.report.upsert({

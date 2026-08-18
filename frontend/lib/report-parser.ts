@@ -59,13 +59,14 @@ export function parseReport(mdx: string): ParsedReport {
       continue;
     }
 
-    const heading = line.match(/^(#{1,6})\s+(.*)$/);
-    if (!inFence && heading) {
+    // Encabezados de Nivel 1 (# Titulo) definen las secciones principales del reporte
+    const h1Match = line.match(/^#\s+(.*)$/);
+    if (!inFence && h1Match) {
       if (current) sections.push(current);
       current = {
-        id: slugify(heading[2]),
-        level: heading[1].length,
-        title: heading[2].trim(),
+        id: slugify(h1Match[1]),
+        level: 1,
+        title: h1Match[1].trim(),
         content: '',
       };
       continue;
@@ -78,8 +79,7 @@ export function parseReport(mdx: string): ParsedReport {
 
   if (current) sections.push(current);
 
-  // Discard heading-only sections (empty content) to keep the index clean.
-  const nonEmpty = sections.filter((s) => s.content.trim().length > 0);
+  const nonEmpty = sections.filter((s) => s.content.trim().length > 0 || s.title.trim().length > 0);
 
   let metricsJson = '';
   try {

@@ -1,0 +1,202 @@
+---
+title: "Informe de Huella de Carbono y Eficiencia Térmica Hídrica (CUE/WUE-2026)"
+slug: "informe-carbono-eficiencia-hidrica-2026"
+version: "2.0.0"
+language: "es"
+description: "Evaluación de emisiones indirectas y consumo hídrico evaporativo en hiper-centros de datos."
+---
+
+# Metadatos del Reporte
+
+**Autor:** Dra. Elena Rostova  
+**Fecha:** Diciembre 2026  
+**DOI:** physaflow/cue-wue-2026-009  
+**Tiempo de lectura:** 9 min  
+**Licencia:** CC BY-SA 4.0  
+
+---
+
+# 01 — Resumen
+
+## El impacto hídrico y energético de la era de cómputo intensivo.
+
+El **Informe de Huella de Carbono y Eficiencia Hídrica** analiza la efectividad en el uso de agua (WUE) y las emisiones por kilovatio energizado (CUE) en centros de datos con enfriamiento híbrido por líquido y aire.
+
+El estudio identificó un **24,6% de consumo hídrico y energético evitable**, agrupado en tres frentes operacionales:
+
+- **Torres de Enfriamiento y Evaporación (10,5%)**
+- **Intercambiadores Direct-to-Chip (8,1%)**
+- **Gestión de Cargas de Energía Verde (6,0%)**
+
+---
+
+# 02 — Introducción
+
+## La paradoja del PUE bajo con alto consumo hídrico.
+
+Muchos centros de datos modernos muestran un PUE envidiable cercano a 1.1 reduciendo el uso de enfriadores mecánicos, pero lo logran evaporando millones de litros de agua dulce diariamente en torres de enfriamiento.
+
+> "Un PUE bajo que se logra a costa de desecar acuíferos locales no es sostenibilidad; es transferir la huella ambiental a la comunidad."
+> 
+> *— Consultora Senior de Recursos Hídricos e Infraestructura (anonimizada)*
+
+---
+
+# 03 — Descripción general de la taxonomía
+
+## Tres frentes de impacto ambiental no optimizado.
+
+Taxonomía de modos de fallo térmicos e hídricos en instalaciones de alta densidad.
+
+### L1 — Capa de Torres de Enfriamiento y Evaporación
+*Agua Potable · Purga de Torres · Drift Losses*
+
+Desperdicio hídrico derivado del tratamiento y evaporación en ciclos de enfriamiento evaporativo.
+
+- **W-01 (4,8%) — Purga prematura de minerales**
+  - **Qué se ve:** Torres de enfriamiento descartando agua dulce con bajo nivel de concentración de sales.
+  - **Cuánto cuesta:** Cientos de miles de litros de agua potable descartados sin necesidad.
+  - **Por qué ocurre:** Sensores de conductividad descalibrados que fuerzan ciclos de purga continuos.
+
+- **W-02 (3,2%) — Pérdida por arrastre de gota (Drift)**
+  - **Qué se ve:** Microgotas de agua arrastradas por el flujo de aire de los ventiladores hacia el exterior.
+  - **Cuánto cuesta:** Pérdida hídrica constante sin aportar refrigeración efectiva.
+  - **Por qué ocurre:** Eliminadores de gotas desgastados o mal instalados en el pleno de salida.
+
+- **W-03 (2,5%) — Enfriamiento adiabático sin control de humedad**
+  - **Qué se ve:** Inyección de agua evaporativa activada en días de alta humedad relativa.
+  - **Cuánto cuesta:** Consumo de agua sin reducción apreciable de temperatura del aire.
+  - **Por qué ocurre:** Algoritmos de control basados solo en temperatura seca sin calcular punto de rocío.
+
+### L2 — Capa de Intercambiadores Direct-to-Chip
+*Cooling Liquido · D2C · CDU (Cooling Distribution Units)*
+
+Fricciones en la transferencia de calor entre el bloque de agua de la CPU/GPU y el loop primario.
+
+- **L-01 (3,6%) — Ineficiencia de bombeo en CDU**
+  - **Qué se ve:** Bombas de fluido dieléctrico o agua circulando al 100% de potencia fija continuamente.
+  - **Cuánto cuesta:** Sobrecostos eléctricos en motores de bombeo de volumen constante.
+  - **Por qué ocurre:** Falta de variadores de frecuencia impulsados por la temperatura instantánea del chip.
+
+- **L-02 (2,7%) — Incrustación microbiológica en placas pasantes**
+  - **Qué se ve:** Aumento progresivo de la temperatura del refrigerante al salir del rack.
+  - **Cuánto cuesta:** Disminución del 15% en la eficiencia de intercambio térmico.
+  - **Por qué ocurre:** Filtrado de fluido secundario deficiente o biocidas agotados en el loop cerrado.
+
+- **L-03 (1,8%) — Bypass de flujo en racks parcialmente vacíos**
+  - **Qué se ve:** Fluido refrigerante circulando por colectores desocupados sin absorber calor activo.
+  - **Cuánto cuesta:** Caída de presión disponible para los servidores contiguos altamente cargados.
+  - **Por me ocurre:** Válvulas automáticas de desacoplamiento no instaladas en bahías vacías.
+
+### L3 — Capa de Gestión de Cargas de Energía Verde
+*Certificados iREC · Matching Horario · Baterías BESS*
+
+Desalineación entre la generación de energía renovable local y la curva de consumo del centro de datos.
+
+- **C-01 (2,8%) — Venta de energía solar en horas pico**
+  - **Qué se ve:** El centro de datos consume energía de carbón por la noche mientras exporta solar al mediodía a precio marginal.
+  - **Cuánto cuesta:** Incremento real en la huella de carbono CUE por kWh consumido.
+  - **Por qué ocurre:** Contratos PPA que no incentivan el almacenamiento térmico o de baterías en sitio.
+
+- **C-02 (1,9%) — Desplazamiento geográfico ineficiente**
+  - **Qué se ve:** Cargas de batch ejecutadas en regiones térmicamente hostiles durante olas de calor.
+  - **Cuánto cuesta:** Disparo simultáneo del consumo de agua y energía de refrigeración.
+  - **Por qué ocurre:** Programadores que no consideran el índice de intensidad de carbono en tiempo real de la red local.
+
+- **C-03 (1,3%) — Degradación de baterías por standby caliente**
+  - **Qué se ve:** Bancos de baterías BESS mantenidos a plena carga continua en salas sin ventilación dedicada.
+  - **Cuánto cuesta:** Pérdida de capacidad de almacenamiento para aplanar la curva nocturna.
+  - **Por qué ocurre:** Sistemas de climatización de salas UPS desfasados con la química de litio-ferrofosfato.
+
+---
+
+# 04 — Metodología
+
+## Auditoría cruzada de caudales y balance de masa.
+
+Los datos se obtuvieron mediante caudalímetros ultrasónicos no invasivos, medidores de carbono Scope 2 por nodo y auditorías de balance térmico directo.
+
+> **Nota Metodológica:** Los indicadores de consumo hídrico se normalizaron contemplando las variaciones estacionales de temperatura ambiental.
+
+---
+
+# 05 — Figuras
+
+## Visualización de impacto ambiental y consumo hídrico.
+
+Distribución cuantitativa de las ineficiencias de enfriamiento y carbono.
+
+```chart
+{
+  "chartType": "bar",
+  "meta": {
+    "title": "Perdidas ambientales y de enfriamiento por modo de fallo",
+    "description": "Porcentaje de agua y energia desperdiciada por ineficiencias operativas."
+  },
+  "xKey": "name",
+  "data": [
+    { "name": "Purga prematura de agua", "value": 4.8 },
+    { "name": "Ineficiencia de CDU", "value": 3.6 },
+    { "name": "Arrastre de gota (Drift)", "value": 3.2 },
+    { "name": "Desalineación renovable", "value": 2.8 },
+    { "name": "Incrustación en CDU", "value": 2.7 },
+    { "name": "Enfriamiento adiabático", "value": 2.5 },
+    { "name": "Desplazamiento ineficiente", "value": 1.9 },
+    { "name": "Bypass de fluido en rack", "value": 1.8 },
+    { "name": "Degradación BESS", "value": 1.3 }
+  ]
+}
+```
+
+```chart
+{
+  "chartType": "pie",
+  "meta": {
+    "title": "Distribución de ineficiencia por frente operacional",
+    "description": "Proporción de desperdicio entre Torres, Direct-to-Chip y Gestión Verde."
+  },
+  "nameKey": "layer",
+  "valueKey": "value",
+  "data": [
+    { "layer": "Torres de Enfriamiento", "value": 10.5 },
+    { "layer": "Direct-to-Chip (D2C)", "value": 8.1 },
+    { "layer": "Gestión Verde y Carbono", "value": 6.0 }
+  ]
+}
+```
+
+```chart
+{
+  "chartType": "line",
+  "meta": {
+    "title": "Consumo hídrico evitable por megawatt, 2021–2026",
+    "description": "Litros de agua por MWh gastados por ineficiencias de control evaporativo."
+  },
+  "xKey": "year",
+  "data": [
+    { "year": "2021", "value": 1.2 },
+    { "year": "2022", "value": 1.8 },
+    { "year": "2023", "value": 2.5 },
+    { "year": "2024", "value": 3.4 },
+    { "year": "2025", "value": 4.1 },
+    { "year": "2026", "value": 4.8 }
+  ]
+}
+```
+
+---
+
+# 06 — Conclusión
+
+## Hacia la neutralidad hídrica y energética real.
+
+Monitorear el consumo de agua por kWh útil de cómputo es el nuevo estándar indispensable para garantizar la viabilidad comunitaria de los data centers.
+
+---
+
+# 07 — Cómo citar
+
+## Citar este reporte.
+
+**Fuente:** *PhysaFlow Water & Carbon Efficiency Index (CUE/WUE-2026)*  
+**Licencia:** CC BY-SA 4.0.
