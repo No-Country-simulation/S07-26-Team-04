@@ -27,10 +27,6 @@ export function ExecutiveSummary({ reportId }: { reportId?: string } = {}) {
       section.title.toLowerCase().includes("resumen")
   );
 
-  if (!infoSummary) {
-    return null;
-  }
-
   return (
     <section id="resumen" className="report-section">
       <div className="report-section-header">
@@ -38,12 +34,12 @@ export function ExecutiveSummary({ reportId }: { reportId?: string } = {}) {
 
         <div>
           <h2 className="section-title">
-            {infoSummary?.title.replace(/^\d+\s+[—-]\s*/i, "")}
+            {infoSummary?.title.replace(/^\d+\s+[—-]\s*/i, "") ?? "Resumen ejecutivo"}
           </h2>
 
           <SectionContent
             content={
-              infoSummary?.content ?? "No se encontró el contenido del resumen."
+              infoSummary?.content ?? "El contenido del resumen ejecutivo no está disponible en este momento."
             }
           />
         </div>

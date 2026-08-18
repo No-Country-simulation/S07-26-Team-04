@@ -54,10 +54,6 @@ export function Citation({ reportId }: { reportId?: string } = {}) {
       ? new Date(citation.publishedAt).getFullYear().toString()
       : new Date().getFullYear().toString());
 
-  if (!infoCitation) {
-    return null;
-  }
-
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(
@@ -81,16 +77,14 @@ export function Citation({ reportId }: { reportId?: string } = {}) {
       ================================================== */}
 
       <div className="report-section-header">
-        <div className="section-number">07</div>
+        <span className="section-number">07</span>
 
         <div>
-          <div className="text-label-caps text-[var(--gold)] mb-2">
-            REFERENCIA BIBLIOGRÁFICA
-          </div>
+          <div className="report-sub-card-label">REFERENCIA BIBLIOGRÁFICA</div>
 
           <h2 className="section-title">
             {infoCitation.title.replace(/^\d+\s+[—-]\s*/i, "") ??
-              "Título no disponible"}
+              "Referencia bibliográfica"}
           </h2>
 
           <p className="section-description">

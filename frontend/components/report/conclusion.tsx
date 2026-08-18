@@ -28,10 +28,6 @@ export function Conclusion({ reportId }: { reportId?: string } = {}) {
       section.title.toLowerCase().includes("conclusion")
   );
 
-  if (!infoconclusion) {
-    return null;
-  }
-
   return (
     <section id="conclusion" className="report-section">
       <div className="report-section-header">
@@ -39,13 +35,13 @@ export function Conclusion({ reportId }: { reportId?: string } = {}) {
 
         <div>
           <h2 className="section-title">
-            {infoconclusion?.title.replace(/^\d+\s+[—-]\s*/i, "")}
+            {infoconclusion?.title.replace(/^\d+\s+[—-]\s*/i, "") ?? "Conclusión"}
           </h2>
 
           <SectionContent
             content={
               infoconclusion?.content ??
-              "No se encontró el contenido de la introducción."
+              "La sección de conclusión no está disponible en este momento."
             }
           />
         </div>

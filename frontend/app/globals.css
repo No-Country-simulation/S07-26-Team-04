@@ -737,9 +737,7 @@ button {
 
   background: var(--forest-green-content);
 
-  /* border-top: 1px solid var(--border-gold-subtle); */
-
-  padding-top: 80px;
+  padding-top: 64px;
 }
 
 /*
@@ -755,9 +753,9 @@ button {
 
   display: grid;
 
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 240px minmax(0, 1fr);
 
-  gap: 120px;
+  gap: 80px;
 
   justify-content: space-between;
 
@@ -911,6 +909,8 @@ button {
 
   padding-left: 16px;
 
+  padding-bottom: 80px;
+
   background: var(--forest-green-content);
 }
 
@@ -965,14 +965,20 @@ button {
   padding-bottom: var(--stack-xl);
 
   scroll-margin-top: 80px;
+
+  border-bottom: 1px solid var(--border-gold-subtle);
+}
+
+.report-section:last-child {
+  border-bottom: none;
 }
 
 .report-section-header {
   display: grid;
 
-  grid-template-columns: 100px 1fr;
+  grid-template-columns: 80px 1fr;
 
-  gap: 32px;
+  gap: 24px;
 
   align-items: start;
 }
@@ -984,13 +990,15 @@ button {
 .section-number {
   font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
 
-  font-size: 72px;
+  font-size: 56px;
 
   font-weight: 700;
 
   line-height: 1;
 
   color: var(--gold);
+
+  opacity: 0.8;
 }
 
 /*
@@ -1032,21 +1040,471 @@ button {
 }
 
 /* =========================================================
-   CARDS / PANELS
+   SECTION CONTENT — MARKDOWN
+   ========================================================= */
+
+.section-description p {
+  margin: 0 0 16px;
+
+  color: var(--on-surface-variant);
+
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 16px;
+
+  line-height: 28px;
+}
+
+.section-description p:last-child {
+  margin-bottom: 0;
+}
+
+.section-description strong {
+  color: var(--warm-white);
+
+  font-weight: 600;
+}
+
+.section-description em {
+  font-style: italic;
+
+  color: var(--on-surface);
+}
+
+.section-description ul,
+.section-description ol {
+  margin: 12px 0;
+
+  padding-left: 24px;
+}
+
+.section-description li {
+  margin: 8px 0;
+
+  color: var(--on-surface-variant);
+
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 16px;
+
+  line-height: 26px;
+}
+
+.section-description li::marker {
+  color: var(--gold);
+}
+
+.section-description a {
+  color: var(--gold);
+
+  text-decoration: underline;
+
+  text-underline-offset: 2px;
+
+  transition: color 160ms ease;
+}
+
+.section-description a:hover {
+  color: var(--gold-light);
+}
+
+.section-description code {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+
+  font-size: 14px;
+
+  padding: 2px 6px;
+
+  background: rgba(201, 162, 39, 0.1);
+
+  border: 1px solid var(--border-gold-subtle);
+
+  color: var(--gold-light);
+}
+
+.section-description blockquote {
+  margin: 20px 0;
+
+  padding: 16px 24px;
+
+  border-left: 3px solid var(--gold);
+
+  background: rgba(11, 61, 46, 0.3);
+
+  font-style: italic;
+
+  color: var(--on-surface);
+}
+
+.section-description h1,
+.section-description h2,
+.section-description h3,
+.section-description h4 {
+  margin: 24px 0 12px;
+
+  color: var(--warm-white);
+
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+}
+
+.section-description h3 {
+  font-size: 22px;
+
+  font-weight: 600;
+
+  line-height: 30px;
+}
+
+.section-description table {
+  width: 100%;
+
+  margin: 16px 0;
+
+  border-collapse: collapse;
+}
+
+.section-description th,
+.section-description td {
+  padding: 10px 14px;
+
+  text-align: left;
+
+  border-bottom: 1px solid var(--border-subtle);
+
+  font-size: 14px;
+
+  color: var(--on-surface-variant);
+}
+
+.section-description th {
+  font-weight: 600;
+
+  color: var(--muted-green-grey);
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   CARDS / PANELS — UNIFIED SYSTEM
    ========================================================= */
 
 .report-card {
   background: var(--dark-forest);
 
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-gold-subtle);
 
-  border-radius: 0;
+  border-radius: 2px;
 
   box-shadow: none;
+
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
 }
 
 .report-card:hover {
-  border-color: var(--border-gold-subtle);
+  border-color: var(--border-gold);
+}
+
+/*
+  Chart card — used by bar, pie, line charts
+*/
+
+.chart-card {
+  background: var(--dark-forest);
+
+  border: 1px solid var(--border-gold-subtle);
+
+  border-radius: 2px;
+
+  padding: 28px 32px;
+
+  position: relative;
+
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.chart-card:hover {
+  border-color: var(--border-gold);
+}
+
+.chart-card-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 24px;
+}
+
+.chart-label {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  color: var(--gold-light);
+}
+
+.chart-title {
+  margin: 4px 0 0;
+
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 20px;
+
+  font-weight: 600;
+
+  line-height: 28px;
+
+  color: var(--warm-white);
+}
+
+.chart-description {
+  margin: 6px 0 0;
+
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 14px;
+
+  line-height: 22px;
+
+  color: var(--on-surface-variant);
+
+  max-width: 640px;
+}
+
+.chart-export-btn {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+
+  color: var(--gold-light);
+
+  background: var(--forest-green);
+
+  border: 1px solid var(--border-gold-subtle);
+
+  padding: 6px 12px;
+
+  border-radius: 2px;
+
+  cursor: pointer;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.chart-export-btn:hover {
+  background: rgba(201, 162, 39, 0.15);
+
+  border-color: var(--gold);
+
+  color: var(--warm-white);
+}
+
+.chart-caption {
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 12px;
+
+  line-height: 18px;
+
+  color: var(--on-surface-variant);
+
+  margin-top: 20px;
+
+  padding-top: 16px;
+
+  border-top: 1px solid var(--border-gold-subtle);
+}
+
+/*
+  Sub-card — used inside sections (methodology progression, etc.)
+*/
+
+.report-sub-card {
+  background: var(--dark-forest);
+
+  border: 1px solid var(--border-gold-subtle);
+
+  border-radius: 2px;
+
+  padding: 28px 32px;
+
+  margin-top: 32px;
+
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.report-sub-card:hover {
+  border-color: var(--border-gold);
+}
+
+.report-sub-card-label {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  color: var(--gold-light);
+
+  margin-bottom: 8px;
+}
+
+.report-sub-card-title {
+  margin: 0;
+
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 22px;
+
+  font-weight: 600;
+
+  line-height: 30px;
+
+  color: var(--warm-white);
+}
+
+.report-sub-card-description {
+  margin: 12px 0 0;
+
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 15px;
+
+  line-height: 24px;
+
+  color: var(--on-surface-variant);
+
+  max-width: 640px;
+}
+
+/*
+  Capacity state card — used in progression
+*/
+
+.capacity-state-card {
+  flex: 1;
+
+  min-width: 135px;
+
+  background: var(--forest-green);
+
+  border: 1px solid var(--border-gold-subtle);
+
+  border-radius: 2px;
+
+  padding: 16px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: flex-start;
+
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.capacity-state-card:hover {
+  border-color: var(--gold);
+
+  background: rgba(8, 47, 37, 0.85);
+}
+
+.capacity-state-card-number {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 24px;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  color: var(--gold);
+}
+
+.capacity-state-card-code {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  color: var(--gold-light);
+
+  padding: 2px 6px;
+
+  border: 1px solid var(--border-gold-subtle);
+
+  background: var(--deep-forest);
+}
+
+.capacity-state-card-title {
+  margin: 8px 0 4px;
+
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+
+  font-size: 16px;
+
+  font-weight: 600;
+
+  line-height: 22px;
+
+  color: var(--warm-white);
+}
+
+.capacity-state-card-description {
+  margin: 0;
+
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+
+  font-size: 12px;
+
+  line-height: 18px;
+
+  color: var(--on-surface-variant);
 }
 
 /* =========================================================
@@ -1429,11 +1887,9 @@ select:focus {
 .site-footer {
   width: 100%;
 
-  min-height: 120px;
-
   margin: 0;
 
-  padding: 32px var(--margin-x);
+  padding: 48px var(--margin-x) 0;
 
   background: var(--deep-forest);
 }
@@ -1451,7 +1907,11 @@ select:focus {
 
   justify-content: space-between;
 
-  gap: 32px;
+  gap: 48px;
+
+  padding-bottom: 32px;
+
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .footer-brand {
@@ -1459,7 +1919,9 @@ select:focus {
 
   flex-direction: column;
 
-  gap: 6px;
+  gap: 8px;
+
+  max-width: 320px;
 }
 
 .footer-brand a {
@@ -1467,9 +1929,11 @@ select:focus {
 
   font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
 
-  font-size: 23px;
+  font-size: 24px;
 
   font-weight: 700;
+
+  letter-spacing: -0.02em;
 }
 
 .footer-brand span {
@@ -1479,7 +1943,15 @@ select:focus {
 
   font-size: 13px;
 
-  line-height: 18px;
+  line-height: 20px;
+}
+
+.footer-copyright {
+  margin-top: 8px;
+
+  font-size: 12px !important;
+
+  color: var(--outline) !important;
 }
 
 .footer-nav {
@@ -1489,13 +1961,11 @@ select:focus {
 
   flex-wrap: wrap;
 
-  gap: 24px;
-
-  margin-top: 0;
+  gap: 16px 24px;
 
   font-family: var(--font-inter), Inter, Arial, sans-serif;
 
-  font-size: 13px;
+  font-size: 12px;
 
   color: var(--muted-green-grey);
 }
@@ -1506,6 +1976,28 @@ select:focus {
 
 .footer-nav a:hover {
   color: var(--gold);
+}
+
+.footer-bottom {
+  width: 100%;
+
+  max-width: var(--container-max-width);
+
+  margin: 0 auto;
+
+  padding: 20px 0;
+
+  text-align: center;
+}
+
+.footer-bottom-text {
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 11px;
+
+  color: var(--outline);
+
+  letter-spacing: 0.04em;
 }
 
 /* =========================================================
@@ -1742,7 +2234,7 @@ select:focus {
   .report-content-layout {
     grid-template-columns: 200px minmax(0, 1fr);
 
-    gap: 32px;
+    gap: 48px;
 
     padding-left: var(--margin-x);
 
@@ -1899,7 +2391,7 @@ select:focus {
   }
 
   .section-number {
-    font-size: 56px;
+    font-size: 48px;
   }
 
   .section-title {
@@ -1963,7 +2455,7 @@ select:focus {
   --------------------------------------------- */
 
   .site-footer {
-    padding: 32px var(--margin-x);
+    padding: 40px var(--margin-x) 0;
   }
 
   .footer-inner {
@@ -1971,11 +2463,19 @@ select:focus {
 
     align-items: flex-start;
 
-    gap: 24px;
+    gap: 32px;
+  }
+
+  .footer-brand {
+    max-width: 100%;
   }
 
   .footer-nav {
     gap: 12px 20px;
+  }
+
+  .footer-bottom {
+    padding: 16px 0;
   }
 }
 
@@ -2006,6 +2506,18 @@ select:focus {
     padding-left: 16px;
 
     padding-right: 16px;
+  }
+
+  .section-description p {
+    font-size: 15px;
+
+    line-height: 26px;
+  }
+
+  .section-description li {
+    font-size: 15px;
+
+    line-height: 24px;
   }
 }
 

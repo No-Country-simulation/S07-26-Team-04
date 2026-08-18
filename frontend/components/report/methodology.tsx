@@ -29,25 +29,21 @@ export function Methodology({ reportId }: { reportId?: string } = {}) {
       section.title.toLowerCase().includes("metodologia")
   );
 
-  if (!infoMethodology) {
-    return null;
-  }
-
   return (
     <section id="methodology" className="report-section">
       {/* Encabezado */}
       <div className="report-section-header">
-        <div className="section-number">04</div>
+        <span className="section-number">04</span>
 
         <div>
           <h2 className="section-title">
-            {infoMethodology?.title.replace(/^\d+\s+[—-]\s*/i, "")}
+            {infoMethodology?.title.replace(/^\d+\s+[—-]\s*/i, "") ?? "Metodología"}
           </h2>
 
           <SectionContent
             content={
               infoMethodology?.content ??
-              "No se encontró el contenido de la metodología"
+              "La sección de metodología no está disponible en este momento."
             }
           />
         </div>
@@ -57,16 +53,16 @@ export function Methodology({ reportId }: { reportId?: string } = {}) {
           PROGRESIÓN
       ================================================ */}
 
-      <div className="border border-[#c9a227]/30 p-6 lg:p-8  mt-10">
-        <div className="text-label-caps text-[var(--gold)] mb-2 mt-4">
+      <div className="report-sub-card">
+        <div className="report-sub-card-label">
           PROGRESIÓN DE ESTADOS DE CAPACIDAD
         </div>
 
-        <h3 className="text-headline-md text-[var(--warm-white)]">
+        <h3 className="report-sub-card-title">
           De capacidad instalada a capacidad productiva
         </h3>
 
-        <p className="text-body-md text-[var(--on-surface-variant)] mt-3 max-w-3xl">
+        <p className="report-sub-card-description">
           Cada transición representa una condición necesaria para que la
           capacidad física de un centro de datos pueda convertirse finalmente en
           trabajo útil.

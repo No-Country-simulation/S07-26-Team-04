@@ -33,13 +33,13 @@ export function TaxonomySection({ reportId }: { reportId?: string } = {}) {
 
           <div>
             <h2 className="section-title">
-              {infoTaxonomy?.title ?? "Título no disponible"}
+              {infoTaxonomy?.title ?? "Taxonomía"}
             </h2>
 
             <SectionContent
               content={
                 infoTaxonomy?.content ??
-                "No se encontró la descripción de la taxonomía."
+                "La sección de taxonomía no está disponible en este momento."
               }
             />
           </div>

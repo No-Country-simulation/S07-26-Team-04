@@ -53,13 +53,13 @@ export function Introduction({ reportId }: { reportId?: string } = {}) {
 
         <div>
           <h2 className="section-title">
-            {infoIntroduction?.title.replace(/^\d+\s+[—-]\s*/i, "")}
+            {infoIntroduction?.title.replace(/^\d+\s+[—-]\s*/i, "") ?? "Introducción"}
           </h2>
 
           <SectionContent
             content={
               infoIntroduction?.content ??
-              "No se encontró el contenido de la introducción."
+              "La introducción del reporte no está disponible en este momento."
             }
           />
 
