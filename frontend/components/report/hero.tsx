@@ -116,7 +116,7 @@ export function Hero({ reportId }: { reportId?: string } = {}) {
           </p>
 
           {/* Metadata */}
-          <div className="hero-meta pt-10 mt-4 border-t border-[#c9a227]/20 mx-auto">
+          <div className="hero-meta pt-10 mt-4">
             <div className="hero-meta-grid">
               <div className="hero-meta-item">
                 <p className="hero-meta-label">Autor</p>

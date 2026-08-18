@@ -659,55 +659,13 @@ button {
 .hero-meta {
   width: 100%;
 
-  max-width: 1000px;
+  max-width: 900px;
 
-  display: flex;
-
-  flex-wrap: wrap;
-
-  align-items: flex-start;
-
-  gap: 36px;
+  margin: 0 auto;
 
   padding-top: 24px;
 
   border-top: 1px solid var(--border-gold-subtle);
-}
-
-.hero-meta > div {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 6px;
-}
-
-.hero-meta > span {
-  font-family: var(--font-inter), Inter, Arial, sans-serif;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  line-height: 16px;
-
-  letter-spacing: 0.12em;
-
-  text-transform: uppercase;
-
-  color: var(--muted-green-grey);
-}
-
-.hero-meta > strong {
-  font-family: var(--font-inter), Inter, Arial, sans-serif;
-
-  font-size: 13px;
-
-  font-weight: 400;
-
-  line-height: 18px;
-
-  color: var(--on-surface-variant);
 }
 
 /* =========================================================
@@ -2175,12 +2133,6 @@ select:focus {
     width: 100%;
   }
 
-  .hero-meta {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-
-    gap: 24px;
-  }
-
   .hero-meta-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -2347,10 +2299,6 @@ select:focus {
    ========================================================= */
 
 @media (max-width: 480px) {
-  .hero-meta {
-    grid-template-columns: 1fr;
-  }
-
   .hero-meta-grid {
     grid-template-columns: 1fr;
   }
