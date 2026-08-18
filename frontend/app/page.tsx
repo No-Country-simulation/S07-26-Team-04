@@ -13,6 +13,7 @@ import { Introduction } from "@/components/report/introduction";
 import { FigurasSection } from "@/components/report/figuras-section";
 import { Conclusion } from "@/components/report/conclusion";
 import { Citation } from "@/components/report/citation";
+import { ScrollReveal } from "@/components/report/scroll-reveal";
 
 export default function HomePage() {
   return (
@@ -22,26 +23,39 @@ export default function HomePage() {
       ================================================= */}
 
       <Hero />
-      
 
       {/* =================================================
           CONTENT
       ================================================= */}
 
       <ReportContent>
-        <ExecutiveSummary />
+        <ScrollReveal>
+          <ExecutiveSummary />
+        </ScrollReveal>
 
-        <Introduction />
+        <ScrollReveal>
+          <Introduction />
+        </ScrollReveal>
 
-        <TaxonomySection />
+        <ScrollReveal>
+          <TaxonomySection />
+        </ScrollReveal>
 
-        <Methodology />
+        <ScrollReveal>
+          <Methodology />
+        </ScrollReveal>
 
-        <FigurasSection />
+        <ScrollReveal>
+          <FigurasSection />
+        </ScrollReveal>
 
-        <Conclusion />
+        <ScrollReveal>
+          <Conclusion />
+        </ScrollReveal>
 
-        <Citation />
+        <ScrollReveal>
+          <Citation />
+        </ScrollReveal>
       </ReportContent>
 
       {/* =================================================
