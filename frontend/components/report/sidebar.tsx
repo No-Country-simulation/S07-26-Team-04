@@ -145,7 +145,7 @@ export function ReportSidebar() {
                             hover:bg-[#082f25]
                             ${
                               isActive
-                                ? "text-[#c6a13a] font-bold border-l-2 border-[#c6a13a]"
+                                ? "text-[#c6a13a] font-bold"
                                 : "text-[#a6aaa2] hover:text-[#c6a13a]"
                             }
                           `}
