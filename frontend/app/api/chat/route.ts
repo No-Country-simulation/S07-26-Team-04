@@ -6,8 +6,10 @@ import {
   createUIMessageStreamResponse,
   toUIMessageStream,
   jsonSchema,
+  isStepCount,
   type UIMessage,
 } from 'ai';
+
 
 import { prisma } from '@/lib/prisma';
 import type { ReportSection } from '@/lib/report-parser';
