@@ -69,32 +69,38 @@ export function ReportSidebar() {
   const [activeSection, setActiveSection] = useState<string>("01 - RESUMEN");
 
   useEffect(() => {
-    const observerCallback: IntersectionObserverCallback = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const matching = sections.find((s) => s.url === `#${entry.target.id}`);
-          if (matching) {
-            setActiveSection(matching.title);
+    const handleScroll = () => {
+      const isAtBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 80;
+
+      if (isAtBottom) {
+        setActiveSection("07 - CITAR");
+        return;
+      }
+
+      let currentSection = sections[0].title;
+      let minDistance = Infinity;
+
+      sections.forEach((section) => {
+        const id = section.url.replace("#", "");
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          const distance = Math.abs(rect.top - 140);
+          if (rect.top <= 380 && distance < minDistance) {
+            minDistance = distance;
+            currentSection = section.title;
           }
         }
       });
+
+      setActiveSection(currentSection);
     };
 
-    const observerOptions: IntersectionObserverInit = {
-      root: null,
-      rootMargin: "-15% 0px -65% 0px",
-      threshold: 0,
-    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
 
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-
-    sections.forEach((section) => {
-      const id = section.url.replace("#", "");
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
