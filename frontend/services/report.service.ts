@@ -12,62 +12,76 @@ import { MainFindings } from "@/types/main-findings";
 import { Methodology } from "@/types/methodology";
 import { Taxonomy } from "@/types/taxonomy";
 
-export async function getHero(): Promise<Hero> {
-    const response = await api.get<Hero>("/report");
-    return response.data;
-};
+const reportCache = new Map<string, Promise<unknown>>();
 
-export async function getMainFindings(): Promise<MainFindings> {
-    const response = await api.get<MainFindings>("/report");
-    return response.data;
-};
+export async function fetchReportCached<T = Record<string, unknown>>(id?: string): Promise<T> {
+  const cacheKey = id || "current";
+  if (!reportCache.has(cacheKey)) {
+    const url = id ? `/report/${id}` : "/report";
+    const promise = api
+      .get(url)
+      .then((res) => res.data)
+      .catch((err) => {
+        reportCache.delete(cacheKey);
+        throw err;
+      });
+    reportCache.set(cacheKey, promise);
+  }
+  return reportCache.get(cacheKey) as Promise<T>;
+}
 
-export async function getIntroduction(): Promise<Introduction> {
-    const response = await api.get<Introduction>("/report");
-    return response.data;
-};
+export function clearReportCache(id?: string) {
+  if (id) {
+    reportCache.delete(id);
+  } else {
+    reportCache.clear();
+  }
+}
 
-export async function getExecutiveSummary(): Promise<ExecutiveSummary> {
-    const response = await api.get<ExecutiveSummary>("/report");
-    return response.data;
-};
+export async function getHero(id?: string): Promise<Hero> {
+    return fetchReportCached<Hero>(id);
+}
 
-export async function getTaxonomy(): Promise<Taxonomy> {
-    const response = await api.get<Taxonomy>("/report");
-    return response.data;
-};
+export async function getMainFindings(id?: string): Promise<MainFindings> {
+    return fetchReportCached<MainFindings>(id);
+}
 
-export async function getMethodology(): Promise<Methodology> {
-    const response = await api.get<Methodology>("/report");
-    return response.data;
-};
+export async function getIntroduction(id?: string): Promise<Introduction> {
+    return fetchReportCached<Introduction>(id);
+}
 
-export async function getFigures(): Promise<Figure> {
-    const response = await api.get<Figure>("/report");
-    return response.data;
-};
+export async function getExecutiveSummary(id?: string): Promise<ExecutiveSummary> {
+    return fetchReportCached<ExecutiveSummary>(id);
+}
 
-export async function getBarChart(): Promise<BarChart> {
-    const response = await api.get<BarChart>("/report");
-    return response.data;
-};
+export async function getTaxonomy(id?: string): Promise<Taxonomy> {
+    return fetchReportCached<Taxonomy>(id);
+}
 
-export async function getLineChart(): Promise<LineChart> {
-    const response = await api.get<LineChart>("/report");
-    return response.data;
-};
+export async function getMethodology(id?: string): Promise<Methodology> {
+    return fetchReportCached<Methodology>(id);
+}
 
-export async function getConclusion(): Promise<Conclusion> {
-    const response = await api.get<Conclusion>("/report");
-    return response.data;
-};
+export async function getFigures(id?: string): Promise<Figure> {
+    return fetchReportCached<Figure>(id);
+}
 
-export async function getCitation(): Promise<Citation> {
-    const response = await api.get<Citation>("/report");
-    return response.data;
-};
+export async function getBarChart(id?: string): Promise<BarChart> {
+    return fetchReportCached<BarChart>(id);
+}
 
-export async function getReportData() {
-    const response = await api.get("/report");
-    return response.data;
+export async function getLineChart(id?: string): Promise<LineChart> {
+    return fetchReportCached<LineChart>(id);
+}
+
+export async function getConclusion(id?: string): Promise<Conclusion> {
+    return fetchReportCached<Conclusion>(id);
+}
+
+export async function getCitation(id?: string): Promise<Citation> {
+    return fetchReportCached<Citation>(id);
+}
+
+export async function getReportData(id?: string): Promise<Record<string, unknown>> {
+    return fetchReportCached<Record<string, unknown>>(id);
 }
