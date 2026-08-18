@@ -1691,6 +1691,339 @@ select:focus {
 }
 
 /* =========================================================
+   HERO META — GRID LAYOUT (hevieri)
+   ========================================================= */
+
+.hero-meta-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 28px 40px;
+}
+
+.hero-meta-item {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 6px;
+}
+
+.hero-meta-label {
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  line-height: 16px;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  color: var(--muted-green-grey);
+
+  margin: 0;
+}
+
+.hero-meta-value {
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 14px;
+
+  font-weight: 400;
+
+  line-height: 20px;
+
+  color: var(--on-surface-variant);
+
+  margin: 0;
+}
+
+.hero-meta-value--mono {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+
+  font-size: 13px;
+}
+
+.hero-meta-value--version {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+
+  font-size: 13px;
+
+  color: var(--gold);
+}
+
+/* =========================================================
+   HEADER NAVIGATION (hevieri)
+   ========================================================= */
+
+.header-nav-link {
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.04em;
+
+  color: var(--on-surface-variant);
+
+  padding: 4px 0;
+
+  position: relative;
+
+  transition: color 160ms ease;
+}
+
+.header-nav-link::after {
+  content: "";
+
+  position: absolute;
+
+  bottom: 0;
+
+  left: 0;
+
+  width: 0;
+
+  height: 1px;
+
+  background: var(--gold);
+
+  transition: width 200ms ease;
+}
+
+.header-nav-link:hover {
+  color: var(--gold);
+}
+
+.header-nav-link:hover::after {
+  width: 100%;
+}
+
+.header-download-btn {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  height: 32px;
+
+  padding: 0 14px;
+
+  background: var(--gold);
+
+  color: var(--deep-forest);
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+
+  border: 1px solid var(--gold-light);
+
+  border-radius: 2px;
+
+  cursor: pointer;
+
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.header-download-btn:hover {
+  background: var(--gold-light);
+
+  border-color: var(--gold-light);
+
+  transform: translateY(-1px);
+}
+
+.header-download-btn:active {
+  transform: translateY(0);
+}
+
+/* =========================================================
+   MOBILE MENU (hevieri)
+   ========================================================= */
+
+.header-hamburger {
+  display: none;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 36px;
+
+  height: 36px;
+
+  margin-left: auto;
+
+  background: none;
+
+  border: 1px solid var(--border-gold-subtle);
+
+  border-radius: 2px;
+
+  color: var(--on-surface-variant);
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.header-hamburger:hover {
+  color: var(--gold);
+
+  border-color: var(--gold);
+}
+
+.mobile-menu-overlay {
+  display: none;
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 90;
+
+  background: rgba(0, 0, 0, 0.6);
+
+  backdrop-filter: blur(4px);
+}
+
+.mobile-menu {
+  display: none;
+
+  position: fixed;
+
+  top: 0;
+
+  right: 0;
+
+  z-index: 100;
+
+  width: 280px;
+
+  height: 100vh;
+
+  background: var(--deep-forest);
+
+  border-left: 1px solid var(--border-gold-subtle);
+
+  transform: translateX(100%);
+
+  transition: transform 300ms ease;
+
+  flex-direction: column;
+}
+
+.mobile-menu--open {
+  transform: translateX(0);
+}
+
+.mobile-menu-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 16px 20px;
+
+  border-bottom: 1px solid var(--border-gold-subtle);
+}
+
+.mobile-menu-close {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 32px;
+
+  height: 32px;
+
+  background: none;
+
+  border: 1px solid var(--border-gold-subtle);
+
+  border-radius: 2px;
+
+  color: var(--on-surface-variant);
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.mobile-menu-close:hover {
+  color: var(--gold);
+
+  border-color: var(--gold);
+}
+
+.mobile-menu-nav {
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  padding: 12px 0;
+
+  overflow-y: auto;
+}
+
+.mobile-menu-link {
+  display: block;
+
+  padding: 12px 20px;
+
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+
+  font-size: 13px;
+
+  font-weight: 500;
+
+  color: var(--on-surface-variant);
+
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.mobile-menu-link:hover {
+  color: var(--gold);
+
+  background: rgba(201, 162, 39, 0.06);
+}
+
+.mobile-menu-footer {
+  padding: 16px 20px;
+
+  border-top: 1px solid var(--border-gold-subtle);
+}
+
+/* =========================================================
    RESPONSIVE — TABLET
    ========================================================= */
 
@@ -1769,6 +2102,20 @@ select:focus {
     display: none;
   }
 
+  .header-hamburger {
+    display: flex;
+
+    margin-left: auto;
+  }
+
+  .mobile-menu-overlay {
+    display: block;
+  }
+
+  .mobile-menu {
+    display: flex;
+  }
+
   /* ---------------------------------------------
      Hero
   --------------------------------------------- */
@@ -1816,6 +2163,12 @@ select:focus {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 
     gap: 24px;
+  }
+
+  .hero-meta-grid {
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 24px 32px;
   }
 
   /* ---------------------------------------------
@@ -1970,6 +2323,12 @@ select:focus {
 @media (max-width: 480px) {
   .hero-meta {
     grid-template-columns: 1fr;
+  }
+
+  .hero-meta-grid {
+    grid-template-columns: 1fr;
+
+    gap: 16px;
   }
 
   .report-hero h1 {
