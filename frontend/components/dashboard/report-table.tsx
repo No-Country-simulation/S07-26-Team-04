@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FileEdit, Eye, FileCheck, FileClock, Archive } from "lucide-react";
+import { FileEdit, Eye, FileCheck, FileClock, Archive, Send, Loader2 } from "lucide-react";
+import { SlidingNumber } from "@/components/animate-ui/primitives/texts/sliding-number";
+import { clearReportCache } from "@/services/report.service";
 
 interface Report {
   id: string;
@@ -23,26 +25,63 @@ interface ReportTableProps {
 export function ReportTable({ statusFilter, title, description }: ReportTableProps) {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchReports() {
+    let isMounted = true;
+    async function loadReports() {
       try {
         setLoading(true);
         const res = await fetch(`/api/report?status=${statusFilter}`);
         if (!res.ok) throw new Error("Error al obtener reportes");
         const data = await res.json();
-        setReports(Array.isArray(data) ? data : [data]);
+        if (isMounted) {
+          setReports(Array.isArray(data) ? data : [data]);
+        }
       } catch (err: unknown) {
         const errorObj = err as { message?: string };
-        setError(errorObj.message || "Ocurrió un error");
+        if (isMounted) {
+          setError(errorObj.message || "Ocurrió un error");
+        }
       } finally {
-
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
-    fetchReports();
+    void loadReports();
+    return () => {
+      isMounted = false;
+    };
   }, [statusFilter]);
+
+  const handleStatusChange = async (reportId: string, newStatus: 'published' | 'draft' | 'archived') => {
+    try {
+      setUpdatingId(reportId);
+      const res = await fetch(`/api/report/${reportId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error("Error al actualizar estado");
+
+      clearReportCache(reportId);
+      clearReportCache();
+
+      if (statusFilter !== 'all') {
+        setReports((prev) => prev.filter((r) => r.id !== reportId));
+      } else {
+        setReports((prev) =>
+          prev.map((r) => (r.id === reportId ? { ...r, status: newStatus } : r))
+        );
+      }
+    } catch (err) {
+      console.error("Error al cambiar estado del reporte:", err);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const getStatusBadge = (status: Report['status']) => {
     switch (status) {
@@ -72,9 +111,18 @@ export function ReportTable({ statusFilter, title, description }: ReportTablePro
   return (
     <div className="space-y-6 font-sans text-[#DAD7CD]">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#3a5345] pb-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-[#DAD7CD]">{title}</h2>
-          <p className="text-sm text-[#A3B18A]">{description}</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-bold tracking-tight text-[#DAD7CD]">{title}</h2>
+              {!loading && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#c9a227]/20 text-[#ecc246] border border-[#c9a227]/40">
+                  <SlidingNumber number={reports.length} />
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-[#A3B18A]">{description}</p>
+          </div>
         </div>
         <Link
           href="/dashboard/editor/nuevo"
@@ -126,23 +174,64 @@ export function ReportTable({ statusFilter, title, description }: ReportTablePro
                     {report.publishedAt ? new Date(report.publishedAt).toLocaleDateString() : '—'}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link
-                        href={`/dashboard/editor/editar/${report.id}`}
-                        className="p-1.5 rounded-md hover:bg-[#344E41] text-[#A3B18A] hover:text-[#ecc246] transition-colors"
-                        title="Editar"
-                      >
-                        <FileEdit className="h-4 w-4" />
-                      </Link>
-                      {report.status === 'published' && (
-                        <Link
-                          href={`/?slug=${report.slug}`}
-                          target="_blank"
-                          className="p-1.5 rounded-md hover:bg-[#344E41] text-[#A3B18A] hover:text-[#ecc246] transition-colors"
-                          title="Ver en Home"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Link>
+                    <div className="flex items-center justify-end gap-1.5">
+                      {updatingId === report.id ? (
+                        <div className="p-1.5 text-[#ecc246]">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      ) : (
+                        <>
+                          {/* Quick status change buttons */}
+                          {report.status !== 'published' && (
+                            <button
+                              type="button"
+                              onClick={() => handleStatusChange(report.id, 'published')}
+                              className="p-1.5 rounded-md hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 transition-colors"
+                              title="Publicar Reporte"
+                            >
+                              <Send className="h-4 w-4" />
+                            </button>
+                          )}
+
+                          {report.status !== 'draft' && (
+                            <button
+                              type="button"
+                              onClick={() => handleStatusChange(report.id, 'draft')}
+                              className="p-1.5 rounded-md hover:bg-amber-500/20 text-amber-400 hover:text-amber-300 transition-colors"
+                              title="Mover a Borradores"
+                            >
+                              <FileClock className="h-4 w-4" />
+                            </button>
+                          )}
+
+                          {report.status !== 'archived' && (
+                            <button
+                              type="button"
+                              onClick={() => handleStatusChange(report.id, 'archived')}
+                              className="p-1.5 rounded-md hover:bg-slate-500/20 text-slate-400 hover:text-slate-300 transition-colors"
+                              title="Archivar Reporte"
+                            >
+                              <Archive className="h-4 w-4" />
+                            </button>
+                          )}
+
+                          <Link
+                            href={`/dashboard/editor/editar/${report.id}`}
+                            className="p-1.5 rounded-md hover:bg-[#344E41] text-[#A3B18A] hover:text-[#ecc246] transition-colors"
+                            title="Editar"
+                          >
+                            <FileEdit className="h-4 w-4" />
+                          </Link>
+
+                          <Link
+                            href={`/report/${report.id}`}
+                            target="_blank"
+                            className="p-1.5 rounded-md hover:bg-[#344E41] text-[#A3B18A] hover:text-[#ecc246] transition-colors"
+                            title="Ver Vista Previa"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Link>
+                        </>
                       )}
                     </div>
                   </td>

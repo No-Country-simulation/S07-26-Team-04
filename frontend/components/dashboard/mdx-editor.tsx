@@ -19,10 +19,11 @@ import {
   CheckCircle,
   AlertCircle,
   FileText,
-  PlusCircle,
   ArrowLeft,
   Columns
 } from "lucide-react";
+import { Highlight } from "@/components/animate-ui/primitives/effects/highlight";
+import { clearReportCache } from "@/services/report.service";
 import { useRouter } from "next/navigation";
 import {
   BarChart as RechartsBarChart,
@@ -138,11 +139,19 @@ export function MdxEditor({ initialReportId, onSaved }: MdxEditorProps) {
   const router = useRouter();
   const [content, setContent] = useState<string>("");
   const [reportId, setReportId] = useState<string | null>(initialReportId || null);
+  const [reportStatus, setReportStatus] = useState<"draft" | "published" | "archived">("draft");
   const [activeView, setActiveView] = useState<"split" | "editor" | "preview">("split");
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [statusMsg, setStatusMsg] = useState<{ success?: boolean; text?: string } | null>(null);
   const [, startTransition] = useTransition();
+
+  // Función helper para remover `status:` y `publishedAt:` del texto MDX
+  const cleanMdxFrontmatter = (mdxText: string) => {
+    return mdxText
+      .replace(/^\s*publishedAt:\s*.*(?:\r?\n)?/gm, "")
+      .replace(/^\s*status:\s*.*(?:\r?\n)?/gm, "");
+  };
 
   // Cargar plantilla por defecto
   const handleLoadTemplate = useCallback(async () => {
@@ -152,7 +161,8 @@ export function MdxEditor({ initialReportId, onSaved }: MdxEditorProps) {
       const res = await fetch("/templates/plantilla-reporte-physaflow.mdx");
       if (res.ok) {
         const templateText = await res.text();
-        setContent(templateText);
+        setContent(cleanMdxFrontmatter(templateText));
+        setReportStatus("draft");
         setStatusMsg({
           success: true,
           text: "Plantilla oficial MDX cargada correctamente.",
@@ -174,18 +184,19 @@ export function MdxEditor({ initialReportId, onSaved }: MdxEditorProps) {
           const data = await res.json();
           if (res.ok && data && isMounted) {
             const rep = data.report || data;
+            if (rep.status) {
+              setReportStatus(rep.status);
+            }
             
             if (rep.mdxContent && typeof rep.mdxContent === "string" && rep.mdxContent.trim()) {
-              setContent(rep.mdxContent);
+              setContent(cleanMdxFrontmatter(rep.mdxContent));
             } else {
               const frontmatterObj: Record<string, unknown> = {
                 title: rep.title || "",
                 slug: rep.slug || "",
                 version: rep.version || "1.0.0",
                 language: rep.language || "es",
-                status: rep.status || "draft",
                 description: rep.description || "",
-                publishedAt: rep.publishedAt || null,
               };
 
               let bodyMarkdown = "";
@@ -213,7 +224,7 @@ export function MdxEditor({ initialReportId, onSaved }: MdxEditorProps) {
               }
 
               const yamlHeader = matter.stringify(bodyMarkdown, frontmatterObj);
-              setContent(yamlHeader);
+              setContent(cleanMdxFrontmatter(yamlHeader));
             }
 
             setReportId(rep.id);
@@ -257,43 +268,55 @@ export function MdxEditor({ initialReportId, onSaved }: MdxEditorProps) {
     setSaving(true);
     setStatusMsg(null);
 
-    try {
-      const { data: frontmatter, content: bodyContent } = matter(content);
-      const targetStatus = statusOverride || frontmatter.status || "draft";
-
-      // Extraer secciones básicas del markdown divididas por H1 (# )
-      const sectionBlocks = bodyContent.split(/^# /m).filter(Boolean);
-      const sections = sectionBlocks.map((block, idx) => {
-        const lines = block.trim().split("\n");
-        const title = lines[0].trim();
-        const secContent = lines.slice(1).join("\n").trim();
-        return {
-          id: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "") || `sec-${idx + 1}`,
-          level: 1,
-          title,
-          content: secContent,
-        };
+    if (!content || typeof content !== "string" || !content.trim()) {
+      setStatusMsg({
+        success: false,
+        text: "El contenido del editor está vacío. Carga la plantilla oficial o escribe en el editor.",
       });
+      setSaving(false);
+      return;
+    }
+
+    try {
+      const { data: frontmatter } = matter(content);
+      // El estado se determina EXCLUSIVAMENTE por el botón presionado (Guardar Borrador vs Publicar)
+      const targetStatus = statusOverride || "draft";
+
+      // Extraer título si no viene en frontmatter
+      let extractedTitle = frontmatter.title;
+      if (!extractedTitle) {
+        const titleMatch = content.match(/^#\s+(.+)$/m);
+        if (titleMatch) {
+          extractedTitle = titleMatch[1].trim();
+        }
+      }
+
+      // Extraer slug o generar a partir del título
+      let extractedSlug = frontmatter.slug;
+      if (!extractedSlug && extractedTitle) {
+        extractedSlug = extractedTitle
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
 
       const payload = {
-        title: frontmatter.title || "Reporte sin título",
-        slug: frontmatter.slug || `reporte-${Date.now()}`,
+        title: extractedTitle || "Índice de Capacidad Varada (SCI)",
+        slug: extractedSlug || `reporte-${Date.now()}`,
+        mdxContent: content,
         version: frontmatter.version || "1.0.0",
         language: frontmatter.language || "es",
         status: targetStatus,
         description: frontmatter.description || null,
-        sections: sections.length > 0 ? sections : [
-          {
-            id: "principal",
-            level: 1,
-            title: frontmatter.title || "Contenido Principal",
-            content: bodyContent,
-          }
-        ],
       };
 
-      const res = await fetch("/api/report", {
-        method: "POST",
+      const url = reportId ? `/api/report/${reportId}` : "/api/report";
+      const method = reportId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -302,6 +325,9 @@ export function MdxEditor({ initialReportId, onSaved }: MdxEditorProps) {
 
       if (res.ok) {
         setReportId(data.id || reportId);
+        setReportStatus(targetStatus);
+        clearReportCache(data.id);
+        clearReportCache();
         setStatusMsg({
           success: true,
           text: `¡Reporte ${targetStatus === "published" ? "publicado" : "guardado como borrador"} exitosamente!`,
@@ -348,49 +374,74 @@ export function MdxEditor({ initialReportId, onSaved }: MdxEditorProps) {
             <ArrowLeft className="h-3.5 w-3.5" />
           </button>
 
-          <div className="flex items-center gap-0.5 bg-[#344E41] p-0.5 rounded-md border border-[#3a5345] text-xs">
-            <button
-              onClick={() => setActiveView("split")}
-              className={`flex items-center gap-1 px-2 py-0.5 rounded transition text-[10px] font-semibold ${
-                activeView === "split"
-                  ? "bg-[#273a2f] text-[#ecc246] shadow-sm"
-                  : "text-[#DAD7CD]/70 hover:text-[#DAD7CD]"
-              }`}
-            >
-              <Columns className="w-3 h-3" />
-              <span>Pantalla Dividida</span>
-            </button>
-            <button
-              onClick={() => setActiveView("editor")}
-              className={`flex items-center gap-1 px-2 py-0.5 rounded transition text-[10px] font-semibold ${
-                activeView === "editor"
-                  ? "bg-[#273a2f] text-[#ecc246] shadow-sm"
-                  : "text-[#DAD7CD]/70 hover:text-[#DAD7CD]"
-              }`}
-            >
-              <Code className="w-3 h-3" />
-              <span>Solo Código</span>
-            </button>
-            <button
-              onClick={() => setActiveView("preview")}
-              className={`flex items-center gap-1 px-2 py-0.5 rounded transition text-[10px] font-semibold ${
-                activeView === "preview"
-                  ? "bg-[#273a2f] text-[#ecc246] shadow-sm"
-                  : "text-[#DAD7CD]/70 hover:text-[#DAD7CD]"
-              }`}
-            >
-              <Eye className="w-3 h-3" />
-              <span>Vista Previa</span>
-            </button>
-          </div>
-
-          <button
-            onClick={handleLoadTemplate}
-            className="btn-gold-primary !px-2.5 !py-0.5 !text-[10px] !rounded"
+          <Highlight
+            mode="parent"
+            value={activeView}
+            onValueChange={(val) => val && setActiveView(val as "split" | "editor" | "preview")}
+            className="rounded bg-[#273a2f] border border-[#c9a227]/40 shadow-sm"
+            containerClassName="flex items-center gap-0.5 bg-[#344E41] p-0.5 rounded-md border border-[#3a5345]"
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
           >
-            <PlusCircle className="w-3 h-3" />
-            <span>Cargar Plantilla MDX</span>
-          </button>
+            <button
+              data-value="split"
+              onClick={() => setActiveView("split")}
+              style={{ fontSize: "9px", lineHeight: "12px" }}
+              className={`relative z-10 flex items-center gap-1 px-1.5 py-0.5 rounded font-semibold tracking-tight cursor-pointer transition-colors ${
+                activeView === "split"
+                  ? "text-[#ecc246]"
+                  : "text-[#DAD7CD]/70 hover:text-[#DAD7CD]"
+              }`}
+            >
+              <Columns className="w-2.5 h-2.5" />
+              <span style={{ fontSize: "10px" }}>Pantalla Dividida</span>
+            </button>
+            <button
+              data-value="editor"
+              onClick={() => setActiveView("editor")}
+              style={{ fontSize: "10px", lineHeight: "12px" }}
+              className={`relative z-10 flex items-center gap-1 px-1.5 py-0.5 rounded font-semibold tracking-tight cursor-pointer transition-colors ${
+                activeView === "editor"
+                  ? "text-[#ecc246]"
+                  : "text-[#DAD7CD]/70 hover:text-[#DAD7CD]"
+              }`}
+            >
+              <Code className="w-2.5 h-2.5" />
+              <span style={{ fontSize: "10px" }}>Solo Código</span>
+            </button>
+            <button
+              data-value="preview"
+              onClick={() => setActiveView("preview")}
+              style={{ fontSize: "10px", lineHeight: "12px" }}
+              className={`relative z-10 flex items-center gap-1 px-1.5 py-0.5 rounded font-semibold tracking-tight cursor-pointer transition-colors ${
+                activeView === "preview"
+                  ? "text-[#ecc246]"
+                  : "text-[#DAD7CD]/70 hover:text-[#DAD7CD]"
+              }`}
+            >
+              <Eye className="w-2.5 h-2.5" />
+              <span style={{ fontSize: "10px" }}>Vista Previa</span>
+            </button>
+          </Highlight>
+
+          {/* Badge del Estado Actual en Base de Datos */}
+          <div className="ml-1">
+            {reportStatus === 'published' ? (
+              <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider font-mono rounded bg-emerald-950/90 text-emerald-400 border border-emerald-500/50 uppercase shadow-sm flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                PUBLICADO
+              </span>
+            ) : reportStatus === 'archived' ? (
+              <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider font-mono rounded bg-slate-900/90 text-slate-400 border border-slate-500/50 uppercase shadow-sm flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                ARCHIVADO
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider font-mono rounded bg-amber-950/90 text-amber-400 border border-amber-500/50 uppercase shadow-sm flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                BORRADOR
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Derecha: Botones Guardar y Publicar */}
@@ -685,10 +736,19 @@ export function MdxEditor({ initialReportId, onSaved }: MdxEditorProps) {
                     code: ({ className, children }) => {
                       const match = /language-(\w+)/.exec(className || "");
                       const codeStr = String(children).replace(/\n$/, "");
+                      const lang = match ? match[1].toLowerCase() : "";
+                      const isChartOrJson =
+                        lang === "chart" ||
+                        lang === "json" ||
+                        lang === "js" ||
+                        codeStr.includes("chartType") ||
+                        codeStr.includes('"data"');
 
-                      if (match && match[1] === "json") {
+                      if (isChartOrJson) {
                         try {
-                          const parsedObj = JSON.parse(codeStr);
+                          // Limpiar comas finales (trailing commas) comunes al editar JSON manualmente
+                          const cleanCodeStr = codeStr.replace(/,\s*([}\]])/g, "$1");
+                          const parsedObj = JSON.parse(cleanCodeStr);
                           if (parsedObj && typeof parsedObj === "object") {
                             // Extract chart data array
                             const rawData = Array.isArray(parsedObj)
