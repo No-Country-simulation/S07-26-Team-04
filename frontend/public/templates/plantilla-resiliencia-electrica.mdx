@@ -1,0 +1,202 @@
+---
+title: "Auditoría de Resiliencia Eléctrica y Pérdidas de Transformación (ERI-2026)"
+slug: "auditoria-resiliencia-electrica-2026"
+version: "1.5.0"
+language: "es"
+description: "Análisis de armónicos, factor de potencia y pérdidas de standby en sistemas UPS y transformación."
+---
+
+# Metadatos del Reporte
+
+**Autor:** Ing. Carlos Mendoza  
+**Fecha:** Enero 2026  
+**DOI:** physaflow/eri-2026-012  
+**Tiempo de lectura:** 7 min  
+**Licencia:** CC BY-SA 4.0  
+
+---
+
+# 01 — Resumen
+
+## Las fuga silenciosas de potencia en la cadena de distribución media y baja.
+
+El **Índice de Resiliencia Eléctrica (ERI)** mide el desperdicio energético derivado de distorsiones armónicas, corrientes de neutro no balanceadas y pérdidas parasitarias en transformadores y UPS de doble conversión.
+
+El estudio identificó un **22,3% de capacidad eléctrica varada o disipada en calor**, clasificada en tres niveles físicos:
+
+- **Cadena de Transformación y Tableros (9,5%)**
+- **Sistemas de Respaldo UPS (7,8%)**
+- **Distribución de Bastidor y PDU (5,0%)**
+
+---
+
+# 02 — Introducción
+
+## La energía que se paga en el medidor pero se convierte en calor inductivo.
+
+En instalaciones de gran escala (100+ MW), la calidad de la energía eléctrica se degrada por cargas no lineales masivas (fuentes conmutadas de servidores y drivers de frecuencia de chillers). 
+
+> "El 10% del dinero invertido en facturación eléctrica se pierde en vibración y calor de transformadores antes de que la corriente toque un chip."
+> 
+> *— Ingeniero Especialista en Calidad de Energía (anonimizado)*
+
+---
+
+# 03 — Descripción general de la taxonomía
+
+## Tres niveles de fricción en la distribución eléctrica.
+
+Taxonomía de modos de fallo e ineficiencias de potencia en subestaciones y salas de energía.
+
+### L1 — Cadena de Transformación y Tableros
+*Transformadores Secos · Factor de Potencia · Armónicos THD*
+
+Pérdidas de energía originadas en la conversión de media tensión a baja tensión.
+
+- **E-01 (4,1%) — Distorsión Armónica de Corriente (THDi)**
+  - **Qué se ve:** Calentamiento anómalo en el núcleo de los transformadores secos de distribución.
+  - **Cuánto cuesta:** Caída del 8% en la capacidad nominal útil del transformador (Derating).
+  - **Por qué ocurre:** Filtros pasivos de armónicos insuficientes ante la carga no lineal de fuentes de alimentación.
+
+- **E-02 (3,2%) — Desbalance de Fases en Tableros Principales**
+  - **Qué se ve:** La fase A consume 800A mientras las fases B y C consumen 500A en el mismo barraje.
+  - **Cuánto cuesta:** Corrientes peligrosas circulando por el conductor de neutro generando caídas de tensión.
+  - **Por qué ocurre:** Asignación de racks monofásicos sin balanceo dinámico de cargas en la etapa de diseño.
+
+- **E-03 (2,2%) — Penalizaciones por Factor de Potencia Inductivo**
+  - **Qué se ve:** Factor de potencia del sitio descendiendo por debajo de 0.92 en momentos de baja carga.
+  - **Cuánto cuesta:** Cargos por reactiva en la factura de la empresa distribuidora de energía.
+  - **Por qué ocurre:** Bancos de condensadores fijos que no adaptan su compensación en tiempo real.
+
+### L2 — Sistemas de Respaldo UPS
+*Double Conversion · Eco-Mode · Baterías STS*
+
+Consumos parásitos en la infraestructura de alimentación ininterrumpida de energía.
+
+- **U-01 (3,5%) — Operación en Doble Conversión Continua sin Carga Pico**
+  - **Qué se ve:** Módulos UPS operando al 25% de carga individual en topología 2N redundante.
+  - **Cuánto cuesta:** Eficiencia de conversión reducida al 89% en lugar del 97% nominal.
+  - **Por qué ocurre:** Políticas de seguridad que prohíben el uso de Eco-Mode o rotación inteligente de módulos.
+
+- **U-02 (2,6%) — Pérdida en Filtros de Entrada de UPS**
+  - **Qué se ve:** Generación de calor constante en las inductancias de entrada de los rectificadores.
+  - **Cuánto cuesta:** kW gastados permanentemente en acondicionar la onda de entrada.
+  - **Por qué ocurre:** Fuentes de alimentación de generación anterior sin corrección de factor de potencia activa (PFC).
+
+- **U-03 (1,7%) — Autoconsumo por Climatización de Salas de Baterías**
+  - **Qué se ve:** Equipos de aire acondicionado dedicados enfriando salas de baterías VRLA a 20 °C constantes.
+  - **Cuánto cuesta:** Carga térmica adicional añadida al chiller central de la planta.
+  - **Por qué ocurre:** Resistencia a migrar hacia baterías LiFePO4 capaces de operar a 30 °C sin degradación.
+
+### L3 — Distribución de Bastidor y PDU
+*Rack PDU · Caída I²R · Smart Strips*
+
+Degradación de energía en el último tramo del cableado hasta la fuente del servidor.
+
+- **P-01 (2,3%) — Caída de tensión por calibre de cable insuficiente (Pérdidas I²R)**
+  - **Qué se ve:** Caída de 8V entre el PDU de cabecera de fila y el receptáculo del servidor.
+  - **Cuánto cuesta:** Conversión de energía en calor a lo largo de las canaletas de cableado.
+  - **Por qué ocurre:** Uso de conductores de cobre subdimensionados para tiradas de cable superiores a 30 metros.
+
+- **P-02 (1,6%) — Consumo Standby de Fuentes Redundantes (1+1)**
+  - **Qué se ve:** Segunda fuente de poder de cada servidor operando en modo frío con baja eficiencia.
+  - **Cuánto cuesta:** Multiplicación del consumo base de reposo de miles de servidores.
+  - **Por qué ocurre:** BIOS sin habilitación de balanceo activo/standby de fuentes de alimentación.
+
+- **P-03 (1,1%) — Calentamiento de Barras PDU por alta densidad**
+  - **Qué se ve:** Zócalos de PDU de rack operando por encima de los 55 °C en racks de 20kW+.
+  - **Cuánto cuesta:** Riesgo de disparo térmico de disyuntores de circuito derivado.
+  - **Por qué ocurre:** Contactos mecánicos desgastados con alta resistencia de contacto.
+
+---
+
+# 04 — Metodología
+
+## Monitoreo espectral de frecuencia y termografía infrarroja.
+
+El análisis combinó analizadores de calidad de energía clase A conectados en subestación con inspecciones termográficas en tableros bajo carga.
+
+> **Nota Metodológica:** Todas las mediciones armónicas contemplaron los ciclos de carga de fin de semana y horas laborales.
+
+---
+
+# 05 — Figuras
+
+## Distribución cuantitativa de ineficiencias eléctricas.
+
+Gráficos cuantitativos de pérdidas inductivas, térmicas y de conversión.
+
+```chart
+{
+  "chartType": "bar",
+  "meta": {
+    "title": "Perdidas electricas por modo de fallo",
+    "description": "Porcentaje de kW disipados en calor o armónicos no productivos."
+  },
+  "xKey": "name",
+  "data": [
+    { "name": "Distorsión armónica THDi", "value": 4.1 },
+    { "name": "Doble conversión baja carga", "value": 3.5 },
+    { "name": "Desbalance de fases", "value": 3.2 },
+    { "name": "Filtros de entrada UPS", "value": 2.6 },
+    { "name": "Caída de tensión I²R", "value": 2.3 },
+    { "name": "Factor de potencia bajo", "value": 2.2 },
+    { "name": "Autoconsumo sala baterías", "value": 1.7 },
+    { "name": "Fuentes standby 1+1", "value": 1.6 },
+    { "name": "Calentamiento PDU", "value": 1.1 }
+  ]
+}
+```
+
+```chart
+{
+  "chartType": "pie",
+  "meta": {
+    "title": "Distribución de pérdidas por nivel de distribución",
+    "description": "Proporción entre Transformación, UPS y Distribución de PDU."
+  },
+  "nameKey": "layer",
+  "valueKey": "value",
+  "data": [
+    { "layer": "Transformación y Tableros", "value": 9.5 },
+    { "layer": "Respaldo UPS", "value": 7.8 },
+    { "layer": "PDU y Bastidor", "value": 5.0 }
+  ]
+}
+```
+
+```chart
+{
+  "chartType": "line",
+  "meta": {
+    "title": "Pérdida por THDi acumulada en megawatt, 2021–2026",
+    "description": "Crecimiento del impacto armónico al aumentar la densidad por rack."
+  },
+  "xKey": "year",
+  "data": [
+    { "year": "2021", "value": 1.5 },
+    { "year": "2022", "value": 2.1 },
+    { "year": "2023", "value": 2.8 },
+    { "year": "2024", "value": 3.3 },
+    { "year": "2025", "value": 3.8 },
+    { "year": "2026", "value": 4.1 }
+  ]
+}
+```
+
+---
+
+# 06 — Conclusión
+
+## Hacia una red de distribución inteligente y limpia.
+
+Filtrar armónicos en la fuente y optimizar los modos de operación de UPS es la inversión con retorno más rápido en infraestructura eléctrica de gran escala.
+
+---
+
+# 07 — Cómo citar
+
+## Citar este reporte.
+
+**Fuente:** *PhysaFlow Electrical Resilience Index (ERI-2026)*  
+**Licencia:** CC BY-SA 4.0.

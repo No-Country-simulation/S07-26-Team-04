@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.34",
+    "@ai-sdk/react": "^4.0.70",
     "@base-ui/react": "^1.7.0",
     "@codemirror/lang-markdown": "^6.5.2",
     "@codemirror/lang-yaml": "^6.1.3",

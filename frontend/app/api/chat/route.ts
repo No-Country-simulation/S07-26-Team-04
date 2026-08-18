@@ -1,12 +1,15 @@
 import { google } from '@ai-sdk/google';
+import { NextResponse } from 'next/server';
 import {
   convertToModelMessages,
   streamText,
   createUIMessageStreamResponse,
   toUIMessageStream,
   jsonSchema,
+  isStepCount,
   type UIMessage,
 } from 'ai';
+
 
 import { prisma } from '@/lib/prisma';
 import type { ReportSection } from '@/lib/report-parser';
@@ -111,23 +114,34 @@ ${sectionIndex || '(no hay secciones indexadas)'}`;
 }
 
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const { messages, reportId }: { messages: UIMessage[]; reportId?: string } =
+    await req.json();
 
-  const report = await prisma.report.findFirst({
-    where: 
-    
-    
-    { status: 'published' },
-    orderBy: { publishedAt: 'desc' },
-    select: {
-      title: true,
-      description: true,
-      sectionsJson: true,
-      metricsJson: true,
-      chartsJson: true,
-      failureModesJson: true,
-    },
-  });
+  const reportSelect = {
+    title: true,
+    description: true,
+    sectionsJson: true,
+    metricsJson: true,
+    chartsJson: true,
+    failureModesJson: true,
+  } as const;
+
+  let report;
+  if (reportId) {
+    report = await prisma.report.findUnique({
+      where: { id: reportId },
+      select: reportSelect,
+    });
+    if (!report) {
+      return NextResponse.json({ error: 'Reporte no encontrado' }, { status: 404 });
+    }
+  } else {
+    report = await prisma.report.findFirst({
+      where: { status: 'published' },
+      orderBy: { publishedAt: 'desc' },
+      select: reportSelect,
+    });
+  }
 
   const data = report ? parseStoredJson(report) : null;
 
@@ -219,23 +233,24 @@ REGLAS DE RECUPERACIÓN (OBLIGATORIAS)
     };
   };
 
+  const tools = {
+    getChartData: getChartData(),
+    getReportSection: getReportSection(),
+  };
+
   const result = streamText({
     model: google('gemini-3.6-flash'),
     system,
-    messages: await convertToModelMessages(messages),
-    tools: {
-      getChartData: getChartData(),
-      getReportSection: getReportSection(),
-    },
+    messages: await convertToModelMessages(messages, { tools }),
+    tools,
+    stopWhen: isStepCount(5),
   });
 
   return createUIMessageStreamResponse({
     stream: toUIMessageStream({
       stream: result.stream,
-      tools: {
-        getChartData: getChartData(),
-        getReportSection: getReportSection(),
-      },
+      tools,
     }),
   });
 }
+

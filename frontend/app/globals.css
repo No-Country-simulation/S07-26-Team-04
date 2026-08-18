@@ -319,7 +319,7 @@ button {
 
   z-index: 50;
 
-  height: 52px;
+  height: 64px;
 
   display: flex;
 
@@ -327,19 +327,9 @@ button {
 
   padding: 0 var(--margin-x);
 
-  background: rgba(6, 42, 32, 0.95);
+  background: var(--deep-forest);
 
-  backdrop-filter: blur(8px);
-
-  border-bottom: 1px solid var(--border-gold-subtle);
-}
-
-.site-header > div {
-  display: flex;
-
-  align-items: center;
-
-  width: 100%;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 /*
@@ -357,7 +347,7 @@ button {
 }
 
 .brand-header {
-  font-size: 16px;
+  font-size: 18px;
 
   line-height: 1;
 }
@@ -371,108 +361,25 @@ button {
 
   align-items: center;
 
-  gap: 28px;
+  gap: 24px;
 
   margin-left: auto;
 
-  margin-right: 28px;
-}
+  margin-right: 32px;
 
-.header-nav-link {
   font-family: var(--font-inter), Inter, Arial, sans-serif;
 
   font-size: 11px;
 
-  font-weight: 500;
-
-  letter-spacing: 0.04em;
-
   color: var(--on-surface-variant);
+}
 
-  padding: 4px 0;
-
-  position: relative;
-
+.top-nav a {
   transition: color 160ms ease;
 }
 
-.header-nav-link::after {
-  content: "";
-
-  position: absolute;
-
-  bottom: 0;
-
-  left: 0;
-
-  width: 0;
-
-  height: 1px;
-
-  background: var(--gold);
-
-  transition: width 200ms ease;
-}
-
-.header-nav-link:hover {
+.top-nav a:hover {
   color: var(--gold);
-}
-
-.header-nav-link:hover::after {
-  width: 100%;
-}
-
-/*
-  Download button
-*/
-
-.header-download-btn {
-  display: inline-flex;
-
-  align-items: center;
-
-  gap: 6px;
-
-  height: 32px;
-
-  padding: 0 14px;
-
-  background: var(--gold);
-
-  color: var(--deep-forest);
-
-  font-family: var(--font-inter), Inter, Arial, sans-serif;
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  letter-spacing: 0.1em;
-
-  text-transform: uppercase;
-
-  border: 1px solid var(--gold-light);
-
-  border-radius: 2px;
-
-  cursor: pointer;
-
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    transform 160ms ease;
-}
-
-.header-download-btn:hover {
-  background: var(--gold-light);
-
-  border-color: var(--gold-light);
-
-  transform: translateY(-1px);
-}
-
-.header-download-btn:active {
-  transform: translateY(0);
 }
 
 .font-display {
@@ -502,11 +409,11 @@ button {
 .report-hero {
   width: 100%;
 
-  min-height: 720px;
+  min-height: 700px;
 
-  padding-top: 140px;
+  padding-top: 120px;
 
-  padding-bottom: 80px;
+  padding-bottom: 7%;
 
   padding-left: var(--margin-x);
 
@@ -531,7 +438,7 @@ button {
 .eyebrow {
   width: fit-content;
 
-  margin: 0 auto 16px;
+  margin: 0 0 16px;
 
   color: var(--gold);
 
@@ -555,7 +462,7 @@ button {
 .report-hero h1 {
   max-width: 980px;
 
-  margin: 0 auto;
+  margin: 0;
 
   color: var(--warm-white);
 
@@ -583,9 +490,9 @@ button {
 */
 
 .hero-copy {
-  max-width: 680px;
+  max-width: 650px;
 
-  margin: 28px auto 40px;
+  margin: 24px 0 32px;
 
   color: var(--on-surface-variant);
 
@@ -595,7 +502,7 @@ button {
 
   font-weight: 400;
 
-  line-height: 34px;
+  line-height: 32px;
 }
 
 /* =========================================================
@@ -752,33 +659,33 @@ button {
 .hero-meta {
   width: 100%;
 
-  max-width: 900px;
+  max-width: 1000px;
 
-  margin: 0 auto;
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items: flex-start;
+
+  gap: 36px;
+
+  padding-top: 24px;
+
+  border-top: 1px solid var(--border-gold-subtle);
 }
 
-.hero-meta-grid {
-  display: grid;
-
-  grid-template-columns: repeat(3, 1fr);
-
-  gap: 28px 40px;
-}
-
-.hero-meta-item {
+.hero-meta div {
   display: flex;
 
   flex-direction: column;
 
-  align-items: center;
-
   gap: 6px;
 }
 
-.hero-meta-label {
+.hero-meta span {
   font-family: var(--font-inter), Inter, Arial, sans-serif;
 
-  font-size: 11px;
+  font-size: 12px;
 
   font-weight: 600;
 
@@ -789,36 +696,18 @@ button {
   text-transform: uppercase;
 
   color: var(--muted-green-grey);
-
-  margin: 0;
 }
 
-.hero-meta-value {
+.hero-meta strong {
   font-family: var(--font-inter), Inter, Arial, sans-serif;
 
-  font-size: 14px;
+  font-size: 13px;
 
   font-weight: 400;
 
-  line-height: 20px;
+  line-height: 18px;
 
   color: var(--on-surface-variant);
-
-  margin: 0;
-}
-
-.hero-meta-value--mono {
-  font-family: var(--font-mono), "JetBrains Mono", monospace;
-
-  font-size: 13px;
-}
-
-.hero-meta-value--version {
-  font-family: var(--font-mono), "JetBrains Mono", monospace;
-
-  font-size: 13px;
-
-  color: var(--gold);
 }
 
 /* =========================================================
@@ -830,7 +719,9 @@ button {
 
   background: var(--forest-green-content);
 
-  padding-top: 64px;
+  /* border-top: 1px solid var(--border-gold-subtle); */
+
+  padding-top: 80px;
 }
 
 /*
@@ -846,9 +737,9 @@ button {
 
   display: grid;
 
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
 
-  gap: 80px;
+  gap: 120px;
 
   justify-content: space-between;
 
@@ -1002,8 +893,6 @@ button {
 
   padding-left: 16px;
 
-  padding-bottom: 80px;
-
   background: var(--forest-green-content);
 }
 
@@ -1047,179 +936,25 @@ button {
 }
 
 /* =========================================================
-   MOBILE MENU
+   REPORT SECTIONS
    ========================================================= */
 
-.header-hamburger {
-  display: none;
+.report-section {
+  width: 100%;
 
-  align-items: center;
+  padding-top: var(--stack-xl);
 
-  justify-content: center;
+  padding-bottom: var(--stack-xl);
 
-  width: 36px;
-
-  height: 36px;
-
-  margin-left: auto;
-
-  background: none;
-
-  border: 1px solid var(--border-gold-subtle);
-
-  border-radius: 2px;
-
-  color: var(--on-surface-variant);
-
-  cursor: pointer;
-
-  transition:
-    color 160ms ease,
-    border-color 160ms ease;
-}
-
-.header-hamburger:hover {
-  color: var(--gold);
-
-  border-color: var(--gold);
-}
-
-.mobile-menu-overlay {
-  display: none;
-
-  position: fixed;
-
-  inset: 0;
-
-  z-index: 90;
-
-  background: rgba(0, 0, 0, 0.6);
-
-  backdrop-filter: blur(4px);
-}
-
-.mobile-menu {
-  display: none;
-
-  position: fixed;
-
-  top: 0;
-
-  right: 0;
-
-  z-index: 100;
-
-  width: 280px;
-
-  height: 100vh;
-
-  background: var(--deep-forest);
-
-  border-left: 1px solid var(--border-gold-subtle);
-
-  transform: translateX(100%);
-
-  transition: transform 300ms ease;
-
-  flex-direction: column;
-}
-
-.mobile-menu--open {
-  transform: translateX(0);
-}
-
-.mobile-menu-header {
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  padding: 16px 20px;
-
-  border-bottom: 1px solid var(--border-gold-subtle);
-}
-
-.mobile-menu-close {
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  width: 32px;
-
-  height: 32px;
-
-  background: none;
-
-  border: 1px solid var(--border-gold-subtle);
-
-  border-radius: 2px;
-
-  color: var(--on-surface-variant);
-
-  cursor: pointer;
-
-  transition:
-    color 160ms ease,
-    border-color 160ms ease;
-}
-
-.mobile-menu-close:hover {
-  color: var(--gold);
-
-  border-color: var(--gold);
-}
-
-.mobile-menu-nav {
-  flex: 1;
-
-  display: flex;
-
-  flex-direction: column;
-
-  padding: 12px 0;
-
-  overflow-y: auto;
-}
-
-.mobile-menu-link {
-  display: block;
-
-  padding: 12px 20px;
-
-  font-family: var(--font-inter), Inter, Arial, sans-serif;
-
-  font-size: 13px;
-
-  font-weight: 500;
-
-  color: var(--on-surface-variant);
-
-  transition:
-    color 160ms ease,
-    background-color 160ms ease;
-}
-
-.mobile-menu-link:hover {
-  color: var(--gold);
-
-  background: rgba(201, 162, 39, 0.06);
-}
-
-.mobile-menu-footer {
-  padding: 16px 20px;
-
-  border-top: 1px solid var(--border-gold-subtle);
+  scroll-margin-top: 80px;
 }
 
 .report-section-header {
   display: grid;
 
-  grid-template-columns: 80px 1fr;
+  grid-template-columns: 100px 1fr;
 
-  gap: 24px;
+  gap: 32px;
 
   align-items: start;
 }
@@ -1231,15 +966,13 @@ button {
 .section-number {
   font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
 
-  font-size: 56px;
+  font-size: 76px;
 
   font-weight: 700;
 
   line-height: 1;
 
   color: var(--gold);
-
-  opacity: 0.8;
 }
 
 /*
@@ -1251,11 +984,13 @@ button {
 
   font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
 
-  font-size: 32px;
+  font-size: 40px;
 
-  font-weight: 600;
+  font-weight: 700;
 
-  line-height: 40px;
+  line-height: 48px;
+
+  letter-spacing: -0.01em;
 
   color: var(--warm-white);
 }
@@ -1281,471 +1016,27 @@ button {
 }
 
 /* =========================================================
-   SECTION CONTENT — MARKDOWN
-   ========================================================= */
-
-.section-description p {
-  margin: 0 0 16px;
-
-  color: var(--on-surface-variant);
-
-  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
-
-  font-size: 16px;
-
-  line-height: 28px;
-}
-
-.section-description p:last-child {
-  margin-bottom: 0;
-}
-
-.section-description strong {
-  color: var(--warm-white);
-
-  font-weight: 600;
-}
-
-.section-description em {
-  font-style: italic;
-
-  color: var(--on-surface);
-}
-
-.section-description ul,
-.section-description ol {
-  margin: 12px 0;
-
-  padding-left: 24px;
-}
-
-.section-description li {
-  margin: 8px 0;
-
-  color: var(--on-surface-variant);
-
-  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
-
-  font-size: 16px;
-
-  line-height: 26px;
-}
-
-.section-description li::marker {
-  color: var(--gold);
-}
-
-.section-description a {
-  color: var(--gold);
-
-  text-decoration: underline;
-
-  text-underline-offset: 2px;
-
-  transition: color 160ms ease;
-}
-
-.section-description a:hover {
-  color: var(--gold-light);
-}
-
-.section-description code {
-  font-family: var(--font-mono), "JetBrains Mono", monospace;
-
-  font-size: 14px;
-
-  padding: 2px 6px;
-
-  background: rgba(201, 162, 39, 0.1);
-
-  border: 1px solid var(--border-gold-subtle);
-
-  color: var(--gold-light);
-}
-
-.section-description blockquote {
-  margin: 20px 0;
-
-  padding: 16px 24px;
-
-  border-left: 3px solid var(--gold);
-
-  background: rgba(11, 61, 46, 0.3);
-
-  font-style: italic;
-
-  color: var(--on-surface);
-}
-
-.section-description h1,
-.section-description h2,
-.section-description h3,
-.section-description h4 {
-  margin: 24px 0 12px;
-
-  color: var(--warm-white);
-
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
-}
-
-.section-description h3 {
-  font-size: 22px;
-
-  font-weight: 600;
-
-  line-height: 30px;
-}
-
-.section-description table {
-  width: 100%;
-
-  margin: 16px 0;
-
-  border-collapse: collapse;
-}
-
-.section-description th,
-.section-description td {
-  padding: 10px 14px;
-
-  text-align: left;
-
-  border-bottom: 1px solid var(--border-subtle);
-
-  font-size: 14px;
-
-  color: var(--on-surface-variant);
-}
-
-.section-description th {
-  font-weight: 600;
-
-  color: var(--muted-green-grey);
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.06em;
-
-  font-size: 11px;
-}
-
-/* =========================================================
-   CARDS / PANELS — UNIFIED SYSTEM
+   CARDS / PANELS
    ========================================================= */
 
 .report-card {
   background: var(--dark-forest);
 
-  border: 1px solid var(--border-gold-subtle);
+  border: 1px solid var(--border-subtle);
 
-  border-radius: 2px;
+  border-radius: 4px;
 
-  box-shadow: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 
-  transition:
-    border-color 200ms ease,
-    background-color 200ms ease;
+  transition: all 200ms ease-out;
 }
 
 .report-card:hover {
-  border-color: var(--border-gold);
-}
+  border-color: var(--border-gold-subtle);
 
-/*
-  Chart card — used by bar, pie, line charts
-*/
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 0 12px rgba(201, 162, 39, 0.12);
 
-.chart-card {
-  background: var(--dark-forest);
-
-  border: 1px solid var(--border-gold-subtle);
-
-  border-radius: 2px;
-
-  padding: 28px 32px;
-
-  position: relative;
-
-  transition:
-    border-color 200ms ease,
-    background-color 200ms ease;
-}
-
-.chart-card:hover {
-  border-color: var(--border-gold);
-}
-
-.chart-card-header {
-  display: flex;
-
-  align-items: flex-start;
-
-  justify-content: space-between;
-
-  gap: 16px;
-
-  margin-bottom: 24px;
-}
-
-.chart-label {
-  font-family: var(--font-mono), "JetBrains Mono", monospace;
-
-  font-size: 10px;
-
-  font-weight: 600;
-
-  letter-spacing: 0.12em;
-
-  text-transform: uppercase;
-
-  color: var(--gold-light);
-}
-
-.chart-title {
-  margin: 4px 0 0;
-
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
-
-  font-size: 20px;
-
-  font-weight: 600;
-
-  line-height: 28px;
-
-  color: var(--warm-white);
-}
-
-.chart-description {
-  margin: 6px 0 0;
-
-  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
-
-  font-size: 14px;
-
-  line-height: 22px;
-
-  color: var(--on-surface-variant);
-
-  max-width: 640px;
-}
-
-.chart-export-btn {
-  font-family: var(--font-mono), "JetBrains Mono", monospace;
-
-  font-size: 10px;
-
-  font-weight: 600;
-
-  letter-spacing: 0.08em;
-
-  text-transform: uppercase;
-
-  color: var(--gold-light);
-
-  background: var(--forest-green);
-
-  border: 1px solid var(--border-gold-subtle);
-
-  padding: 6px 12px;
-
-  border-radius: 2px;
-
-  cursor: pointer;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  gap: 6px;
-
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease;
-}
-
-.chart-export-btn:hover {
-  background: rgba(201, 162, 39, 0.15);
-
-  border-color: var(--gold);
-
-  color: var(--warm-white);
-}
-
-.chart-caption {
-  font-family: var(--font-inter), Inter, Arial, sans-serif;
-
-  font-size: 12px;
-
-  line-height: 18px;
-
-  color: var(--on-surface-variant);
-
-  margin-top: 20px;
-
-  padding-top: 16px;
-
-  border-top: 1px solid var(--border-gold-subtle);
-}
-
-/*
-  Sub-card — used inside sections (methodology progression, etc.)
-*/
-
-.report-sub-card {
-  background: var(--dark-forest);
-
-  border: 1px solid var(--border-gold-subtle);
-
-  border-radius: 2px;
-
-  padding: 28px 32px;
-
-  margin-top: 32px;
-
-  transition:
-    border-color 200ms ease,
-    background-color 200ms ease;
-}
-
-.report-sub-card:hover {
-  border-color: var(--border-gold);
-}
-
-.report-sub-card-label {
-  font-family: var(--font-mono), "JetBrains Mono", monospace;
-
-  font-size: 10px;
-
-  font-weight: 600;
-
-  letter-spacing: 0.12em;
-
-  text-transform: uppercase;
-
-  color: var(--gold-light);
-
-  margin-bottom: 8px;
-}
-
-.report-sub-card-title {
-  margin: 0;
-
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
-
-  font-size: 22px;
-
-  font-weight: 600;
-
-  line-height: 30px;
-
-  color: var(--warm-white);
-}
-
-.report-sub-card-description {
-  margin: 12px 0 0;
-
-  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
-
-  font-size: 15px;
-
-  line-height: 24px;
-
-  color: var(--on-surface-variant);
-
-  max-width: 640px;
-}
-
-/*
-  Capacity state card — used in progression
-*/
-
-.capacity-state-card {
-  flex: 1;
-
-  min-width: 135px;
-
-  background: var(--forest-green);
-
-  border: 1px solid var(--border-gold-subtle);
-
-  border-radius: 2px;
-
-  padding: 16px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  justify-content: flex-start;
-
-  transition:
-    border-color 200ms ease,
-    background-color 200ms ease;
-}
-
-.capacity-state-card:hover {
-  border-color: var(--gold);
-
-  background: rgba(8, 47, 37, 0.85);
-}
-
-.capacity-state-card-number {
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
-
-  font-size: 24px;
-
-  font-weight: 700;
-
-  line-height: 1;
-
-  color: var(--gold);
-}
-
-.capacity-state-card-code {
-  font-family: var(--font-mono), "JetBrains Mono", monospace;
-
-  font-size: 9px;
-
-  font-weight: 600;
-
-  letter-spacing: 0.12em;
-
-  text-transform: uppercase;
-
-  color: var(--gold-light);
-
-  padding: 2px 6px;
-
-  border: 1px solid var(--border-gold-subtle);
-
-  background: var(--deep-forest);
-}
-
-.capacity-state-card-title {
-  margin: 8px 0 4px;
-
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
-
-  font-size: 16px;
-
-  font-weight: 600;
-
-  line-height: 22px;
-
-  color: var(--warm-white);
-}
-
-.capacity-state-card-description {
-  margin: 0;
-
-  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
-
-  font-size: 12px;
-
-  line-height: 18px;
-
-  color: var(--on-surface-variant);
+  transform: translateY(-1px);
 }
 
 /* =========================================================
@@ -1887,22 +1178,8 @@ select:focus {
    CITATION
    ========================================================= */
 
-#quote .report-section-header {
-  margin-bottom: 0;
-}
-
-#quote .section-number {
-  font-size: 48px;
-}
-
-#quote .section-title {
-  font-size: 28px;
-
-  line-height: 36px;
-}
-
 .citation-card {
-  margin-top: 20px;
+  margin-top: 40px;
 
   overflow: hidden;
 
@@ -1920,7 +1197,7 @@ select:focus {
 --------------------------------------------------------- */
 
 .citation-card-header {
-  padding: 20px 24px;
+  padding: 24px 28px;
 
   display: flex;
 
@@ -2008,7 +1285,7 @@ select:focus {
 --------------------------------------------------------- */
 
 .citation-card-content {
-  padding: 20px 24px;
+  padding: 28px;
 
   display: flex;
 
@@ -2142,9 +1419,11 @@ select:focus {
 .site-footer {
   width: 100%;
 
+  min-height: 120px;
+
   margin: 0;
 
-  padding: 48px var(--margin-x) 0;
+  padding: 32px var(--margin-x);
 
   background: var(--deep-forest);
 }
@@ -2162,11 +1441,7 @@ select:focus {
 
   justify-content: space-between;
 
-  gap: 48px;
-
-  padding-bottom: 32px;
-
-  border-bottom: 1px solid var(--border-subtle);
+  gap: 32px;
 }
 
 .footer-brand {
@@ -2174,9 +1449,7 @@ select:focus {
 
   flex-direction: column;
 
-  gap: 8px;
-
-  max-width: 320px;
+  gap: 6px;
 }
 
 .footer-brand a {
@@ -2184,11 +1457,9 @@ select:focus {
 
   font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
 
-  font-size: 24px;
+  font-size: 23px;
 
   font-weight: 700;
-
-  letter-spacing: -0.02em;
 }
 
 .footer-brand span {
@@ -2198,15 +1469,7 @@ select:focus {
 
   font-size: 13px;
 
-  line-height: 20px;
-}
-
-.footer-copyright {
-  margin-top: 8px;
-
-  font-size: 12px !important;
-
-  color: var(--outline) !important;
+  line-height: 18px;
 }
 
 .footer-nav {
@@ -2216,11 +1479,13 @@ select:focus {
 
   flex-wrap: wrap;
 
-  gap: 16px 24px;
+  gap: 24px;
+
+  margin-top: 0;
 
   font-family: var(--font-inter), Inter, Arial, sans-serif;
 
-  font-size: 12px;
+  font-size: 13px;
 
   color: var(--muted-green-grey);
 }
@@ -2231,28 +1496,6 @@ select:focus {
 
 .footer-nav a:hover {
   color: var(--gold);
-}
-
-.footer-bottom {
-  width: 100%;
-
-  max-width: var(--container-max-width);
-
-  margin: 0 auto;
-
-  padding: 20px 0;
-
-  text-align: center;
-}
-
-.footer-bottom-text {
-  font-family: var(--font-inter), Inter, Arial, sans-serif;
-
-  font-size: 11px;
-
-  color: var(--outline);
-
-  letter-spacing: 0.04em;
 }
 
 /* =========================================================
@@ -2468,22 +1711,6 @@ select:focus {
     padding-right: var(--margin-x);
   }
 
-  .top-nav {
-    gap: 16px;
-  }
-
-  .header-nav-link {
-    font-size: 10px;
-  }
-
-  .header-download-btn {
-    height: 28px;
-
-    padding: 0 10px;
-
-    font-size: 9px;
-  }
-
   .report-hero {
     padding-left: var(--margin-x);
 
@@ -2496,16 +1723,10 @@ select:focus {
     line-height: 60px;
   }
 
-  .hero-meta-grid {
-    grid-template-columns: repeat(3, 1fr);
-
-    gap: 24px 32px;
-  }
-
   .report-content-layout {
     grid-template-columns: 200px minmax(0, 1fr);
 
-    gap: 48px;
+    gap: 32px;
 
     padding-left: var(--margin-x);
 
@@ -2535,45 +1756,17 @@ select:focus {
   --------------------------------------------- */
 
   .site-header {
-    height: 48px;
+    height: 56px;
 
     padding: 0 var(--margin-x);
   }
 
   .brand-header {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .top-nav {
     display: none;
-  }
-
-  .header-download-btn span {
-    display: none;
-  }
-
-  .header-download-btn {
-    height: 30px;
-
-    padding: 0 10px;
-  }
-
-  .header-hamburger {
-    display: flex;
-
-    margin-left: auto;
-  }
-
-  .header-download-btn {
-    display: none;
-  }
-
-  .mobile-menu-overlay {
-    display: block;
-  }
-
-  .mobile-menu {
-    display: flex;
   }
 
   /* ---------------------------------------------
@@ -2581,11 +1774,11 @@ select:focus {
   --------------------------------------------- */
 
   .report-hero {
-    min-height: 620px;
+    min-height: 650px;
 
-    padding-top: 100px;
+    padding-top: 110px;
 
-    padding-bottom: 56px;
+    padding-bottom: 64px;
 
     padding-left: var(--margin-x);
 
@@ -2619,10 +1812,10 @@ select:focus {
     width: 100%;
   }
 
-  .hero-meta-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .hero-meta {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 
-    gap: 20px 24px;
+    gap: 24px;
   }
 
   /* ---------------------------------------------
@@ -2683,30 +1876,14 @@ select:focus {
     scroll-margin-top: 88px;
   }
 
-.report-section {
-  width: 100%;
-
-  padding-top: var(--stack-xl);
-
-  padding-bottom: var(--stack-xl);
-
-  scroll-margin-top: 80px;
-
-  border-bottom: 1px solid var(--border-gold-subtle);
-}
-
-.report-section:last-child {
-  border-bottom: none;
-}
-
-.report-section-header {
+  .report-section-header {
     grid-template-columns: 1fr;
 
     gap: 16px;
   }
 
   .section-number {
-    font-size: 48px;
+    font-size: 56px;
   }
 
   .section-title {
@@ -2770,7 +1947,7 @@ select:focus {
   --------------------------------------------- */
 
   .site-footer {
-    padding: 40px var(--margin-x) 0;
+    padding: 32px var(--margin-x);
   }
 
   .footer-inner {
@@ -2778,19 +1955,11 @@ select:focus {
 
     align-items: flex-start;
 
-    gap: 32px;
-  }
-
-  .footer-brand {
-    max-width: 100%;
+    gap: 24px;
   }
 
   .footer-nav {
     gap: 12px 20px;
-  }
-
-  .footer-bottom {
-    padding: 16px 0;
   }
 }
 
@@ -2799,10 +1968,8 @@ select:focus {
    ========================================================= */
 
 @media (max-width: 480px) {
-  .hero-meta-grid {
+  .hero-meta {
     grid-template-columns: 1fr;
-
-    gap: 16px;
   }
 
   .report-hero h1 {
@@ -2821,18 +1988,6 @@ select:focus {
     padding-left: 16px;
 
     padding-right: 16px;
-  }
-
-  .section-description p {
-    font-size: 15px;
-
-    line-height: 26px;
-  }
-
-  .section-description li {
-    font-size: 15px;
-
-    line-height: 24px;
   }
 }
 

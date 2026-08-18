@@ -13,6 +13,7 @@ import { Introduction } from "@/components/report/introduction";
 import { FigurasSection } from "@/components/report/figuras-section";
 import { Conclusion } from "@/components/report/conclusion";
 import { Citation } from "@/components/report/citation";
+import { ChatAyudante } from "@/components/report/chat-ayudante";
 
 export default function HomePage() {
   return (
@@ -50,6 +51,12 @@ export default function HomePage() {
       <section className="report-footer-section">
         <Footer />
       </section>
+
+      {/* =================================================
+          CHAT ASSISTANT
+      ================================================= */}
+      <ChatAyudante />
     </ReportShell>
   );
 }
+

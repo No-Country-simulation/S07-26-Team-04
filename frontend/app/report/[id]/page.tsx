@@ -9,6 +9,7 @@ import { Introduction } from "@/components/report/introduction";
 import { FigurasSection } from "@/components/report/figuras-section";
 import { Conclusion } from "@/components/report/conclusion";
 import { Citation } from "@/components/report/citation";
+import { ChatAyudante } from "@/components/report/chat-ayudante";
 
 export default async function ReportPageById({
   params,
@@ -43,6 +44,12 @@ export default async function ReportPageById({
       <section className="report-footer-section">
         <Footer />
       </section>
+
+      {/* =================================================
+          CHAT ASSISTANT
+      ================================================= */}
+      <ChatAyudante reportId={id} />
     </ReportShell>
   );
 }
+

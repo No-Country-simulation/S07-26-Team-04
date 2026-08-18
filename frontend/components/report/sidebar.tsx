@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Link from "next/link";
 
@@ -25,160 +25,148 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const mainSections = [
+import { Highlight, HighlightItem } from "@/components/animate-ui/primitives/effects/highlight";
+
+const sections = [
   {
-    title: "RESUMEN",
+    title: "01 - RESUMEN",
     url: "#resumen",
     icon: Info,
-    number: "01",
   },
   {
-    title: "INTRODUCCIÓN",
+    title: "02 - INTRODUCCIÓN",
     url: "#introduction",
     icon: Compass,
-    number: "02",
   },
   {
-    title: "TAXONOMÍA",
+    title: "03 - TAXONOMÍA",
     url: "#taxonomy",
     icon: Shapes,
-    number: "03",
   },
   {
-    title: "METODOLOGÍA",
+    title: "04 - METODOLOGÍA",
     url: "#methodology",
     icon: Microscope,
-    number: "04",
   },
   {
-    title: "FIGURAS",
+    title: "05 - FIGURAS",
     url: "#figures",
     icon: ChartNoAxesCombined,
-    number: "05",
   },
   {
-    title: "CONCLUSIÓN",
+    title: "06 - CONCLUSIÓN",
     url: "#conclusion",
     icon: FileText,
-    number: "06",
   },
-];
-
-const referenceSections = [
   {
-    title: "CITAR",
+    title: "07 - CITAR",
     url: "#quote",
     icon: Quote,
-    number: "07",
   },
 ];
 
 export function ReportSidebar() {
-  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<string>("01 - RESUMEN");
 
-  const renderSection = (section: (typeof mainSections)[0]) => {
-    const Icon = section.icon;
-    const isActive = activeSection === section.title;
+  useEffect(() => {
+    const handleScroll = () => {
+      const isAtBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 80;
 
-    return (
-      <SidebarMenuItem key={section.title}>
-        <SidebarMenuButton
-          className={`
-            group
-            relative
-            h-10
-            rounded-md
-            px-3
-            py-2
-            text-[10px]
-            uppercase
-            tracking-[0.06em]
-            transition-all
-            duration-200
-            ${isActive 
-              ? "bg-[#0a3d2e] text-[#c6a13a] font-medium" 
-              : "text-[#a6aaa2] hover:bg-[#082f25]/60 hover:text-[#c6a13a]/90"
-            }
-          `}
-        >
-          <Link
-            href={section.url}
-            onClick={() => setActiveSection(section.title)}
-            data-active={isActive}
-            className="flex items-center gap-3 w-full sidebar-label"
-          >
-            {/* Indicador de sección activa */}
-            <span
-              className={`
-                absolute
-                left-0
-                top-1/2
-                -translate-y-1/2
-                w-[3px]
-                h-4
-                rounded-r-full
-                transition-all
-                duration-200
-                ${isActive ? "bg-[#c6a13a]" : "bg-transparent group-hover:bg-[#c6a13a]/30"}
-              `}
-            />
+      if (isAtBottom) {
+        setActiveSection("07 - CITAR");
+        return;
+      }
 
-            {/* Número de sección */}
-            <span className="text-[8px] text-[#c6a13a]/50 font-mono w-4">
-              {section.number}
-            </span>
+      let currentSection = sections[0].title;
+      let minDistance = Infinity;
 
-            <Icon 
-              size={14} 
-              strokeWidth={1.5} 
-              className={`transition-colors duration-200 ${isActive ? "text-[#c6a13a]" : ""}`}
-            />
+      sections.forEach((section) => {
+        const id = section.url.replace("#", "");
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          const distance = Math.abs(rect.top - 140);
+          if (rect.top <= 380 && distance < minDistance) {
+            minDistance = distance;
+            currentSection = section.title;
+          }
+        }
+      });
 
-            <span className="flex-1">{section.title}</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    );
-  };
+      setActiveSection(currentSection);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <Sidebar collapsible="none" className="report-sidebar border-r-0 no-print">
       {/* Header del Sidebar */}
-      <div className="px-4 py-5 border-b border-[#0a3d2e]/50">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-[#c6a13a] font-medium">
+      <div className="px-3 py-4">
+        <p className="text-[12px] uppercase tracking-[0.18em] text-[#c6a13a]">
           Secciones del reporte
-        </p>
-        <p className="text-[9px] text-[#a6aaa2]/60 mt-1">
-          Navegación rápida
         </p>
       </div>
 
-      {/* Contenido */}
-      <SidebarContent className="px-2 py-3">
-        {/* Secciones principales */}
+      {/* Contenido con microanimación Highlight de animate-ui */}
+      <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[8px] uppercase tracking-[0.15em] text-[#a6aaa2]/50 px-3 mb-1">
-            Contenido
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">
-              {mainSections.map(renderSection)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          <SidebarGroupLabel className="sr-only">Secciones</SidebarGroupLabel>
 
-        {/* Separador */}
-        <div className="mx-3 my-3 border-t border-[#0a3d2e]/40" />
-
-        {/* Secciones de referencia */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[8px] uppercase tracking-[0.15em] text-[#a6aaa2]/50 px-3 mb-1">
-            Referencia
-          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">
-              {referenceSections.map(renderSection)}
-            </SidebarMenu>
+            <Highlight
+              className="bg-[#082f25] rounded-md shadow-sm border border-[#c6a13a]/20"
+              hover
+            >
+              <SidebarMenu>
+                {sections.map((section) => {
+                  const Icon = section.icon;
+                  const isActive = activeSection === section.title;
+
+                  return (
+                    <SidebarMenuItem key={section.title}>
+                      <HighlightItem value={section.title}>
+                        <SidebarMenuButton
+                          className={`
+                            h-auto
+                            min-h-9
+                            rounded-md
+                            px-3
+                            py-2
+                            text-[7px]
+                            uppercase
+                            tracking-[0.04em]
+                            transition-colors
+                            bg-transparent
+                            hover:bg-[#082f25]
+                            ${
+                              isActive
+                                ? "text-[#c6a13a] font-bold"
+                                : "text-[#a6aaa2] hover:text-[#c6a13a]"
+                            }
+                          `}
+                        >
+                          <Link
+                            href={section.url}
+                            onClick={() => setActiveSection(section.title)}
+                            data-active={isActive}
+                            className="flex items-center gap-2 sidebar-label w-full"
+                          >
+                            <Icon size={13} strokeWidth={isActive ? 2 : 1.5} />
+
+                            <span>{section.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </HighlightItem>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </Highlight>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
