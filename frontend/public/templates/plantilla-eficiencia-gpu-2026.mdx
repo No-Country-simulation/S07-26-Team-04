@@ -1,0 +1,201 @@
+---
+title: "Índice de Eficiencia y Utilización de Clústeres GPU (GUE-2026)"
+slug: "indice-eficiencia-gpu-2026"
+version: "1.2.0"
+language: "es"
+description: "Auditoría de VRAM varada y ciclos inactivos en clústeres de supercómputo de IA."
+---
+
+# Metadatos del Reporte
+
+**Autor:** Ing. Sofía Valenzuela  
+**Fecha:** Noviembre 2026  
+**DOI:** physaflow/gue-2026-004  
+**Tiempo de lectura:** 10 min  
+**Licencia:** CC BY-SA 4.0  
+
+---
+
+# 01 — Resumen
+
+## El costo invisible del silicio de inteligencia artificial.
+
+El **Índice de Eficiencia de GPU (GUE)** mide el porcentaje de capacidad de cómputo en aceleradores H100/Blackwell que permanece inactiva o fragmentada durante entrenamientos distribuidos de gran escala.
+
+El análisis sobre 28 clústeres de supercómputo reveló un **27,8% de capacidad de Tensor Cores no aprovechada**, distribuida en tres capas de control:
+
+- **Red e Interconexión (11,4%)**
+- **Memoria VRAM (9,2%)**
+- **Planificación de Jobs (7,2%)**
+
+---
+
+# 02 — Introducción
+
+## Por qué los TFLOPS teóricos no se traducen en valor.
+
+Los centros de datos de IA consumen megawatts de potencia para mantener encendidos miles de aceleradores. Sin embargo, la utilización efectiva de los Tensor Cores está gravemente limitada por barreras de sincronización y fragmentación de memoria.
+
+> "El cuello de botella de la IA moderna ya no es la potencia matemática del chip, sino la latencia de sincronización entre pods de cómputo."
+> 
+> *— Arquitecto Principal de Sistemas de IA (anonimizado)*
+
+---
+
+# 03 — Descripción general de la taxonomía
+
+## Tres dominios de ineficiencia en supercómputo.
+
+La taxonomía clasifica los fallos de rendimiento según el plano operativo donde se produce la pérdida de throughput.
+
+### L1 — Capa de Red e Interconexión
+*InfiniBand · RoCEv2 · Topología NVLink*
+
+Pérdidas de cómputo causadas por cuellos de botella de transporte de datos entre nodos.
+
+- **G-01 (5,1%) — Latencia de sincronización AllReduce**
+  - **Qué se ve:** GPUs esperando en estado IDLE durante la fase de paso de gradientes en modelos de más de 100B de parámetros.
+  - **Cuánto cuesta:** ~18% de tiempo de reloj gastado en espera de red.
+  - **Por qué ocurre:** Algoritmos de colectivas no optimizados para la topología física del switch.
+
+- **G-02 (3,8%) — Colisión de rutas ECMP**
+  - **Qué se ve:** Paquetes descartados y retransmisiones en enlaces de red de alta velocidad.
+  - **Cuánto cuesta:** Caída del 12% en la eficiencia de entrenamiento por jitter.
+  - **Por qué ocurre:** Ruteo estático que congestiona switches intermedios en fabrics RoCEv2.
+
+- **G-03 (2,5%) — Asimetría de canal NVLink**
+  - **Qué se ve:** Transferencias de memoria de alta velocidad degradadas a velocidades PCIe estándar.
+  - **Cuánto cuesta:** Subutilización de ancho de banda inter-nodo.
+  - **Por qué ocurre:** Fallos silenciosos en conectores físicos o degradación térmica de transceptores.
+
+### L2 — Capa de Memoria VRAM
+*HBM3e · Fragmentación · Swapping*
+
+Incapacidades de almacenamiento de alta velocidad para mantener datos calientes al alcance del chip.
+
+- **M-01 (4,5%) — Fragmentación de KV-Cache**
+  - **Qué se ve:** Bloques de memoria VRAM reservados pero sin llenar durante la fase de inferencia continua.
+  - **Cuánto cuesta:** Reducción del 25% en el tamaño máximo de batch del sistema.
+  - **Por qué ocurre:** Alocadores de memoria que no compactan espacio dinámicamente.
+
+- **M-02 (2,9%) — Sobreasignación por margen de seguridad**
+  - **Qué se ve:** Desarrolladores reservando el 90% de VRAM para evitar Out-Of-Memory (OOM) insospechados.
+  - **Cuánto cuesta:** Memoria libre inalcanzable para otros procesos simultáneos.
+  - **Por qué ocurre:** Falta de profiling preciso del uso pico de memoria de los modelos.
+
+- **M-03 (1,8%) — Swapping a memoria host**
+  - **Qué se ve:** Caídas drásticas de TFLOPS mientras se transfieren pesos desde RAM del servidor a la GPU.
+  - **Cuánto cuesta:** Latencia de respuesta multiplicada por 5x en peticiones de inferencia.
+  - **Por qué ocurre:** Modelos que exceden la capacidad HBM física sin estrategias de cuantización.
+
+### L3 — Capa de Planificación de Jobs
+*SLURM · Kubernetes · Checkpointing*
+
+Incoherencias entre el orquestador de tareas y la disponibilidad del silicio.
+
+- **J-01 (3,2%) — Latencia de Checkpointing**
+  - **Qué se ve:** El clúster entero detenido mientras se escribe el estado del modelo en discos NVMe/S3.
+  - **Cuánto cuesta:** 45 minutos diarios de cómputo congelado por clúster.
+  - **Por qué ocurre:** Escritura de checkpoints síncrona en lugar de streaming asíncrono.
+
+- **J-02 (2,4%) — Inanición por paridad estricta**
+  - **Qué se ve:** Nodos con 7 GPUs libres parados esperando a que se libere la 8va GPU del nodo.
+  - **Cuánto cuesta:** GPUs aisladas inactivas acumulando horas de energía base.
+  - **Por qué ocurre:** Políticas de orquestación que no permiten cómputo elástico no-potencia-de-dos.
+
+- **J-03 (1,6%) — Re-ejecución por fallos silenciosos**
+  - **Qué se ve:** Entrenamientos que deben reiniciarse desde el último checkpoint por bit-flips no detectados.
+  - **Cuánto cuesta:** Horas de cómputo tiradas a la basura antes de detectar la anomalía.
+  - **Por qué ocurre:** Falta de inspección periódica de corrección de errores ECC en caliente.
+
+---
+
+# 04 — Metodología
+
+## Telemetría en tiempo real a nivel de firmware y kernel.
+
+El estudio analiza contadores de hardware NVIDIA DCGM, métricas de red RDMA y registros de auditoría de orquestadores en entornos de producción.
+
+> **Nota Metodológica:** Se requirió que cada evento de degradación fuera registrado simultáneamente por el driver de la GPU y el switch de red.
+
+---
+
+# 05 — Figuras
+
+## Análisis cuantitativo de pérdidas en clústeres de IA.
+
+Visualización gráfica de la distribución de ineficiencias en aceleración de hardware.
+
+```chart
+{
+  "chartType": "bar",
+  "meta": {
+    "title": "Perdida de rendimiento por modo de fallo de GPU",
+    "description": "Porcentaje de rendimiento teorico perdido por cada factor ambiental y de software."
+  },
+  "xKey": "name",
+  "data": [
+    { "name": "Latencia AllReduce", "value": 5.1 },
+    { "name": "Fragmentación KV-Cache", "value": 4.5 },
+    { "name": "Colisión de rutas ECMP", "value": 3.8 },
+    { "name": "Latencia Checkpointing", "value": 3.2 },
+    { "name": "Sobreasignación VRAM", "value": 2.9 },
+    { "name": "Asimetría NVLink", "value": 2.5 },
+    { "name": "Inanición de paridad", "value": 2.4 },
+    { "name": "Swapping a host", "value": 1.8 },
+    { "name": "Re-ejecución por fallos", "value": 1.6 }
+  ]
+}
+```
+
+```chart
+{
+  "chartType": "pie",
+  "meta": {
+    "title": "Distribución de desperdicio de GPU por capa",
+    "description": "Proporción de pérdidas entre Red, Memoria y Planificación de Jobs."
+  },
+  "nameKey": "layer",
+  "valueKey": "value",
+  "data": [
+    { "layer": "Red e Interconexión", "value": 11.4 },
+    { "layer": "Memoria VRAM", "value": 9.2 },
+    { "layer": "Planificación de Jobs", "value": 7.2 }
+  ]
+}
+```
+
+```chart
+{
+  "chartType": "line",
+  "meta": {
+    "title": "Evolución de ineficiencia en clústeres GPU, 2022–2026",
+    "description": "Crecimiento del desperdicio a medida que aumentó la escala de los modelos de IA."
+  },
+  "xKey": "year",
+  "data": [
+    { "year": "2022", "value": 8 },
+    { "year": "2023", "value": 14 },
+    { "year": "2024", "value": 19 },
+    { "year": "2025", "value": 24 },
+    { "year": "2026", "value": 27.8 }
+  ]
+}
+```
+
+---
+
+# 06 — Conclusión
+
+## Hacia una arquitectura de aceleración elástica.
+
+Optimizar el software de interconexión y la gestión de memoria HBM es el camino más rápido para aumentar la capacidad efectiva de IA sin invertir millones en nuevo silicio.
+
+---
+
+# 07 — Cómo citar
+
+## Citar este reporte.
+
+**Fuente:** *PhysaFlow GPU Efficiency Index (GUE-2026)*  
+**Licencia:** CC BY-SA 4.0.
