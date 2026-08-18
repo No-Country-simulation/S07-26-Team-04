@@ -1024,13 +1024,19 @@ button {
 
   border: 1px solid var(--border-subtle);
 
-  border-radius: 0;
+  border-radius: 4px;
 
-  box-shadow: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+
+  transition: all 200ms ease-out;
 }
 
 .report-card:hover {
   border-color: var(--border-gold-subtle);
+
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 0 12px rgba(201, 162, 39, 0.12);
+
+  transform: translateY(-1px);
 }
 
 /* =========================================================
