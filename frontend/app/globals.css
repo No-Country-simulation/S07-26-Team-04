@@ -2683,7 +2683,23 @@ select:focus {
     scroll-margin-top: 88px;
   }
 
-  .report-section-header {
+.report-section {
+  width: 100%;
+
+  padding-top: var(--stack-xl);
+
+  padding-bottom: var(--stack-xl);
+
+  scroll-margin-top: 80px;
+
+  border-bottom: 1px solid var(--border-gold-subtle);
+}
+
+.report-section:last-child {
+  border-bottom: none;
+}
+
+.report-section-header {
     grid-template-columns: 1fr;
 
     gap: 16px;
