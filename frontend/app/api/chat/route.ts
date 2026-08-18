@@ -1,4 +1,5 @@
 import { google } from '@ai-sdk/google';
+import { NextResponse } from 'next/server';
 import {
   convertToModelMessages,
   streamText,
@@ -111,23 +112,34 @@ ${sectionIndex || '(no hay secciones indexadas)'}`;
 }
 
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const { messages, reportId }: { messages: UIMessage[]; reportId?: string } =
+    await req.json();
 
-  const report = await prisma.report.findFirst({
-    where: 
-    
-    
-    { status: 'published' },
-    orderBy: { publishedAt: 'desc' },
-    select: {
-      title: true,
-      description: true,
-      sectionsJson: true,
-      metricsJson: true,
-      chartsJson: true,
-      failureModesJson: true,
-    },
-  });
+  const reportSelect = {
+    title: true,
+    description: true,
+    sectionsJson: true,
+    metricsJson: true,
+    chartsJson: true,
+    failureModesJson: true,
+  } as const;
+
+  let report;
+  if (reportId) {
+    report = await prisma.report.findUnique({
+      where: { id: reportId },
+      select: reportSelect,
+    });
+    if (!report) {
+      return NextResponse.json({ error: 'Reporte no encontrado' }, { status: 404 });
+    }
+  } else {
+    report = await prisma.report.findFirst({
+      where: { status: 'published' },
+      orderBy: { publishedAt: 'desc' },
+      select: reportSelect,
+    });
+  }
 
   const data = report ? parseStoredJson(report) : null;
 
