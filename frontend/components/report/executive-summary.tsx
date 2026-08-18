@@ -65,15 +65,17 @@ export function ExecutiveSummary({ reportId }: { reportId?: string } = {}) {
 
   return (
     <section id="resumen" className="report-section">
-      <div className="report-section-header">
-        <span className="section-number">01</span>
-
-        <div className="w-full">
-          <h2 className="section-title">
+      <div className="w-full">
+        <div className="flex items-baseline gap-3 mb-4 border-b border-[#c9a227]/20 pb-3">
+          <span className="text-3xl sm:text-4xl font-serif font-bold text-[#c9a227]">
+            01
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#f4f1e8]">
             {infoSummary?.title.replace(/^\d+\s+[—-]\s*/i, "")}
           </h2>
+        </div>
 
-          <SectionContent content={mainText || infoSummary.content} />
+        <SectionContent content={mainText || infoSummary.content} />
 
           {kpis.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
@@ -93,7 +95,6 @@ export function ExecutiveSummary({ reportId }: { reportId?: string } = {}) {
             </div>
           )}
         </div>
-      </div>
     </section>
   );
 }
