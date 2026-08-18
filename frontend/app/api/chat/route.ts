@@ -231,23 +231,24 @@ REGLAS DE RECUPERACIÓN (OBLIGATORIAS)
     };
   };
 
+  const tools = {
+    getChartData: getChartData(),
+    getReportSection: getReportSection(),
+  };
+
   const result = streamText({
     model: google('gemini-3.6-flash'),
     system,
-    messages: await convertToModelMessages(messages),
-    tools: {
-      getChartData: getChartData(),
-      getReportSection: getReportSection(),
-    },
+    messages: await convertToModelMessages(messages, { tools }),
+    tools,
+    stopWhen: isStepCount(5),
   });
 
   return createUIMessageStreamResponse({
     stream: toUIMessageStream({
       stream: result.stream,
-      tools: {
-        getChartData: getChartData(),
-        getReportSection: getReportSection(),
-      },
+      tools,
     }),
   });
 }
+
