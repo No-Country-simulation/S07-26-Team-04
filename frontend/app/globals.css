@@ -334,6 +334,14 @@ button {
   border-bottom: 1px solid var(--border-gold-subtle);
 }
 
+.site-header > div {
+  display: flex;
+
+  align-items: center;
+
+  width: 100%;
+}
+
 /*
   PhysaFlow logo
 */
@@ -1731,8 +1739,22 @@ select:focus {
    CITATION
    ========================================================= */
 
+#quote .report-section-header {
+  margin-bottom: 0;
+}
+
+#quote .section-number {
+  font-size: 48px;
+}
+
+#quote .section-title {
+  font-size: 28px;
+
+  line-height: 36px;
+}
+
 .citation-card {
-  margin-top: 40px;
+  margin-top: 24px;
 
   overflow: hidden;
 
