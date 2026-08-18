@@ -80,17 +80,10 @@ export function Citation({ reportId }: { reportId?: string } = {}) {
         <span className="section-number">07</span>
 
         <div>
-          <div className="report-sub-card-label">REFERENCIA BIBLIOGRÁFICA</div>
-
           <h2 className="section-title">
-            {infoCitation.title.replace(/^\d+\s+[—-]\s*/i, "") ??
+            {infoCitation?.title.replace(/^\d+\s+[—-]\s*/i, "") ??
               "Referencia bibliográfica"}
           </h2>
-
-          <p className="section-description">
-            Si utilizas este reporte, puedes citarlo utilizando la siguiente
-            referencia.
-          </p>
         </div>
       </div>
 
@@ -118,7 +111,7 @@ export function Citation({ reportId }: { reportId?: string } = {}) {
 
           <div className="citation-text-wrapper">
             <SectionContent
-              content={infoCitation.content ?? "Cita no disponible"}
+              content={infoCitation?.content ?? "Cita no disponible"}
             />
           </div>
 
