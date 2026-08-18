@@ -411,9 +411,9 @@ button {
 
   min-height: 80vh;
 
-  padding-top: 140px;
+  padding-top: 120px;
 
-  padding-bottom: 10%;
+  padding-bottom: 120px;
 
   padding-left: var(--margin-x);
 
@@ -2101,9 +2101,9 @@ select:focus {
   .report-hero {
     min-height: 70vh;
 
-    padding-top: 100px;
+    padding-top: 80px;
 
-    padding-bottom: 48px;
+    padding-bottom: 80px;
 
     padding-left: var(--margin-x);
 
