@@ -113,7 +113,7 @@ export function ReportSidebar() {
 
           <SidebarGroupContent>
             <Highlight
-              className="bg-[#082f25]/90 rounded-md border border-[#c6a13a]/30"
+              className="bg-[#082f25] rounded-md"
               hover
             >
               <SidebarMenu>
@@ -135,9 +135,11 @@ export function ReportSidebar() {
                             uppercase
                             tracking-[0.04em]
                             transition-colors
+                            bg-transparent
+                            hover:bg-transparent
                             ${
                               isActive
-                                ? "bg-[#082f25] text-[#c6a13a] font-bold border-l-2 border-[#c6a13a]"
+                                ? "text-[#c6a13a] font-bold border-l-2 border-[#c6a13a]"
                                 : "text-[#a6aaa2] hover:text-[#c6a13a]"
                             }
                           `}
