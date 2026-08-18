@@ -13,7 +13,7 @@ export default function SectionContent({ content }: SectionProps) {
         remarkPlugins={[remarkGfm]}
         components={{
           h2: ({ children }) => (
-            <h2 className="text-[#ecc246] font-sans text-xl sm:text-2xl font-bold mt-1 mb-3 leading-snug tracking-tight">
+            <h2 className="text-[#e5e2da]/95 font-sans text-lg sm:text-xl font-medium italic mt-1 mb-4 leading-relaxed tracking-normal">
               {children}
             </h2>
           ),
