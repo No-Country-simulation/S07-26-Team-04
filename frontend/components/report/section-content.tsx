@@ -13,12 +13,12 @@ export default function SectionContent({ content }: SectionProps) {
         remarkPlugins={[remarkGfm]}
         components={{
           h2: ({ children }) => (
-            <h2 className="text-[#e5e2da]/95 font-sans text-lg sm:text-xl font-medium italic mt-1 mb-4 leading-relaxed tracking-normal">
+            <h2 className="text-[#e5e2da] font-sans text-xl sm:text-2xl font-semibold italic mt-2 mb-4 leading-snug tracking-tight">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-[#f4f1e8] font-sans text-lg sm:text-xl font-semibold mt-4 mb-2 tracking-tight">
+            <h3 className="text-[#f4f1e8] font-sans text-lg sm:text-xl font-bold mt-5 mb-2 tracking-tight">
               {children}
             </h3>
           ),
@@ -28,7 +28,7 @@ export default function SectionContent({ content }: SectionProps) {
             </p>
           ),
           blockquote: ({ children }) => (
-            <blockquote className="my-5 border-l-2 border-[#c9a227] bg-[#0b3d2e]/70 px-4 py-3 rounded-r text-sm sm:text-base italic text-[#e5e2da] shadow-sm font-sans">
+            <blockquote className="my-5 border-l-2 border-[#c9a227] bg-[#0b3d2e]/80 px-4 py-3 rounded-r text-xs sm:text-sm italic text-[#e5e2da]/85 leading-relaxed shadow-sm font-sans">
               {children}
             </blockquote>
           ),

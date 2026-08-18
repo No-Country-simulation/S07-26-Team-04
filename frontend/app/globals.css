@@ -966,7 +966,7 @@ button {
 .section-number {
   font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
 
-  font-size: 72px;
+  font-size: 76px;
 
   font-weight: 700;
 
@@ -984,11 +984,13 @@ button {
 
   font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
 
-  font-size: 32px;
+  font-size: 40px;
 
-  font-weight: 600;
+  font-weight: 700;
 
-  line-height: 40px;
+  line-height: 48px;
+
+  letter-spacing: -0.01em;
 
   color: var(--warm-white);
 }
