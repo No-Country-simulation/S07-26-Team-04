@@ -674,7 +674,7 @@ button {
   border-top: 1px solid var(--border-gold-subtle);
 }
 
-.hero-meta div {
+.hero-meta > div {
   display: flex;
 
   flex-direction: column;
@@ -682,7 +682,7 @@ button {
   gap: 6px;
 }
 
-.hero-meta span {
+.hero-meta > span {
   font-family: var(--font-inter), Inter, Arial, sans-serif;
 
   font-size: 12px;
@@ -698,7 +698,7 @@ button {
   color: var(--muted-green-grey);
 }
 
-.hero-meta strong {
+.hero-meta > strong {
   font-family: var(--font-inter), Inter, Arial, sans-serif;
 
   font-size: 13px;
