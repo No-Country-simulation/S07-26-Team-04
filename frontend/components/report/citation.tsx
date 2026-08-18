@@ -2,7 +2,6 @@
 
 import { Copy, Check } from "lucide-react";
 import { useEffect, useState } from "react";
-import { motion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -55,6 +54,10 @@ export function Citation({ reportId }: { reportId?: string } = {}) {
       ? new Date(citation.publishedAt).getFullYear().toString()
       : new Date().getFullYear().toString());
 
+  if (!infoCitation) {
+    return null;
+  }
+
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(
@@ -72,26 +75,28 @@ export function Citation({ reportId }: { reportId?: string } = {}) {
   }
 
   return (
-    <motion.section
-      id="quote"
-      className="report-section"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-    >
+    <section id="quote" className="report-section">
       {/* ==================================================
           HEADER
       ================================================== */}
 
       <div className="report-section-header">
-        <span className="section-number">07</span>
+        <div className="section-number">07</div>
 
         <div>
+          <div className="text-label-caps text-[var(--gold)] mb-2">
+            REFERENCIA BIBLIOGRÁFICA
+          </div>
+
           <h2 className="section-title">
-            {infoCitation?.title.replace(/^\d+\s+[—-]\s*/i, "") ??
-              "Referencia bibliográfica"}
+            {infoCitation.title.replace(/^\d+\s+[—-]\s*/i, "") ??
+              "Título no disponible"}
           </h2>
+
+          <p className="section-description">
+            Si utilizas este reporte, puedes citarlo utilizando la siguiente
+            referencia.
+          </p>
         </div>
       </div>
 
@@ -119,7 +124,7 @@ export function Citation({ reportId }: { reportId?: string } = {}) {
 
           <div className="citation-text-wrapper">
             <SectionContent
-              content={infoCitation?.content ?? "Cita no disponible"}
+              content={infoCitation.content ?? "Cita no disponible"}
             />
           </div>
 
@@ -167,6 +172,6 @@ export function Citation({ reportId }: { reportId?: string } = {}) {
           <strong>{licenseField || "CC BY-SA 4.0"}</strong>
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }
