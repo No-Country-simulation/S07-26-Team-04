@@ -1647,33 +1647,35 @@ select:focus {
 }
 
 /* =========================================================
-   HERO META — GRID LAYOUT (hevieri)
+   HERO META — INLINE ROW (hevieri)
    ========================================================= */
 
-.hero-meta-grid {
-  display: grid;
+.hero-meta {
+  width: 100%;
 
-  grid-template-columns: repeat(3, 1fr);
+  max-width: 900px;
 
-  gap: 1px;
+  margin: 0 auto;
 
-  background: rgba(201, 162, 39, 0.1);
+  padding-top: 28px;
 
-  border: 1px solid rgba(201, 162, 39, 0.1);
-}
-
-.hero-meta-item {
   display: flex;
 
-  flex-direction: column;
+  align-items: center;
 
-  align-items: flex-start;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 0;
+}
+
+.hero-meta-row {
+  display: flex;
+
+  align-items: center;
 
   gap: 6px;
-
-  padding: 18px 22px;
-
-  background: var(--forest-green);
 }
 
 .hero-meta-label {
@@ -1685,7 +1687,7 @@ select:focus {
 
   line-height: 12px;
 
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
 
   text-transform: uppercase;
 
@@ -1697,21 +1699,31 @@ select:focus {
 .hero-meta-value {
   font-family: var(--font-inter), Inter, Arial, sans-serif;
 
-  font-size: 14px;
+  font-size: 13px;
 
   font-weight: 500;
 
-  line-height: 20px;
+  line-height: 18px;
 
-  color: var(--warm-white);
+  color: var(--on-surface);
 
   margin: 0;
+}
+
+.hero-meta-sep {
+  font-size: 10px;
+
+  color: rgba(201, 162, 39, 0.3);
+
+  margin: 0 14px;
+
+  user-select: none;
 }
 
 .hero-meta-value--mono {
   font-family: var(--font-mono), "JetBrains Mono", monospace;
 
-  font-size: 13px;
+  font-size: 12px;
 
   font-weight: 400;
 }
@@ -1719,7 +1731,7 @@ select:focus {
 .hero-meta-value--version {
   font-family: var(--font-mono), "JetBrains Mono", monospace;
 
-  font-size: 13px;
+  font-size: 12px;
 
   color: var(--gold);
 }
@@ -2125,8 +2137,17 @@ select:focus {
     width: 100%;
   }
 
-  .hero-meta-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .hero-meta {
+    gap: 8px 0;
+  }
+
+  .hero-meta-sep {
+    display: none;
+  }
+
+  .hero-meta-row {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   /* ---------------------------------------------
@@ -2279,10 +2300,6 @@ select:focus {
    ========================================================= */
 
 @media (max-width: 480px) {
-  .hero-meta-grid {
-    grid-template-columns: 1fr;
-  }
-
   .report-hero h1 {
     font-size: 36px;
 

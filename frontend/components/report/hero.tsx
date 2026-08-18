@@ -117,36 +117,44 @@ export function Hero({ reportId }: { reportId?: string } = {}) {
 
           {/* Metadata */}
           <div className="hero-meta">
-            <div className="hero-meta-grid">
-              <div className="hero-meta-item">
-                <p className="hero-meta-label">Autor</p>
-                <strong className="hero-meta-value">{author || "Autor no disponible"}</strong>
-              </div>
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">Autor</span>
+              <strong className="hero-meta-value">{author || "N/D"}</strong>
+            </div>
 
-              <div className="hero-meta-item">
-                <p className="hero-meta-label">DOI</p>
-                <strong className="hero-meta-value hero-meta-value--mono">{doi || "DOI no disponible"}</strong>
-              </div>
+            <span className="hero-meta-sep">/</span>
 
-              <div className="hero-meta-item">
-                <p className="hero-meta-label">Publicado</p>
-                <strong className="hero-meta-value">{publishedAt || "Fecha no disponible"}</strong>
-              </div>
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">DOI</span>
+              <strong className="hero-meta-value hero-meta-value--mono">{doi || "N/D"}</strong>
+            </div>
 
-              <div className="hero-meta-item">
-                <p className="hero-meta-label">Lectura</p>
-                <strong className="hero-meta-value hero-meta-value--mono">{readTime}</strong>
-              </div>
+            <span className="hero-meta-sep">/</span>
 
-              <div className="hero-meta-item">
-                <p className="hero-meta-label">Licencia</p>
-                <strong className="hero-meta-value hero-meta-value--mono">{license}</strong>
-              </div>
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">Publicado</span>
+              <strong className="hero-meta-value">{publishedAt || "N/D"}</strong>
+            </div>
 
-              <div className="hero-meta-item">
-                <p className="hero-meta-label">Versión</p>
-                <strong className="hero-meta-value hero-meta-value--version">v{heroes?.version ?? "1.0.0"}</strong>
-              </div>
+            <span className="hero-meta-sep">/</span>
+
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">Lectura</span>
+              <strong className="hero-meta-value hero-meta-value--mono">{readTime}</strong>
+            </div>
+
+            <span className="hero-meta-sep">/</span>
+
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">Licencia</span>
+              <strong className="hero-meta-value hero-meta-value--mono">{license}</strong>
+            </div>
+
+            <span className="hero-meta-sep">/</span>
+
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">Versión</span>
+              <strong className="hero-meta-value hero-meta-value--version">v{heroes?.version ?? "1.0.0"}</strong>
             </div>
           </div>
         </div>
