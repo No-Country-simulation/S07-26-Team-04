@@ -6,14 +6,14 @@ import { useEffect, useState } from "react";
 import SectionContent from "./section-content";
 import { MainFindings } from "@/types/main-findings";
 
-export function Introduction() {
+export function Introduction({ reportId }: { reportId?: string } = {}) {
   const [introduction, setIntroduction] = useState<Introduction | null>(null);
   const [mainFinding, setMainFinding] = useState<MainFindings | null>(null);
 
   useEffect(() => {
     async function fetchIntroduction() {
       try {
-        const data = await getIntroduction();
+        const data = await getIntroduction(reportId);
         setIntroduction(data);
       } catch (error) {
         console.error("Error fetching introduction data:", error);
@@ -22,7 +22,7 @@ export function Introduction() {
 
     async function fetchMainFinding() {
       try {
-        const data = await getMainFindings();
+        const data = await getMainFindings(reportId);
         setMainFinding(data);
       } catch (error) {
         console.error("Error fetching main finding data:", error);
@@ -31,23 +31,20 @@ export function Introduction() {
 
     fetchIntroduction();
     fetchMainFinding();
-  }, []);
+  }, [reportId]);
 
   const infoIntroduction = introduction?.sections.find(
-    (section) => section.id === "02-introduccion",
+    (section) =>
+      section.id.includes("introduccion") ||
+      section.title.toLowerCase().includes("introducción") ||
+      section.title.toLowerCase().includes("introduccion")
   );
-
-  if (!infoIntroduction) {
-    return null;
-  }
 
   const infoMainFinding = mainFinding?.sections.find(
-    (section) => section.id === "03-hallazgos-principales",
+    (section) =>
+      section.id.includes("hallazgos") ||
+      section.title.toLowerCase().includes("hallazgos")
   );
-
-  if (!infoMainFinding) {
-    return null;
-  }
 
   return (
     <section id="introduction" className="report-section">
@@ -66,18 +63,20 @@ export function Introduction() {
             }
           />
 
-          <br />
-
-          <h3 className="section-title">
-            {infoMainFinding.title.replace(/^\d+\s+[—-]\s*/i, "")}
-          </h3>
-
-          <SectionContent
-            content={
-              infoMainFinding.content ??
-              "No se encontró el contenido de la introducción."
-            }
-          />
+          {infoMainFinding && (
+            <>
+              <br />
+              <h3 className="section-title">
+                {infoMainFinding.title.replace(/^\d+\s+[—-]\s*/i, "")}
+              </h3>
+              <SectionContent
+                content={
+                  infoMainFinding.content ??
+                  "No se encontró el contenido de los hallazgos principales."
+                }
+              />
+            </>
+          )}
         </div>
       </div>
     </section>

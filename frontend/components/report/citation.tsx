@@ -13,15 +13,21 @@ import SectionContent from "./section-content";
 // const citationText =
 //   "Cortez, H. (2026). El Índice de Capacidad Varada (SCI): Una taxonomía nominal de infraestructura pagada, energizada y no productiva en las tres capas físicas del centro de datos moderno. PhysaFlow. DOI: physaflow/sci-2025-001";
 
-export function Citation() {
+function getMarkdownField(content: string, fieldName: string): string | null {
+  if (!content) return null;
+  const regex = new RegExp(`\\*\\*${fieldName}:\\*\\*\\s*(.+)`, "i");
+  const match = content.match(regex);
+  return match ? match[1].replace(/[*_]/g, "").trim() : null;
+}
+
+export function Citation({ reportId }: { reportId?: string } = {}) {
   const [copied, setCopied] = useState(false);
   const [citation, setCitation] = useState<Citation | null>(null);
 
   useEffect(() => {
     async function fetchCitation() {
       try {
-        const data = await getCitation();
-        console.log("Fetch citation data: ", data);
+        const data = await getCitation(reportId);
         setCitation(data);
       } catch (error) {
         console.error("Error fetching citation data:", error);
@@ -29,11 +35,24 @@ export function Citation() {
     }
 
     fetchCitation();
-  }, []);
+  }, [reportId]);
 
   const infoCitation = citation?.sections.find(
-    (section) => section.id === "06-como-citar",
+    (section) =>
+      section.id.includes("citar") ||
+      section.title.toLowerCase().includes("citar")
   );
+
+  const allContent = citation?.sections.map((s) => s.content).join("\n") || "";
+  const dateField = getMarkdownField(allContent, "Fecha");
+  const doiField = getMarkdownField(allContent, "DOI");
+  const licenseField = getMarkdownField(allContent, "Licencia");
+
+  const badgeText =
+    dateField ||
+    (citation?.publishedAt
+      ? new Date(citation.publishedAt).getFullYear().toString()
+      : new Date().getFullYear().toString());
 
   if (!infoCitation) {
     return null;
@@ -91,11 +110,11 @@ export function Citation() {
             <span className="citation-eyebrow">CITACIÓN RECOMENDADA</span>
 
             <h3 className="citation-title">
-              El Índice de Capacidad Varada (SCI)
+              {citation?.title || "Título no disponible"}
             </h3>
           </div>
 
-          <span className="citation-badge">2026</span>
+          <span className="citation-badge">{badgeText}</span>
         </CardHeader>
 
         <Separator className="citation-separator" />
@@ -142,7 +161,7 @@ export function Citation() {
         <div className="citation-meta-item">
           <span>DOI</span>
 
-          <strong>physaflow/sci-2025-001</strong>
+          <strong>{doiField || "physaflow/sci-2026-001"}</strong>
         </div>
 
         <div className="citation-meta-divider" />
@@ -150,7 +169,7 @@ export function Citation() {
         <div className="citation-meta-item">
           <span>LICENCIA</span>
 
-          <strong>CC BY-SA 4.0</strong>
+          <strong>{licenseField || "CC BY-SA 4.0"}</strong>
         </div>
       </div>
     </section>

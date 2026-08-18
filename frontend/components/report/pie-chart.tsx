@@ -48,14 +48,15 @@ function wrapSvgText(text: string, maxCharsPerLine: number = 110): string[] {
   return lines;
 }
 
-export function LayerPieChart() {
+export function LayerPieChart({ reportId }: { reportId?: string } = {}) {
   const [pieData, setPieData] = useState<PueContextData | null>(null);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   useEffect(() => {
     async function fetchPieChart() {
       try {
-        const report = await getReportData();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const report = (await getReportData(reportId)) as Record<string, any>;
         if (report?.metrics?.pueContext) {
           setPieData(report.metrics.pueContext);
         } else {
@@ -81,7 +82,7 @@ export function LayerPieChart() {
     }
 
     fetchPieChart();
-  }, []);
+  }, [reportId]);
 
   if (!pieData) {
     return (

@@ -33,14 +33,14 @@ function wrapSvgText(text: string, maxCharsPerLine: number = 110): string[] {
   return lines;
 }
 
-export function FailureBarChart() {
+export function FailureBarChart({ reportId }: { reportId?: string } = {}) {
   const [barChart, setBarChart] = useState<BarChart | null>(null);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   useEffect(() => {
     async function fetchBarchart() {
       try {
-        const data = await getBarChart();
+        const data = await getBarChart(reportId);
         setBarChart(data);
       } catch (error) {
         console.error("Error fetching bar chart data:", error);
@@ -48,7 +48,7 @@ export function FailureBarChart() {
     }
 
     fetchBarchart();
-  }, []);
+  }, [reportId]);
 
   if (!barChart) {
     return (
@@ -66,8 +66,8 @@ export function FailureBarChart() {
   }
 
   const { meta, xKey, series, data } = metrics;
-  const dataKey = series[0]?.dataKey ?? "value";
-  const valueSuffix = series[0]?.valueSuffix ?? "%";
+  const dataKey = series?.[0]?.dataKey ?? "value";
+  const valueSuffix = series?.[0]?.valueSuffix ?? "%";
   const handleDownload = () => {
     const container = document.getElementById("fig-bar-chart-container");
     if (container) {

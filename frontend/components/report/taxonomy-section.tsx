@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 import { getTaxonomy } from "@/services/report.service";
 import SectionContent from "./section-content";
 
-export function TaxonomySection() {
+export function TaxonomySection({ reportId }: { reportId?: string } = {}) {
   const [taxonomy, setTaxonomy] = useState<Taxonomy | null>(null);
 
   useEffect(() => {
     async function fetchTaxonomy() {
       try {
-        const data = await getTaxonomy();
+        const data = await getTaxonomy(reportId);
         setTaxonomy(data);
       } catch (error) {
         console.error("Error fetching taxonomy data:", error);
@@ -19,7 +19,7 @@ export function TaxonomySection() {
     }
 
     fetchTaxonomy();
-  }, []);
+  }, [reportId]);
 
   const infoTaxonomy = taxonomy?.sections.find(
     (section) => section.id === "evolucion-de-la-capacidad-varada",

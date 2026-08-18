@@ -6,13 +6,13 @@ import { useEffect, useState } from "react";
 import { getMethodology } from "@/services/report.service";
 import SectionContent from "./section-content";
 
-export function Methodology() {
+export function Methodology({ reportId }: { reportId?: string } = {}) {
   const [methodology, setMethodology] = useState<Methodology | null>(null);
 
   useEffect(() => {
     async function fetchMethodology() {
       try {
-        const data = await getMethodology();
+        const data = await getMethodology(reportId);
         setMethodology(data);
       } catch (error) {
         console.error("Error fetching methodology data:", error);
@@ -20,10 +20,13 @@ export function Methodology() {
     }
 
     fetchMethodology();
-  }, []);
+  }, [reportId]);
 
   const infoMethodology = methodology?.sections.find(
-    (section) => section.id === "04-metodologia",
+    (section) =>
+      section.id.includes("metodologia") ||
+      section.title.toLowerCase().includes("metodología") ||
+      section.title.toLowerCase().includes("metodologia")
   );
 
   if (!infoMethodology) {

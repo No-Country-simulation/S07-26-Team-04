@@ -8,13 +8,14 @@ import { LayerPieChart } from "./pie-chart";
 
 type ChartType = "bar" | "pie" | "line";
 
-export function FigurasSection() {
+export function FigurasSection({ reportId }: { reportId?: string } = {}) {
   const [chartOrder, setChartOrder] = useState<ChartType[]>(["bar", "pie", "line"]);
 
   useEffect(() => {
     async function determineOrder() {
       try {
-        const report = await getReportData();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const report = (await getReportData(reportId)) as Record<string, any>;
         if (report) {
           const detectedOrder: ChartType[] = [];
           if (report.mdxContent) {
@@ -49,16 +50,16 @@ export function FigurasSection() {
     }
 
     determineOrder();
-  }, []);
+  }, [reportId]);
 
   const renderChart = (type: ChartType) => {
     switch (type) {
       case "bar":
-        return <FailureBarChart key="chart-bar" />;
+        return <FailureBarChart key="chart-bar" reportId={reportId} />;
       case "pie":
-        return <LayerPieChart key="chart-pie" />;
+        return <LayerPieChart key="chart-pie" reportId={reportId} />;
       case "line":
-        return <AccumulatedLineChart key="chart-line" />;
+        return <AccumulatedLineChart key="chart-line" reportId={reportId} />;
       default:
         return null;
     }

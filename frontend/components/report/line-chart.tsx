@@ -55,22 +55,22 @@ function CustomDot(props: { cx?: number; cy?: number; payload?: TrendData }) {
   );
 }
 
-export function AccumulatedLineChart() {
+export function AccumulatedLineChart({ reportId }: { reportId?: string } = {}) {
   const [lineChart, setLineChart] = useState<LineChart | null>(null);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   useEffect(() => {
-    async function fetchLinechart() {
+    async function fetchLineChart() {
       try {
-        const data = await getLineChart();
+        const data = await getLineChart(reportId);
         setLineChart(data);
       } catch (error) {
         console.error("Error fetching line chart data:", error);
       }
     }
 
-    fetchLinechart();
-  }, []);
+    fetchLineChart();
+  }, [reportId]);
 
   if (!lineChart) {
     return (
@@ -90,8 +90,8 @@ export function AccumulatedLineChart() {
   }
 
   const { meta, xKey, series, data } = figure2;
-  const dataKey = series[0]?.dataKey ?? "value";
-  const valueSuffix = series[0]?.valueSuffix ?? "%";
+  const dataKey = series?.[0]?.dataKey ?? "value";
+  const valueSuffix = series?.[0]?.valueSuffix ?? "%";
 
   const handleDownload = () => {
     const container = document.getElementById("fig-line-chart-container");

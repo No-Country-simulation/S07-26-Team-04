@@ -5,13 +5,13 @@ import SectionContent from "./section-content";
 import type { Conclusion } from "@/types/conclusion";
 import { getConclusion } from "@/services/report.service";
 
-export function Conclusion() {
+export function Conclusion({ reportId }: { reportId?: string } = {}) {
   const [conclusion, setConclusion] = useState<Conclusion | null>(null);
 
   useEffect(() => {
     async function fetchConclusion() {
       try {
-        const data = await getConclusion();
+        const data = await getConclusion(reportId);
         setConclusion(data);
       } catch (error) {
         console.error("Error fetching conclusion data:", error);
@@ -19,10 +19,13 @@ export function Conclusion() {
     }
 
     fetchConclusion();
-  }, []);
+  }, [reportId]);
 
   const infoconclusion = conclusion?.sections.find(
-    (section) => section.id === "05-conclusion",
+    (section) =>
+      section.id.includes("conclusion") ||
+      section.title.toLowerCase().includes("conclusión") ||
+      section.title.toLowerCase().includes("conclusion")
   );
 
   if (!infoconclusion) {
