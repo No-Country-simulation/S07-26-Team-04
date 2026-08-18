@@ -65,34 +65,33 @@ export function ExecutiveSummary({ reportId }: { reportId?: string } = {}) {
 
   return (
     <section id="resumen" className="report-section">
-      <div className="report-section-header">
-        <span className="section-number">01</span>
+      <div className="w-full">
+        <span className="float-left font-serif text-6xl sm:text-7xl font-bold text-[#c9a227] leading-none mr-5 mb-1 select-none">
+          01
+        </span>
+        <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#f4f1e8] mb-2 leading-tight">
+          {infoSummary?.title.replace(/^\d+\s+[—-]\s*/i, "")}
+        </h2>
 
-        <div className="w-full">
-          <h2 className="section-title">
-            {infoSummary?.title.replace(/^\d+\s+[—-]\s*/i, "")}
-          </h2>
+        <SectionContent content={mainText || infoSummary.content} />
 
-          <SectionContent content={mainText || infoSummary.content} />
-
-          {kpis.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-              {kpis.map((kpi, idx) => (
-                <div
-                  key={idx}
-                  className="bg-[#0b3d2e]/80 border border-[#c9a227]/30 rounded-lg p-4 shadow-md flex flex-col justify-between transition-all hover:border-[#c9a227]/60"
-                >
-                  <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[#a8b5ae]">
-                    {kpi.label}
-                  </span>
-                  <span className="text-2xl font-serif font-bold text-[#ecc246] mt-2">
-                    {kpi.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {kpis.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 clear-both">
+            {kpis.map((kpi, idx) => (
+              <div
+                key={idx}
+                className="bg-[#0b3d2e]/80 border border-[#c9a227]/30 rounded-lg p-4 shadow-md flex flex-col justify-between transition-all hover:border-[#c9a227]/60"
+              >
+                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[#a8b5ae]">
+                  {kpi.label}
+                </span>
+                <span className="text-2xl font-sans font-bold text-[#ecc246] mt-2">
+                  {kpi.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
