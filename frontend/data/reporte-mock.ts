@@ -18,6 +18,8 @@ description: "Medición de capacidad energizada y no productiva en centros de da
 
 # 01 — Resumen
 
+## El impuesto oculto del cómputo moderno.
+
 El **Índice de Capacidad Varada (SCI)** mide la capacidad de un centro de datos que está pagada y energizada, pero que no produce trabajo útil.
 
 El estudio identifica un **31,4% de capacidad no productiva** y clasifica sus causas en tres capas principales:
@@ -30,17 +32,25 @@ El estudio identifica un **31,4% de capacidad no productiva** y clasifica sus ca
 
 # 02 — Introducción
 
+## Por qué existe este informe.
+
 El PUE (Power Usage Effectiveness) permite conocer la eficiencia energética a nivel de infraestructura eléctrica y climatización, pero no indica si los servidores activos están ejecutando tareas de cómputo reales. 
 
 El **SCI** complementa esta perspectiva midiendo la capacidad que permanece subutilizada en todas las fases operativas.
+
+> "No tenemos un problema de energía. Tenemos un problema de coordinación disfrazado de problema de energía."
+> 
+> *— Director de Infraestructura, hiperescalador de nivel 1 (anonimizado)*
 
 ---
 
 # 03 — Descripción general de la taxonomía
 
+## Tres capas, nueve fallos con nombre.
+
 La taxonomía se organiza por la capa física donde se origina el fallo. Cada capa tiene sus propios operadores e instrumentación.
 
-## L1 — Capa de instalaciones
+### L1 — Capa de instalaciones
 *Energía · Refrigeración · Espacio*
 
 La capa de instalaciones es todo lo que hay entre el medidor de la empresa de servicios públicos y el PDU del rack.
@@ -60,7 +70,7 @@ La capa de instalaciones es todo lo que hay entre el medidor de la empresa de se
   - **Cuánto cuesta:** Cargos por demanda por capacidad que no genera ingresos.
   - **Por qué ocurre:** Contratos de adquisición que recompensan la capacidad reservada sin liberarla.
 
-## L2 — Capa de TI
+### L2 — Capa de TI
 *Racks · Nodos · Topología*
 
 La capa de TI es todo lo que hay entre el PDU del rack y el programador de cargas de trabajo.
@@ -80,7 +90,7 @@ La capa de TI es todo lo que hay entre el PDU del rack y el programador de carga
   - **Cuánto cuesta:** La utilización efectiva es menor que la física; la cola de programación crece.
   - **Por qué ocurre:** Topología Clos diseñada para ancho de banda este-oeste de generación anterior.
 
-## L3 — Capa de carga de trabajo
+### L3 — Capa de carga de trabajo
 *Programación · Orquestación*
 
 La capa de carga de trabajo es todo lo que hay entre el programador y la aplicación.
@@ -104,6 +114,8 @@ La capa de carga de trabajo es todo lo que hay entre el programador y la aplicac
 
 # 04 — Metodología
 
+## Cómo se construyó el índice.
+
 El SCI combina telemetría en tiempo real de instalaciones, registros del programador de cargas de trabajo y entrevistas directas a operadores.
 
 > **Nota Metodológica:** Los fallos debían ser observables en al menos dos fuentes para formar parte de la taxonomía.
@@ -111,6 +123,8 @@ El SCI combina telemetría en tiempo real de instalaciones, registros del progra
 ---
 
 # 05 — Figuras
+
+## Visualizando el índice.
 
 Visualización cuantitativa de los hallazgos principales del índice de capacidad varada.
 
@@ -177,11 +191,15 @@ Visualización cuantitativa de los hallazgos principales del índice de capacida
 
 # 06 — Conclusión
 
+## Hacia un lenguaje común de capacidad.
+
 La capacidad varada no es un único problema, sino un conjunto de fallos distribuidos entre instalaciones, TI y carga de trabajo. El SCI propone un lenguaje común para identificar estos problemas y mejorar el aprovechamiento de la capacidad existente.
 
 ---
 
 # 07 — Cómo citar
+
+## Citar este informe.
 
 **Fuente:** *PhysaFlow Stranded Capacity Index*  
 **Licencia:** CC BY-SA 4.0.`;
