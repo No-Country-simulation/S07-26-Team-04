@@ -58,9 +58,9 @@ export function Header() {
   return (
     <>
       <header className="site-header">
-        <div className="flex h-full items-center px-7">
+        <div className="flex h-full items-center px-5 w-full max-w-[1400px] mx-auto">
           {/* Logo */}
-          <Link href="/" className="brand brand-header">
+          <Link href="/" className="brand brand-header shrink-0">
             PhysaFlow
           </Link>
 
@@ -77,7 +77,7 @@ export function Header() {
           <button
             onClick={handlePrint}
             type="button"
-            className="header-download-btn"
+            className="header-download-btn shrink-0"
           >
             <Download size={12} strokeWidth={2} />
             <span>Descargar informe</span>

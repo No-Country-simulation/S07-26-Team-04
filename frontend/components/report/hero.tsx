@@ -101,9 +101,9 @@ export function Hero({ reportId }: { reportId?: string } = {}) {
         </div>
 
         {/* Hero Text Content Container */}
-        <div className="mx-auto max-w-[1400px] lg:px-40 relative z-10 w-full text-center">
+        <div className="mx-auto max-w-[1000px] lg:px-8 relative z-10 w-full text-center">
           {/* Eyebrow */}
-          <div className="flex justify-center items-center gap-2 mb-3">
+          <div className="flex justify-center items-center gap-2 mb-4">
             <p className="eyebrow !mb-0">INVESTIGACIÓN DE PhysaFlow</p>
           </div>
 
@@ -116,7 +116,7 @@ export function Hero({ reportId }: { reportId?: string } = {}) {
           </p>
 
           {/* Metadata */}
-          <div className="hero-meta pt-8 mt-2 border-t border-[#c9a227]/20 mx-auto">
+          <div className="hero-meta pt-10 mt-4 border-t border-[#c9a227]/20 mx-auto">
             <div className="hero-meta-grid">
               <div className="hero-meta-item">
                 <p className="hero-meta-label">Autor</p>
