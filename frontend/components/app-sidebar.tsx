@@ -34,6 +34,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Highlight, HighlightItem } from "@/components/animate-ui/primitives/effects/highlight";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -87,36 +88,44 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub className="border-[#3a5345]">
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          render={<Link href="/dashboard/reportes/publicados" />}
-                          isActive={pathname === "/dashboard/reportes/publicados"}
-                          className="hover:bg-[#344E41] hover:text-[#ecc246] data-active:bg-[#344E41] data-active:text-[#ecc246] data-active:font-semibold"
-                        >
-                          <FileCheck className="h-3.5 w-3.5 text-emerald-400" />
-                          <span>Publicados</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          render={<Link href="/dashboard/reportes/borradores" />}
-                          isActive={pathname === "/dashboard/reportes/borradores"}
-                          className="hover:bg-[#344E41] hover:text-[#ecc246] data-active:bg-[#344E41] data-active:text-[#ecc246] data-active:font-semibold"
-                        >
-                          <FileClock className="h-3.5 w-3.5 text-[#ecc246]" />
-                          <span>Borradores</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          render={<Link href="/dashboard/reportes/archivados" />}
-                          isActive={pathname === "/dashboard/reportes/archivados"}
-                          className="hover:bg-[#344E41] hover:text-[#ecc246] data-active:bg-[#344E41] data-active:text-[#ecc246] data-active:font-semibold"
-                        >
-                          <Archive className="h-3.5 w-3.5 text-slate-400" />
-                          <span>Archivados</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
+                      <Highlight className="bg-[#344E41]/80 rounded-md" hover>
+                        <SidebarMenuSubItem>
+                          <HighlightItem value="publicados">
+                            <SidebarMenuSubButton
+                              render={<Link href="/dashboard/reportes/publicados" />}
+                              isActive={pathname === "/dashboard/reportes/publicados"}
+                              className="hover:text-[#ecc246] data-active:bg-[#344E41] data-active:text-[#ecc246] data-active:font-semibold"
+                            >
+                              <FileCheck className="h-3.5 w-3.5 text-emerald-400" />
+                              <span>Publicados</span>
+                            </SidebarMenuSubButton>
+                          </HighlightItem>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <HighlightItem value="borradores">
+                            <SidebarMenuSubButton
+                              render={<Link href="/dashboard/reportes/borradores" />}
+                              isActive={pathname === "/dashboard/reportes/borradores"}
+                              className="hover:text-[#ecc246] data-active:bg-[#344E41] data-active:text-[#ecc246] data-active:font-semibold"
+                            >
+                              <FileClock className="h-3.5 w-3.5 text-[#ecc246]" />
+                              <span>Borradores</span>
+                            </SidebarMenuSubButton>
+                          </HighlightItem>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <HighlightItem value="archivados">
+                            <SidebarMenuSubButton
+                              render={<Link href="/dashboard/reportes/archivados" />}
+                              isActive={pathname === "/dashboard/reportes/archivados"}
+                              className="hover:text-[#ecc246] data-active:bg-[#344E41] data-active:text-[#ecc246] data-active:font-semibold"
+                            >
+                              <Archive className="h-3.5 w-3.5 text-slate-400" />
+                              <span>Archivados</span>
+                            </SidebarMenuSubButton>
+                          </HighlightItem>
+                        </SidebarMenuSubItem>
+                      </Highlight>
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
