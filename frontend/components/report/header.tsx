@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import { Download } from "lucide-react";
@@ -6,30 +8,42 @@ import { Button } from "@/components/ui/button";
 
 const navigation = [
   {
-    label: "Resumen Ejecutivo",
+    label: "Resumen",
     href: "#resumen",
   },
   {
+    label: "Introducción",
+    href: "#introduction",
+  },
+  {
     label: "Taxonomía",
-    href: "#taxonomia",
+    href: "#taxonomy",
   },
   {
     label: "Metodología",
-    href: "#metodologia",
+    href: "#methodology",
   },
   {
     label: "Figuras",
-    href: "#figuras",
+    href: "#figures",
+  },
+  {
+    label: "Conclusión",
+    href: "#conclusion",
   },
   {
     label: "Citar",
-    href: "#citar",
+    href: "#quote",
   },
 ];
 
+const handlePrint = () => {
+  window.print();
+};
+
 export function Header() {
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 h-[46px] border-b border-[#c6a13a]/15 bg-[#0d0e0b]">
+    <header className="fixed left-0 right-0 top-0 z-50 h-[46px] border-b border-[#c6a13a]/15 bg-[#0d0e0b] no-print">
       <div className="flex h-full items-center px-7">
         {/* Logo */}
 
@@ -68,6 +82,7 @@ export function Header() {
         {/* PDF */}
 
         <Button
+          onClick={handlePrint}
           size="sm"
           className="
             h-6

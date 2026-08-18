@@ -1,6 +1,6 @@
 "use client";
 
-import {useState } from "react";
+import { useState } from "react";
 
 import Link from "next/link";
 
@@ -67,7 +67,7 @@ export function ReportSidebar() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   return (
-    <Sidebar collapsible="none" className="report-sidebar border-r-0">
+    <Sidebar collapsible="none" className="report-sidebar border-r-0 no-print">
       {/* Header del Sidebar */}
       <div className="px-3 py-4">
         <p className="text-[12px] uppercase tracking-[0.18em] text-[#c6a13a]">

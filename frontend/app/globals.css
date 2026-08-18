@@ -1676,6 +1676,12 @@ select:focus {
   transform: translateY(-50%) rotate(45deg);
 }
 
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
 /* =========================================================
    RESPONSIVE — TABLET
    ========================================================= */
