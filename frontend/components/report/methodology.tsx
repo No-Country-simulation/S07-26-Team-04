@@ -3,6 +3,7 @@
 import type { Methodology } from "@/types/methodology";
 import { CapacityProgression } from "./capacity-progression";
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { getMethodology } from "@/services/report.service";
 import SectionContent from "./section-content";
 
@@ -30,7 +31,14 @@ export function Methodology({ reportId }: { reportId?: string } = {}) {
   );
 
   return (
-    <section id="methodology" className="report-section">
+    <motion.section
+      id="methodology"
+      className="report-section"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       {/* Encabezado */}
       <div className="report-section-header">
         <span className="section-number">04</span>
@@ -70,6 +78,6 @@ export function Methodology({ reportId }: { reportId?: string } = {}) {
 
         <CapacityProgression />
       </div>
-    </section>
+    </motion.section>
   );
 }

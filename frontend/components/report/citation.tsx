@@ -2,6 +2,7 @@
 
 import { Copy, Check } from "lucide-react";
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -71,7 +72,14 @@ export function Citation({ reportId }: { reportId?: string } = {}) {
   }
 
   return (
-    <section id="quote" className="report-section">
+    <motion.section
+      id="quote"
+      className="report-section"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       {/* ==================================================
           HEADER
       ================================================== */}
@@ -159,6 +167,6 @@ export function Citation({ reportId }: { reportId?: string } = {}) {
           <strong>{licenseField || "CC BY-SA 4.0"}</strong>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

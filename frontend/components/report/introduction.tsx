@@ -3,6 +3,7 @@
 import { getIntroduction, getMainFindings } from "@/services/report.service";
 import type { Introduction } from "@/types/introduction";
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import SectionContent from "./section-content";
 import { MainFindings } from "@/types/main-findings";
 
@@ -47,7 +48,14 @@ export function Introduction({ reportId }: { reportId?: string } = {}) {
   );
 
   return (
-    <section id="introduction" className="report-section">
+    <motion.section
+      id="introduction"
+      className="report-section"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       <div className="report-section-header">
         <span className="section-number">02</span>
 
@@ -79,6 +87,6 @@ export function Introduction({ reportId }: { reportId?: string } = {}) {
           )}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

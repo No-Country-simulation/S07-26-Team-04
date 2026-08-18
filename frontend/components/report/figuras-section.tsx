@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { getReportData } from "@/services/report.service";
 import { FailureBarChart } from "./bar-chart";
 import { AccumulatedLineChart } from "./line-chart";
@@ -66,7 +67,14 @@ export function FigurasSection({ reportId }: { reportId?: string } = {}) {
   };
 
   return (
-    <section id="figures" className="report-section">
+    <motion.section
+      id="figures"
+      className="report-section"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       <div className="report-section-header">
         <span className="section-number">05</span>
 
@@ -83,6 +91,6 @@ export function FigurasSection({ reportId }: { reportId?: string } = {}) {
       <div className="chart-grid mt-12 space-y-10">
         {chartOrder.map((type) => renderChart(type))}
       </div>
-    </section>
+    </motion.section>
   );
 }

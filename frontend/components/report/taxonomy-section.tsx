@@ -2,6 +2,7 @@
 
 import type { Taxonomy } from "@/types/taxonomy";
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { getTaxonomy } from "@/services/report.service";
 import SectionContent from "./section-content";
 
@@ -27,7 +28,14 @@ export function TaxonomySection({ reportId }: { reportId?: string } = {}) {
 
   return (
     <>
-      <section id="taxonomy" className="report-section">
+      <motion.section
+        id="taxonomy"
+        className="report-section"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
         <div className="report-section-header">
           <span className="section-number">03</span>
 
@@ -44,7 +52,7 @@ export function TaxonomySection({ reportId }: { reportId?: string } = {}) {
             />
           </div>
         </div>
-      </section>
+      </motion.section>
     </>
   );
 }

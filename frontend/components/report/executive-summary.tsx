@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import type { ExecutiveSummary } from "@/types/executive-summary";
 import { getExecutiveSummary } from "@/services/report.service";
 import SectionContent from "./section-content";
@@ -28,7 +29,14 @@ export function ExecutiveSummary({ reportId }: { reportId?: string } = {}) {
   );
 
   return (
-    <section id="resumen" className="report-section">
+    <motion.section
+      id="resumen"
+      className="report-section"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       <div className="report-section-header">
         <span className="section-number">01</span>
 
@@ -44,6 +52,6 @@ export function ExecutiveSummary({ reportId }: { reportId?: string } = {}) {
           />
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
