@@ -122,6 +122,20 @@ function parseSubsectionCards(content: string, layerBadge: string): { intro: str
   };
 }
 
+function parseTaxonomyContent(content: string) {
+  const parts = content.split(/^###\s+/m);
+  const mainIntro = parts[0] || "";
+
+  const layers = parts.slice(1).map((part) => {
+    const firstLineEnd = part.indexOf("\n");
+    const title = firstLineEnd >= 0 ? part.substring(0, firstLineEnd).trim() : part.trim();
+    const body = firstLineEnd >= 0 ? part.substring(firstLineEnd + 1).trim() : "";
+    return { title, body };
+  });
+
+  return { mainIntro, layers };
+}
+
 export function TaxonomySection({ reportId }: { reportId?: string } = {}) {
   const [taxonomy, setTaxonomy] = useState<Taxonomy | null>(null);
 
@@ -139,20 +153,14 @@ export function TaxonomySection({ reportId }: { reportId?: string } = {}) {
   }, [reportId]);
 
   const sectionsList = taxonomy?.sections || [];
-  const section03Index = sectionsList.findIndex(
+  const mainTaxonomy = sectionsList.find(
     (section) =>
       section.id.includes("taxonomia") ||
       section.title.toLowerCase().includes("taxonomía") ||
       section.title.toLowerCase().includes("taxonomia")
   );
 
-  const mainTaxonomy = section03Index >= 0 ? sectionsList[section03Index] : null;
-
-  // Subsecciones pertenecientes a la taxonomía (L1, L2, L3)
-  const taxonomySubsections = sectionsList.filter((s, idx) => {
-    if (section03Index < 0) return false;
-    return idx > section03Index && !/^(04|05|06|07)\s*/.test(s.title) && !s.id.includes("04") && !s.id.includes("metodologia");
-  });
+  const { mainIntro, layers } = parseTaxonomyContent(mainTaxonomy?.content || "");
 
   return (
     <section id="taxonomy" className="report-section space-y-12">
@@ -163,20 +171,20 @@ export function TaxonomySection({ reportId }: { reportId?: string } = {}) {
           <h2 className="section-title">
             {mainTaxonomy?.title ? mainTaxonomy.title.replace(/^\d+\s+[—-]\s*/i, "") : "Descripción general de la taxonomía"}
           </h2>
-          <SectionContent content={mainTaxonomy?.content || "No se encontró la descripción de la taxonomía."} />
+          <SectionContent content={mainIntro || "No se encontró la descripción de la taxonomía."} />
         </div>
       </div>
 
       {/* Renderizado Estilizado por Capas (L1, L2, L3) usando las Cards de Erika */}
-      {taxonomySubsections.map((sub, index) => {
+      {layers.map((layer, index) => {
         const defaultBadge = index === 0 ? "F" : index === 1 ? "I" : "W";
-        const { intro, cards } = parseSubsectionCards(sub.content, defaultBadge);
+        const { intro, cards } = parseSubsectionCards(layer.body, defaultBadge);
 
         return (
-          <div key={sub.id} className="report-layer-block space-y-6 pt-6 border-t border-[var(--gold)]/20">
+          <div key={index} className="report-layer-block space-y-6 pt-6 border-t border-[var(--gold)]/20">
             <div>
               <h3 className="text-xl font-serif text-[var(--warm-white)] font-bold mb-2">
-                {sub.title}
+                {layer.title}
               </h3>
               {intro && <SectionContent content={intro} />}
             </div>
