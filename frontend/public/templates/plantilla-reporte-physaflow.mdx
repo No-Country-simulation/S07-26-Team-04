@@ -42,11 +42,21 @@ El **SCI** complementa esta perspectiva midiendo la capacidad que permanece subu
 
 El estudio de campo analizó **41 sitios**, representando **4,2 GW de carga IT** evaluados durante un periodo continuo de **18 meses**, apoyado por **63 entrevistas en profundidad** con operadores sénior.
 
+Las principales causas fueron la sobresuscripción térmica (6,1%), el aprovisionamiento en sombra (4,5%) y la deriva del pasillo frío (4,2%) en instalaciones; los racks comatosos (3,8%), el bloqueo de topología (3,0%) y los nodos durmientes (2,9%) en TI; y las asignaciones huérfanas (3,1%), la inanición por afinidad (2,2%) y la latencia de marea (1,6%) en cargas de trabajo.
+
 ---
 
-### Evolución de la capacidad varada
+# 04 — Metodología
 
-Las principales causas fueron la sobresuscripción térmica (6,1%), el aprovisionamiento en sombra (4,5%) y la deriva del pasillo frío (4,2%) en instalaciones; los racks comatosos (3,8%), el bloqueo de topología (3,0%) y los nodos durmientes (2,9%) en TI; y las asignaciones huérfanas (3,1%), la inanición por afinidad (2,2%) y la latencia de marea (1,6%) en cargas de trabajo.
+El SCI combina telemetría en tiempo real de instalaciones, registros del programador de cargas de trabajo (cluster schedulers) y entrevistas directas. 
+
+> **Nota Metodológica:** Los fallos debían ser observables en al menos dos fuentes para formar parte de la taxonomía.
+
+---
+
+# 05 — Figuras
+
+Visualización cuantitativa de los hallazgos principales del índice de capacidad varada.
 
 ```json
 {
@@ -126,21 +136,14 @@ Las principales causas fueron la sobresuscripción térmica (6,1%), el aprovisio
 
 ---
 
-# 04 — Metodología
-
-El SCI combina telemetría en tiempo real de instalaciones, registros del programador de cargas de trabajo (cluster schedulers) y entrevistas directas. 
-
-> **Nota Metodológica:** Los fallos debían ser observables en al menos dos fuentes para formar parte de la taxonomía.
-
----
-
-# 05 — Conclusión
+# 06 — Conclusión
 
 La capacidad varada no es un único problema, sino un conjunto de fallos distribuidos entre instalaciones, TI y carga de trabajo. El SCI propone un lenguaje común para identificar estos problemas y mejorar el aprovechamiento de la capacidad existente.
 
 ---
 
-# 06 — Cómo citar
+# 07 — Cómo citar
 
 **Fuente:** *PhysaFlow Stranded Capacity Index*  
 **Licencia:** CC BY-SA 4.0.
+

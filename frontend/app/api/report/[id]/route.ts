@@ -51,6 +51,7 @@ export async function GET(
     publishedAt: report.publishedAt,
     createdAt: report.createdAt,
     updatedAt: report.updatedAt,
+    mdxContent: report.mdxContent,
     sections,
     metrics,
     charts,
