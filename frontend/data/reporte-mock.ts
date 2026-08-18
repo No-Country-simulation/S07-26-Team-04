@@ -46,19 +46,19 @@ La taxonomía se organiza por la capa física donde se origina el fallo. Cada ca
 La capa de instalaciones es todo lo que hay entre el medidor de la empresa de servicios públicos y el PDU del rack.
 
 - **F-01 (4,2%) — Deriva del pasillo frío**
-  - **Observado:** Racks que reportan temperaturas de entrada conformes mientras el aire de retorno de los CRAH sube 2–4 °C por encima del punto de consigna.
-  - **Costo:** CRAH sobredimensionados; ~6–9% de los kW de enfriadores gastados en enfriar aire que nunca llega al servidor.
-  - **Causa raíz:** Paneles de contención instalados según diseño; adiciones posteriores de racks rompen el plano de presión.
+  - **Qué se ve:** Racks que reportan temperaturas de entrada conformes mientras el aire de retorno de los CRAH sube 2–4 °C por encima del punto de consigna.
+  - **Cuánto cuesta:** CRAH sobredimensionados; ~6–9% de los kW de enfriadores gastados en enfriar aire que nunca llega al servidor.
+  - **Por qué ocurre:** Paneles de contención instalados según diseño; adiciones posteriores de racks rompen el plano de presión.
 
 - **F-02 (6,1%) — Sobresuscripción térmica**
-  - **Observado:** Racks descalificados por el operador de TI para mantenerse bajo un techo térmico que la instalación no puede sostener.
-  - **Costo:** kW contratados disponibles pero inalcanzables.
-  - **Causa raíz:** Refrigeración diseñada para una densidad media que ya no refleja la carga de trabajo.
+  - **Qué se ve:** Racks descalificados por el operador de TI para mantenerse bajo un techo térmico que la instalación no puede sostener.
+  - **Cuánto cuesta:** kW contratados disponibles pero inalcanzables.
+  - **Por qué ocurre:** Refrigeración diseñada para una densidad media que ya no refleja la carga de trabajo.
 
 - **F-03 (4,5%) — Aprovisionamiento en sombra**
-  - **Observado:** Capacidad de interruptor reservada para un despliegue futuro de racks que no ha ocurrido 12+ meses después.
-  - **Costo:** Cargos por demanda por capacidad que no genera ingresos.
-  - **Causa raíz:** Contratos de adquisición que recompensan la capacidad reservada sin liberarla.
+  - **Qué se ve:** Capacidad de interruptor reservada para un despliegue futuro de racks que no ha ocurrido 12+ meses después.
+  - **Cuánto cuesta:** Cargos por demanda por capacidad que no genera ingresos.
+  - **Por qué ocurre:** Contratos de adquisición que recompensan la capacidad reservada sin liberarla.
 
 ## L2 — Capa de TI
 *Racks · Nodos · Topología*
@@ -66,19 +66,19 @@ La capa de instalaciones es todo lo que hay entre el medidor de la empresa de se
 La capa de TI es todo lo que hay entre el PDU del rack y el programador de cargas de trabajo.
 
 - **I-01 (3,8%) — Racks comatosos**
-  - **Observado:** Racks completamente poblados que consumen energía de base sin ninguna carga despachada durante 30+ días.
-  - **Costo:** Amortización de gasto en silicio muerto; ~12% de kW de placa consumidos continuamente.
-  - **Causa raíz:** La descomisión requiere tickets de gestión de cambios que nadie posee.
+  - **Qué se ve:** Racks completamente poblados que consumen energía de base sin ninguna carga despachada durante 30+ días.
+  - **Cuánto cuesta:** Amortización de gasto en silicio muerto; ~12% de kW de placa consumidos continuamente.
+  - **Por qué ocurre:** La descomisión requiere tickets de gestión de cambios que nadie posee.
 
 - **I-02 (2,9%) — Nodos durmientes**
-  - **Observado:** Nodos marcados como disponibles por el orquestador pero excluidos de la programación por fallos de salud.
-  - **Costo:** El clúster parece estar al 80% mientras el 20% de los nodos están oscuros.
-  - **Causa raíz:** El orquestador reporta nodos registrados, no programables.
+  - **Qué se ve:** Nodos marcados como disponibles por el orquestador pero excluidos de la programación por fallos de salud.
+  - **Cuánto cuesta:** El clúster parece estar al 80% mientras el 20% de los nodos están oscuros.
+  - **Por qué ocurre:** El orquestador reporta nodos registrados, no programables.
 
 - **I-03 (3,0%) — Bloqueo de topología**
-  - **Observado:** Existe cómputo libre en dos pods, pero la carga debe esperar porque la red no transporta el flujo.
-  - **Costo:** La utilización efectiva es menor que la física; la cola de programación crece.
-  - **Causa raíz:** Topología Clos diseñada para ancho de banda este-oeste de generación anterior.
+  - **Qué se ve:** Existe cómputo libre en dos pods, pero la carga debe esperar porque la red no transporta el flujo.
+  - **Cuánto cuesta:** La utilización efectiva es menor que la física; la cola de programación crece.
+  - **Por qué ocurre:** Topología Clos diseñada para ancho de banda este-oeste de generación anterior.
 
 ## L3 — Capa de carga de trabajo
 *Programación · Orquestación*
@@ -86,19 +86,19 @@ La capa de TI es todo lo que hay entre el PDU del rack y el programador de carga
 La capa de carga de trabajo es todo lo que hay entre el programador y la aplicación.
 
 - **W-01 (3,1%) — Asignaciones huérfanas**
-  - **Observado:** VMs o pods reservados contra una cuota pero produciendo cero tráfico durante semanas.
-  - **Costo:** Cuota agotada para nuevos inquilinos mientras los existentes mantienen asignaciones no utilizadas.
-  - **Causa raíz:** Ningún propietario libera capacidad por temor a necesitarla mañana.
+  - **Qué se ve:** VMs o pods reservados contra una cuota pero produciendo cero tráfico durante semanas.
+  - **Cuánto cuesta:** Cuota agotada para nuevos inquilinos mientras los existentes mantienen asignaciones no utilizadas.
+  - **Por qué ocurre:** Ningún propietario libera capacidad por temor a necesitarla mañana.
 
 - **W-02 (2,2%) — Inanición por afinidad**
-  - **Observado:** La carga no se programa por reglas de afinidad demasiado restrictivas.
-  - **Costo:** Aumenta la espera en cola; adquisición aprueba nuevos nodos innecesarios.
-  - **Causa raíz:** Reglas de afinidad escritas en el despliegue v1 que nunca se revisan.
+  - **Qué se ve:** La carga no se programa por reglas de afinidad demasiado restrictivas.
+  - **Cuánto cuesta:** Aumenta la espera en cola; adquisición aprueba nuevos nodos innecesarios.
+  - **Por qué ocurre:** Reglas de afinidad escritas en el despliegue v1 que nunca se revisan.
 
 - **W-03 (1,6%) — Latencia de marea**
-  - **Observado:** Capacidad aprovisionada para un pico diario de 30–90 minutos; el resto del día el silicio está inactivo.
-  - **Costo:** Capital desplegado contra una curva de marea al precio del pico.
-  - **Causa raíz:** Adquisición y programación funcionan con relojes y objetivos desconectados.
+  - **Qué se ve:** Capacidad aprovisionada para un pico diario de 30–90 minutos; el resto del día el silicio está inactivo.
+  - **Cuánto cuesta:** Capital desplegado contra una curva de marea al precio del pico.
+  - **Por qué ocurre:** Adquisición y programación funcionan con relojes y objetivos desconectados.
 
 ---
 
