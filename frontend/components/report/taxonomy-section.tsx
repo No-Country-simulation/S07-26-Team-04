@@ -15,6 +15,11 @@ interface ParsedCardItem {
   queSeVe: string;
   cuantoCuesta: string;
   porQueOcurre: string;
+  labels: {
+    visible: string;
+    cost: string;
+    reason: string;
+  };
 }
 
 function parseSubsectionCards(content: string, layerBadge: string): { intro: string; cards: ParsedCardItem[] } {
@@ -40,6 +45,11 @@ function parseSubsectionCards(content: string, layerBadge: string): { intro: str
           queSeVe: currentCard.queSeVe || "No disponible",
           cuantoCuesta: currentCard.cuantoCuesta || "No disponible",
           porQueOcurre: currentCard.porQueOcurre || "No disponible",
+          labels: currentCard.labels || {
+            visible: "Qué se ve",
+            cost: "Cuánto cuesta",
+            reason: "Causa raíz",
+          },
         });
       }
 
@@ -56,26 +66,31 @@ function parseSubsectionCards(content: string, layerBadge: string): { intro: str
         queSeVe: "",
         cuantoCuesta: "",
         porQueOcurre: "",
+        labels: {
+          visible: "",
+          cost: "",
+          reason: "",
+        },
       };
       continue;
     }
 
     if (currentCard) {
-      const obsMatch = line.match(/^-\s*\*\*(?:Observado|Qué se ve):\*\*\s*(.*)/i);
-      if (obsMatch) {
-        currentCard.queSeVe = obsMatch[1].trim();
-        continue;
-      }
+      const subBulletMatch = line.match(/^-\s*\*\*(.*?):\*\*\s*(.*)/);
+      if (subBulletMatch) {
+        const labelText = subBulletMatch[1].trim();
+        const detailText = subBulletMatch[2].trim();
 
-      const costMatch = line.match(/^-\s*\*\*(?:Costo|Cuánto cuesta):\*\*\s*(.*)/i);
-      if (costMatch) {
-        currentCard.cuantoCuesta = costMatch[1].trim();
-        continue;
-      }
-
-      const reasonMatch = line.match(/^-\s*\*\*(?:Causa raíz|Por qué ocurre):\*\*\s*(.*)/i);
-      if (reasonMatch) {
-        currentCard.porQueOcurre = reasonMatch[1].trim();
+        if (!currentCard.queSeVe) {
+          currentCard.queSeVe = detailText;
+          currentCard.labels!.visible = labelText;
+        } else if (!currentCard.cuantoCuesta) {
+          currentCard.cuantoCuesta = detailText;
+          currentCard.labels!.cost = labelText;
+        } else {
+          currentCard.porQueOcurre = detailText;
+          currentCard.labels!.reason = labelText;
+        }
         continue;
       }
     } else {
@@ -93,6 +108,11 @@ function parseSubsectionCards(content: string, layerBadge: string): { intro: str
       queSeVe: currentCard.queSeVe || "No disponible",
       cuantoCuesta: currentCard.cuantoCuesta || "No disponible",
       porQueOcurre: currentCard.porQueOcurre || "No disponible",
+      labels: currentCard.labels || {
+        visible: "Qué se ve",
+        cost: "Cuánto cuesta",
+        reason: "Causa raíz",
+      },
     });
   }
 
@@ -178,6 +198,7 @@ export function TaxonomySection({ reportId }: { reportId?: string } = {}) {
                   queSeVe={card.queSeVe}
                   cuantoCuesta={card.cuantoCuesta}
                   porQueOcurre={card.porQueOcurre}
+                  labels={card.labels}
                 />
               ))}
             </div>
