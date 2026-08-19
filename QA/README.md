@@ -6,7 +6,7 @@ Este directorio está reservado para almacenar toda la documentación, evidencia
 
 ---
 
-## 📁 Estructura del Directorio
+## Estructura del Directorio
 
 El trabajo de QA está organizado principalmente para pruebas manuales, manteniendo una estructura clara y limpia:
 
@@ -21,7 +21,7 @@ QA/
 
 ---
 
-## 📋 Proceso de QA Manual
+## Proceso de QA Manual
 
 El QA responsable llevará a cabo las pruebas de manera manual sobre los flujos del sistema:
 
@@ -42,7 +42,7 @@ Cuando se detecte una falla durante la prueba manual, registrar un reporte con:
 
 ---
 
-## 📝 Buenas Prácticas de Entrega
+## Buenas Prácticas de Entrega
 
 1. **Uso de Markdown (`.md`)**: Redactar todos los documentos en formato Markdown para su correcta lectura en GitHub.
 2. **Evidencias claras**: Almacenar imágenes o videos en la carpeta `evidencias/` y enlazarlos en el reporte correspondiente.
