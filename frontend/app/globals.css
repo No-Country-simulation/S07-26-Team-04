@@ -1784,7 +1784,7 @@ select:focus {
   width: 100%;
 }
 
-.header-download-btn {
+/* .header-download-btn {
   display: inline-flex;
 
   align-items: center;
@@ -1831,6 +1831,49 @@ select:focus {
 
 .header-download-btn:active {
   transform: translateY(0);
+} */
+
+.header-download-btn-mobile {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 8px;
+  background: var(--gold);
+  color: var(--deep-forest);
+  font-family: var(--font-inter), Inter, Arial, sans-serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--gold-light);
+  border-radius: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.header-download-btn-mobile:hover {
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+  transform: translateY(-1px);
+}
+
+.header-download-btn-mobile:active {
+  transform: translateY(0);
+}
+
+@media (min-width: 1024px) {
+  .header-download-btn-mobile {
+    height: 32px;
+    padding: 0 14px;
+    font-size: 10px;
+    gap: 6px;
+    letter-spacing: 0.1em;
+  }
 }
 
 /* =========================================================
@@ -2083,7 +2126,7 @@ select:focus {
   .header-hamburger {
     display: flex;
 
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .mobile-menu-overlay {

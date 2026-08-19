@@ -77,7 +77,7 @@ export function Header() {
           <button
             onClick={handlePrint}
             type="button"
-            className="header-download-btn shrink-0"
+            className="header-download-btn-mobile shrink-0 ml-auto mr-2 lg:ml-0 lg:mr-0"
           >
             <Download size={12} strokeWidth={2} />
             <span>Descargar informe</span>
