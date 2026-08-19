@@ -44,14 +44,8 @@ export function ChatAyudante({ reportId }: ChatAyudanteProps) {
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const {
-    messages,
-    sendMessage,
-    status,
-    error,
-    regenerate,
-    setMessages,
-  } = useChat();
+  const { messages, sendMessage, status, error, regenerate, setMessages } =
+    useChat();
 
   const isLoading = status === "submitted" || status === "streaming";
 
@@ -69,10 +63,7 @@ export function ChatAyudante({ reportId }: ChatAyudanteProps) {
     if (!textToSend.trim() || isLoading) return;
     const text = textToSend.trim();
     setInputText("");
-    await sendMessage(
-      { text },
-      { body: reportId ? { reportId } : undefined }
-    );
+    await sendMessage({ text }, { body: reportId ? { reportId } : undefined });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -184,7 +175,8 @@ export function ChatAyudante({ reportId }: ChatAyudanteProps) {
                     ¿En qué puedo ayudarte hoy?
                   </h4>
                   <p className="text-xs text-slate-300 mt-1 max-w-xs leading-relaxed">
-                    Puedo consultar métricas, secciones y modos de fallo del estudio de capacidad varada de PhysaFlow.
+                    Puedo consultar métricas, secciones y modos de fallo del
+                    estudio de capacidad varada de PhysaFlow.
                   </p>
                 </div>
 
