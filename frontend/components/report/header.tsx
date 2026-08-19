@@ -57,7 +57,7 @@ export function Header() {
 
   return (
     <>
-      <header className="site-header">
+      <header className="site-header no-print">
         <div className="flex h-full items-center px-5 w-full max-w-[1400px] mx-auto">
           {/* Logo */}
           <Link href="/" className="brand brand-header shrink-0">
