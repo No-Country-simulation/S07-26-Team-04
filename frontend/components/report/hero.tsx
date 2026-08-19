@@ -101,11 +101,10 @@ export function Hero({ reportId }: { reportId?: string } = {}) {
         </div>
 
         {/* Hero Text Content Container */}
-        <div className="mx-auto max-w-[1400px] lg:px-40 relative z-10 w-full">
+        <div className="mx-auto max-w-[1000px] lg:px-8 relative z-10 w-full text-center">
           {/* Eyebrow */}
-          <div className="flex items-center gap-2 mb-3">
-            {/* <span className="w-2 h-2 rounded-full bg-[#ecc246]" /> */}
-            <p className="eyebrow !mb-0 ">INVESTIGACIÓN DE PhysaFlow</p>
+          <div className="flex justify-center items-center gap-2 mb-4">
+            <p className="eyebrow !mb-0">INVESTIGACIÓN DE PhysaFlow</p>
           </div>
 
           {/* Título */}
@@ -117,35 +116,45 @@ export function Hero({ reportId }: { reportId?: string } = {}) {
           </p>
 
           {/* Metadata */}
-          <div className="hero-meta flex flex-wrap items-center gap-y-4 gap-x-6 lg:gap-x-8 pt-6 border-t border-[#c9a227]/30">
-            <div className="border-r border-[#c9a227]/25 pr-6 lg:pr-8">
-              <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">Autor</p>
-              <strong className="text-sm font-sans text-[#e5e2da] whitespace-nowrap">{author || "Autor no disponible"}</strong>
+          <div className="hero-meta">
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">Autor</span>
+              <strong className="hero-meta-value">{author || "N/D"}</strong>
             </div>
 
-            <div className="border-r border-[#c9a227]/25 pr-6 lg:pr-8">
-              <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">DOI</p>
-              <strong className="text-xs font-mono text-[#e5e2da] whitespace-nowrap">{doi || "DOI no disponible"}</strong>
+            <span className="hero-meta-sep">/</span>
+
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">DOI</span>
+              <strong className="hero-meta-value hero-meta-value--mono">{doi || "N/D"}</strong>
             </div>
 
-            <div className="border-r border-[#c9a227]/25 pr-6 lg:pr-8">
-              <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">Publicado</p>
-              <strong className="text-sm font-sans text-[#e5e2da] whitespace-nowrap">{publishedAt || "Fecha no disponible"}</strong>
+            <span className="hero-meta-sep">/</span>
+
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">Publicado</span>
+              <strong className="hero-meta-value">{publishedAt || "N/D"}</strong>
             </div>
 
-            <div className="border-r border-[#c9a227]/25 pr-6 lg:pr-8">
-              <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">Lectura</p>
-              <strong className="text-xs font-mono text-[#e5e2da] whitespace-nowrap">{readTime}</strong>
+            <span className="hero-meta-sep">/</span>
+
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">Lectura</span>
+              <strong className="hero-meta-value hero-meta-value--mono">{readTime}</strong>
             </div>
 
-            <div className="border-r border-[#c9a227]/25 pr-6 lg:pr-8">
-              <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">Licencia</p>
-              <strong className="text-xs font-mono text-[#e5e2da] whitespace-nowrap">{license}</strong>
+            <span className="hero-meta-sep">/</span>
+
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">Licencia</span>
+              <strong className="hero-meta-value hero-meta-value--mono">{license}</strong>
             </div>
 
-            <div>
-              <p className="text-[#c6a13a] text-[11px] font-mono font-semibold uppercase tracking-wider mb-1">Versión</p>
-              <strong className="text-xs font-mono text-[#ecc246] whitespace-nowrap">v{heroes?.version ?? "1.0.0"}</strong>
+            <span className="hero-meta-sep">/</span>
+
+            <div className="hero-meta-row">
+              <span className="hero-meta-label">Versión</span>
+              <strong className="hero-meta-value hero-meta-value--version">v{heroes?.version ?? "1.0.0"}</strong>
             </div>
           </div>
         </div>
