@@ -2,52 +2,48 @@
 
 Bienvenido a la sección de **Quality Assurance (QA)** del proyecto **PhysaFlow**.
 
-Este directorio está destinado a almacenar toda la documentación relativa a pruebas, reportes de bugs, planes de pruebas y evidencias del proceso de QA.
+Este directorio está reservado para almacenar toda la documentación, evidencias y reportes del proceso de **QA Manual**.
 
 ---
 
 ## 📁 Estructura del Directorio
 
-Se sugiere organizar los archivos dentro de este directorio según el tipo de prueba:
+El trabajo de QA está organizado principalmente para pruebas manuales, manteniendo una estructura clara y limpia:
 
 ```text
 QA/
 ├── README.md                 # Guía general e instrucciones de QA
-├── manual/                   # Documentación y reportes de pruebas manuales
-│   ├── test-cases.md         # Casos de prueba manuales (Criterios de aceptación, flujos)
-│   ├── bug-reports/          # Reportes detallados de bugs encontrados
-│   └── execution-reports/    # Informes y matriz de resultados de ejecuciones manuales
-└── automated/                # Documentación y evidencias de pruebas automatizadas
-    ├── plan.md               # Estrategia y alcance de automatización (E2E, API, etc.)
-    └── reports/              # Reportes o exportaciones de resultados automatizados
+├── casos-de-prueba/          # Casos de prueba manuales (escenarios, criterios de aceptación)
+├── reportes-de-bugs/         # Reportes detallados de errores/bugs encontrados
+├── listas-de-chequeo/        # Checklists de regresión previa a lanzamientos
+└── evidencias/               # Capturas de pantalla, videos y logs de respaldo
 ```
 
 ---
 
-## 📋 Pruebas Manuales (Manual QA)
+## 📋 Proceso de QA Manual
 
-Las pruebas manuales forman una parte fundamental en el flujo de desarrollo del proyecto.
+El QA responsable llevará a cabo las pruebas de manera manual sobre los flujos del sistema:
 
-### ¿Qué registrar aquí?
-1. **Casos de prueba (Test Cases)**: Matriz con pasos a reproducir, datos de entrada y resultado esperado.
-2. **Reportes de Bugs**: Detalle de hallazgos con pasos para reproducir, severidad, evidencia (capturas/videos) y comportamiento observado vs. esperado.
-3. **Checklists de Regresión**: Listado rápido de chequeos previos a cada release o merge a `main`.
+### 1. Casos de Prueba (`casos-de-prueba/`)
+- Documentar los escenarios a probar (p. ej. creación de reportes, autenticación, edición en MDX).
+- Incluir pasos a reproducir, datos de entrada y **resultado esperado**.
+
+### 2. Reportes de Bugs (`reportes-de-bugs/`)
+Cuando se detecte una falla durante la prueba manual, registrar un reporte con:
+- **Título breve del bug**
+- **Pasos para reproducir**
+- **Comportamiento observado vs. Comportamiento esperado**
+- **Prioridad / Severidad** (Baja, Media, Alta, Crítica)
+- Enlace a la evidencia en `evidencias/`
+
+### 3. Listas de Chequeo / Regresión (`listas-de-chequeo/`)
+- Verificaciones rápidas de humo (Smoke Tests) antes de realizar merges a la rama `main` o desplegar a producción.
 
 ---
 
-## 🤖 Pruebas Automatizadas (Automated QA)
+## 📝 Buenas Prácticas de Entrega
 
-Aunque el enfoque actual incluye pruebas manuales, el proyecto está preparado para incorporar automatización.
-
-### Cobertura sugerida para automatización:
-- **API Testing**: Pruebas de integración de endpoints (e.g. con Postman, Bruno o Playwright API).
-- **E2E Testing**: Flujos críticos de usuario (Navegación en dashboard, creación y edición de reportes).
-- **Component & Unit Testing**: Pruebas de componentes clave de la UI.
-
----
-
-## 🚀 Buenas Prácticas para Subir Documentación
-
-1. **Formatos preferidos**: Utilizar archivos Markdown (`.md`) para documentación legible directamente en GitHub.
-2. **Imágenes y Evidencias**: Guardar imágenes o capturas dentro de una subcarpeta `assets/` o adjuntarlas en los reportes de bugs.
-3. **Nombres de archivos claros**: Usar nombres descriptivos en minúsculas separados por guiones (ej. `2026-08-19-reporte-regresion-dashboard.md`).
+1. **Uso de Markdown (`.md`)**: Redactar todos los documentos en formato Markdown para su correcta lectura en GitHub.
+2. **Evidencias claras**: Almacenar imágenes o videos en la carpeta `evidencias/` y enlazarlos en el reporte correspondiente.
+3. **Nombres de archivos descriptivos**: Usar formato `YYYY-MM-DD-nombre-del-reporte.md` (ejemplo: `2026-08-19-bug-editor-mdx.md`).
