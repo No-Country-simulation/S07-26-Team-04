@@ -413,7 +413,7 @@ button {
 
   padding-top: 120px;
 
-  padding-bottom: 120px;
+  padding-bottom: 80px;
 
   padding-left: var(--margin-x);
 
@@ -1379,7 +1379,7 @@ select:focus {
 
   margin: 0;
 
-  padding: 32px var(--margin-x);
+  padding: 80px var(--margin-x);
 
   background: var(--deep-forest);
 }
@@ -2279,7 +2279,7 @@ select:focus {
   --------------------------------------------- */
 
   .site-footer {
-    padding: 32px var(--margin-x);
+    padding: 64px var(--margin-x);
   }
 
   .footer-inner {
