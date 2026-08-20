@@ -13,10 +13,11 @@ El trabajo de QA está organizado principalmente para pruebas manuales, mantenie
 ```text
 QA/
 ├── README.md                 # Guía general e instrucciones de QA
-├── casos-de-prueba/          # Casos de prueba manuales (escenarios, criterios de aceptación)
-├── reportes-de-bugs/         # Reportes detallados de errores/bugs encontrados
-├── listas-de-chequeo/        # Checklists de regresión previa a lanzamientos
-└── evidencias/               # Capturas de pantalla, videos y logs de respaldo
+├── TEST_PLAN.md               # Plan de pruebas del proyecto
+├── casos-de-prueba/           # Casos de prueba manuales (escenarios, criterios de aceptación)
+├── reportes-de-bugs/          # Reportes detallados de errores/bugs encontrados
+├── listas-de-chequeo/         # Checklists de regresión previa a lanzamientos
+└── evidencias/                # Capturas de pantalla, videos y logs de respaldo
 ```
 
 ---
@@ -47,3 +48,14 @@ Cuando se detecte una falla durante la prueba manual, registrar un reporte con:
 1. **Uso de Markdown (`.md`)**: Redactar todos los documentos en formato Markdown para su correcta lectura en GitHub.
 2. **Evidencias claras**: Almacenar imágenes o videos en la carpeta `evidencias/` y enlazarlos en el reporte correspondiente.
 3. **Nombres de archivos descriptivos**: Usar formato `YYYY-MM-DD-nombre-del-reporte.md` (ejemplo: `2026-08-19-bug-editor-mdx.md`).
+
+---
+
+## Estado actual de QA
+
+| Total de casos | Aprobados | Fallaron | Bloqueados |
+|---|---|---|---|
+| 51 | 50 | 1 | 0 |
+
+**Bugs abiertos:**
+- [`2026-08-19-bug-boton-descargar-informe.md`](./reportes-de-bugs/2026-08-19-bug-boton-descargar-informe.md) — Botón 'Descargar informe' dispara Imprimir en lugar de descargar (TC-44, Prioridad Alta).
