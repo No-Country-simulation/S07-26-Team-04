@@ -2,9 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FileEdit, Eye, FileCheck, FileClock, Archive, Send, Loader2 } from "lucide-react";
+import { FileEdit, Eye, FileCheck, FileClock, Archive, Send, Loader2, Trash2, AlertTriangle } from "lucide-react";
 import { SlidingNumber } from "@/components/animate-ui/primitives/texts/sliding-number";
 import { clearReportCache } from "@/services/report.service";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Report {
   id: string;
@@ -27,6 +35,7 @@ export function ReportTable({ statusFilter, title, description }: ReportTablePro
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -78,6 +87,27 @@ export function ReportTable({ statusFilter, title, description }: ReportTablePro
       }
     } catch (err) {
       console.error("Error al cambiar estado del reporte:", err);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!confirmDelete) return;
+    const { id: reportId } = confirmDelete;
+    setConfirmDelete(null);
+
+    try {
+      setUpdatingId(reportId);
+      const res = await fetch(`/api/report/${reportId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Error al eliminar el reporte");
+
+      clearReportCache(reportId);
+      clearReportCache();
+
+      setReports((prev) => prev.filter((r) => r.id !== reportId));
+    } catch (err) {
+      console.error("Error al eliminar el reporte:", err);
     } finally {
       setUpdatingId(null);
     }
@@ -231,6 +261,15 @@ export function ReportTable({ statusFilter, title, description }: ReportTablePro
                           >
                             <Eye className="h-4 w-4" />
                           </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDelete({ id: report.id, title: report.title })}
+                            className="p-1.5 rounded-md hover:bg-red-500/20 text-slate-500 hover:text-red-400 transition-colors"
+                            title="Eliminar Reporte"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </>
                       )}
                     </div>
@@ -241,6 +280,37 @@ export function ReportTable({ statusFilter, title, description }: ReportTablePro
           </table>
         </div>
       )}
+
+      {/* Modal de confirmación de eliminación con Shadcn UI Dialog */}
+      <Dialog open={!!confirmDelete} onOpenChange={(open) => !open && setConfirmDelete(null)}>
+        <DialogContent className="bg-[#273a2f] border-[#3a5345] text-[#DAD7CD] max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold flex items-center gap-2 text-red-400">
+              <AlertTriangle className="h-5 w-5 text-red-400" />
+              ¿Eliminar reporte?
+            </DialogTitle>
+            <DialogDescription className="text-[#A3B18A] pt-2">
+              Estás a punto de eliminar el reporte <span className="font-semibold text-[#DAD7CD]">&quot;{confirmDelete?.title}&quot;</span>. Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0 pt-4">
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(null)}
+              className="px-4 py-2 text-sm rounded-lg border border-[#3a5345] text-[#DAD7CD] hover:bg-[#344E41] transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteConfirmed}
+              className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
+            >
+              Eliminar
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
