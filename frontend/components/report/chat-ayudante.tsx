@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useChat } from "@ai-sdk/react";
-import type { UIMessage } from "ai";
+import { DefaultChatTransport, type UIMessage } from "ai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { getReportData } from "@/services/report.service";
 import {
   Bot,
   Send,
@@ -22,6 +23,17 @@ import {
 interface ChatAyudanteProps {
   reportId?: string;
 }
+
+type ModelProvider = "gemini" | "deepseek";
+
+/** Datos del reporte que la página ya cargó y que el chat reenvía al servidor
+ *  para evitar re-consultar la base de datos en cada mensaje. */
+type ReportPayload = {
+  sections?: unknown;
+  metrics?: unknown;
+  charts?: unknown;
+  failureModes?: unknown;
+};
 
 const QUICK_PROMPTS = [
   "¿Qué es la capacidad varada mediana?",
@@ -43,11 +55,60 @@ export function ChatAyudante({ reportId }: ChatAyudanteProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [activeModel, setActiveModel] = useState<ModelProvider>("gemini");
+  const selectedModelRef = useRef<ModelProvider>("gemini");
+  const reportDataRef = useRef<ReportPayload | null>(null);
+
+  // Transporte del chat: cambia dinámicamente el endpoint según el modelo
+  // elegido y reenvía el reporte que la página ya cargó (evita re-consultar
+  // la base de datos en cada mensaje).
+  const chatTransport = useMemo(
+    () => {
+      // eslint-disable-next-line react-hooks/refs -- prepareSendMessagesRequest corre en tiempo de request (async); las refs evitan staleness entre ensureReportData() y el envío.
+      return new DefaultChatTransport<UIMessage>({
+        api: "/api/chat",
+        prepareSendMessagesRequest: ({ body, messages, id }) => ({
+          body: {
+            ...(body ?? {}),
+            id,
+            messages,
+            ...(reportId ? { reportId } : {}),
+            modelProvider: selectedModelRef.current,
+            reportData: reportDataRef.current ?? undefined,
+          },
+          api:
+            selectedModelRef.current === "deepseek"
+              ? "/api/chat-deepseek"
+              : "/api/chat",
+        }),
+      });
+    },
+    [reportId]
+  );
 
   const { messages, sendMessage, status, error, regenerate, setMessages } =
-    useChat();
+    useChat({ transport: chatTransport });
 
   const isLoading = status === "submitted" || status === "streaming";
+
+  /** Recupera (una sola vez, cacheado en memoria) el reporte que la página ya
+   *  pidió, y lo deja listo para enviarlo como contexto al servidor. */
+  const ensureReportData = useCallback(async () => {
+    if (reportDataRef.current) return;
+    try {
+      const data = (await getReportData(reportId)) as ReportPayload;
+      reportDataRef.current = {
+        sections: data.sections ?? null,
+        metrics: data.metrics ?? null,
+        charts: data.charts ?? null,
+        failureModes: data.failureModes ?? null,
+      };
+    } catch {
+      // Si falla la lectura local, el servidor usa el fallback por reportId (DB).
+      // Se deja en null para que el servidor no reciba un objeto vacío.
+      reportDataRef.current = null;
+    }
+  }, [reportId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,7 +124,8 @@ export function ChatAyudante({ reportId }: ChatAyudanteProps) {
     if (!textToSend.trim() || isLoading) return;
     const text = textToSend.trim();
     setInputText("");
-    await sendMessage({ text }, { body: reportId ? { reportId } : undefined });
+    await ensureReportData();
+    await sendMessage({ text });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,16 +180,37 @@ export function ChatAyudante({ reportId }: ChatAyudanteProps) {
           {/* Header del Chat */}
           <div className="flex items-center justify-between px-4 py-3.5 bg-[#082f25] border-b border-[#c6a13a]/20">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-[#c6a13a]/15 text-[#c6a13a] border border-[#c6a13a]/30">
-                <Bot className="w-5 h-5" />
-              </div>
-              <div>
+              {/* Botón interactivo con icono de robot que rota al cambiar de modelo */}
+              <button
+                onClick={() => {
+                  if (isLoading) return;
+                  const nextModel = activeModel === "gemini" ? "deepseek" : "gemini";
+                  setActiveModel(nextModel);
+                  selectedModelRef.current = nextModel;
+                }}
+                disabled={isLoading}
+                title={`Modelo actual: ${activeModel === "gemini" ? "Gemini 3.6" : "DeepSeek V4"}. Haz clic para cambiar.`}
+                className="group relative p-2 rounded-xl bg-[#c6a13a]/15 text-[#c6a13a] border border-[#c6a13a]/30 hover:border-[#c6a13a] hover:bg-[#c6a13a]/25 transition-all duration-300 transform active:scale-90 cursor-pointer"
+              >
+                <div
+                  className={`transition-transform duration-500 transform ${
+                    activeModel === "deepseek" ? "rotate-[360deg]" : "rotate-0"
+                  }`}
+                >
+                  <Bot className="w-5 h-5 group-hover:rotate-12 transition-transform duration-200" />
+                </div>
+              </button>
+
+              <div className="flex flex-col">
                 <h3 className="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
-                  Asistente de Capacidad Varada
+                  Asistente PhysaFlow
                 </h3>
-                <p className="text-[11px] text-emerald-400/90 flex items-center gap-1.5">
+                {/* Estado del asistente y modelo activo */}
+                <p className="text-[11px] text-emerald-400 font-medium flex items-center gap-1.5 mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Gemini AI • Conectado
+                  <span>
+                    {activeModel === "gemini" ? "Gemini 3.6 AI" : "DeepSeek V4 AI"} • Conectado
+                  </span>
                 </p>
               </div>
             </div>

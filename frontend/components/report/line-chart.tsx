@@ -105,7 +105,7 @@ export function AccumulatedLineChart({ reportId }: { reportId?: string } = {}) {
         const origWidth = Math.round(bbox.width) || 800;
         const origHeight = Math.round(bbox.height) || 360;
 
-        const topPadding = 60;
+        const topPadding = 75;
         const bottomPadding = 65;
         const totalHeight = origHeight + topPadding + bottomPadding;
 
@@ -164,17 +164,18 @@ export function AccumulatedLineChart({ reportId }: { reportId?: string } = {}) {
           .recharts-cartesian-grid-horizontal line, .recharts-cartesian-grid-vertical line { stroke: rgba(168, 181, 174, 0.25) !important; }
           .svg-eyebrow { font-size: 10px; font-weight: bold; fill: #ecc246 !important; letter-spacing: 0.12em; text-transform: uppercase; }
           .svg-title { font-family: Georgia, serif; font-size: 16px; font-weight: 600; fill: #ffffff !important; }
+          .svg-desc { font-size: 11px; fill: #e5e2da; opacity: 0.85; }
           .svg-caption { font-size: 10px; fill: #c0c8c3 !important; }
         `;
         clonedSvg.appendChild(style);
 
-        // 3. Header Titles
+        // 3. Header Titles & Description
         const textEyebrow = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "text"
         );
         textEyebrow.setAttribute("x", "20");
-        textEyebrow.setAttribute("y", "24");
+        textEyebrow.setAttribute("y", "22");
         textEyebrow.setAttribute("class", "svg-eyebrow");
         textEyebrow.textContent = "GRÁFICO DE LÍNEA";
         clonedSvg.appendChild(textEyebrow);
@@ -184,15 +185,41 @@ export function AccumulatedLineChart({ reportId }: { reportId?: string } = {}) {
           "text"
         );
         textTitle.setAttribute("x", "20");
-        textTitle.setAttribute("y", "46");
+        textTitle.setAttribute("y", "42");
         textTitle.setAttribute("class", "svg-title");
         textTitle.textContent = meta.title || "Gráfico de Línea";
         clonedSvg.appendChild(textTitle);
 
+        if (meta.description) {
+          const textDesc = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          textDesc.setAttribute("x", "20");
+          textDesc.setAttribute("y", "58");
+          textDesc.setAttribute("class", "svg-desc");
+          textDesc.textContent = meta.description;
+          clonedSvg.appendChild(textDesc);
+        }
+
         // 4. Append transformed graphic wrapper
         clonedSvg.appendChild(gWrapper);
 
-        // 5. Footer Caption
+        // 5. Divider Line & Footer Caption
+        const dividerY = origHeight + topPadding + 10;
+        const dividerLine = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        );
+        dividerLine.setAttribute("x1", "20");
+        dividerLine.setAttribute("y1", dividerY.toString());
+        dividerLine.setAttribute("x2", (origWidth - 20).toString());
+        dividerLine.setAttribute("y2", dividerY.toString());
+        dividerLine.setAttribute("stroke", "#c9a227");
+        dividerLine.setAttribute("stroke-opacity", "0.3");
+        dividerLine.setAttribute("stroke-width", "1");
+        clonedSvg.appendChild(dividerLine);
+
         const textCaption = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "text"
@@ -204,17 +231,47 @@ export function AccumulatedLineChart({ reportId }: { reportId?: string } = {}) {
         );
         textCaption.setAttribute("class", "svg-caption");
 
-        const captionStr = `Figura 3 — ${meta.title || "Capacidad varada acumulada"}. ${meta.description || ""}`;
+        const captionStr = `Figura 3 — ${meta.title || "Capacidad varada acumulada"}. ${meta.description || ""} - Source: PhysaFlow.`;
         const captionLines = wrapSvgText(captionStr, 110);
         captionLines.forEach((line, index) => {
-          const tspan = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "tspan"
-          );
-          tspan.setAttribute("x", "20");
-          tspan.setAttribute("dy", index === 0 ? "0" : "14");
-          tspan.textContent = line;
-          textCaption.appendChild(tspan);
+          if (line.includes("PhysaFlow.")) {
+            const parts = line.split("PhysaFlow.");
+            const tspan1 = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "tspan"
+            );
+            tspan1.setAttribute("x", "20");
+            tspan1.setAttribute("dy", index === 0 ? "0" : "14");
+            tspan1.textContent = parts[0];
+            textCaption.appendChild(tspan1);
+
+            const tspanBrand = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "tspan"
+            );
+            tspanBrand.setAttribute("fill", "#ecc246");
+            tspanBrand.setAttribute("font-weight", "bold");
+            tspanBrand.textContent = "PhysaFlow.";
+            textCaption.appendChild(tspanBrand);
+
+            if (parts[1]) {
+              const tspanRest = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "tspan"
+              );
+              tspanRest.textContent = parts[1];
+              textCaption.appendChild(tspanRest);
+            }
+          } else {
+            const tspan = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "tspan"
+            );
+            tspan.setAttribute("x", "20");
+            tspan.setAttribute("dy", index === 0 ? "0" : "14");
+            tspan.textContent = line;
+            textCaption.appendChild(tspan);
+          }
         });
         clonedSvg.appendChild(textCaption);
 
@@ -351,9 +408,7 @@ export function AccumulatedLineChart({ reportId }: { reportId?: string } = {}) {
       </div>
 
       <div className="chart-caption text-xs text-[#e5e2da]/80 mt-4 pt-3 border-t border-[#c9a227]/20">
-        Figura 3 — Capacidad varada acumulada como porcentaje de kilovatios
-        energizados, muestreada anualmente 2020–2025. Fuente: Índice de Capacidad
-        Varada de PhysaFlow, 2025.
+        Figura 3 — {meta.title}. {meta.description} - Source: <span className="text-[#c9a227]">PhysaFlow.</span>
       </div>
     </div>
   );
